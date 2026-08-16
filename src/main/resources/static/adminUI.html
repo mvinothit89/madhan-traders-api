@@ -49,7 +49,7 @@
             </nav>
         </div>
         <div class="p-5 text-xs text-slate-500 bg-slate-950/50 text-center border-t border-slate-800/80 relative z-10 mt-auto">
-            Enterprise Management v5.0<br>
+            Enterprise Management v5.2<br>
             <span class="text-slate-600">Spring Boot + Vue 3</span>
         </div>
     </aside>
@@ -125,9 +125,88 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Sales Trends & Analytics Section -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+                    <div class="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-slate-100 pb-4">
+                        <div>
+                            <h3 class="text-xl font-extrabold text-slate-800">Sales Trends & Category Analysis</h3>
+                            <p class="text-sm text-slate-500">Analyze performance by category across daily, weekly, monthly, quarterly, and annual timeframes.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <!-- Category Filter -->
+                            <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                                <span class="text-xs font-bold text-slate-500 px-2 uppercase">Category:</span>
+                                <button @click="dashboardCategory = 'all'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all', dashboardCategory === 'all' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">All</button>
+                                <button @click="dashboardCategory = 'water'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all', dashboardCategory === 'water' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Water Can</button>
+                                <button @click="dashboardCategory = 'material'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all', dashboardCategory === 'material' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Material</button>
+                            </div>
+                            <!-- Period Filter -->
+                            <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                                <span class="text-xs font-bold text-slate-500 px-2 uppercase">View:</span>
+                                <button @click="dashboardPeriod = 'daily'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all', dashboardPeriod === 'daily' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Daily</button>
+                                <button @click="dashboardPeriod = 'weekly'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all', dashboardPeriod === 'weekly' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Weekly</button>
+                                <button @click="dashboardPeriod = 'monthly'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all', dashboardPeriod === 'monthly' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Monthly</button>
+                                <button @click="dashboardPeriod = 'quarterly'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all', dashboardPeriod === 'quarterly' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Quarterly</button>
+                                <button @click="dashboardPeriod = 'annually'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all', dashboardPeriod === 'annually' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Annually</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart Container -->
+                    <div class="relative h-80">
+                        <canvas id="salesDashboardChart"></canvas>
+                    </div>
+
+                    <!-- Data Grid with Filter & CSV Export -->
+                    <div class="pt-4 border-t border-slate-100 space-y-4">
+                        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                            <h4 class="font-bold text-slate-800 text-md">Aggregated Sales Data Grid</h4>
+                            <div class="flex items-center gap-3 w-full md:w-auto">
+                                <div class="relative flex-1 md:w-64">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
+                                    <input v-model="dashboardSearch" placeholder="Search period or category..." class="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                                </div>
+                                <button @click="exportToCSV(filteredDashboardGridData, 'Sales_Dashboard_Report.csv')" class="btn-secondary text-xs py-2 px-3 flex items-center gap-1.5"><i class="fa-solid fa-download"></i> Export CSV</button>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                    <th @click="toggleDashboardSort('periodLabel')" class="p-4 font-bold cursor-pointer hover:text-slate-700">
+                                        Period <i class="fa-solid fa-sort ml-1 text-slate-400"></i>
+                                    </th>
+                                    <th @click="toggleDashboardSort('categoryName')" class="p-4 font-bold cursor-pointer hover:text-slate-700" v-if="dashboardCategory === 'all'">
+                                        Category <i class="fa-solid fa-sort ml-1 text-slate-400"></i>
+                                    </th>
+                                    <th @click="toggleDashboardSort('totalQty')" class="p-4 font-bold cursor-pointer hover:text-slate-700">
+                                        Total Quantity <i class="fa-solid fa-sort ml-1 text-slate-400"></i>
+                                    </th>
+                                    <th @click="toggleDashboardSort('totalRevenue')" class="p-4 font-bold text-emerald-700 cursor-pointer hover:text-emerald-900">
+                                        Total Revenue (₹) <i class="fa-solid fa-sort ml-1 text-slate-400"></i>
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-sm">
+                                <tr v-for="row in filteredDashboardGridData" :key="row.key + (row.categoryName || '')" class="hover:bg-slate-50/80 transition-colors">
+                                    <td class="p-4 font-bold text-slate-800">{{ row.periodLabel }}</td>
+                                    <td class="p-4 font-semibold text-cyan-700" v-if="dashboardCategory === 'all'">{{ row.categoryName }}</td>
+                                    <td class="p-4 font-semibold text-slate-600">{{ row.totalQty }}</td>
+                                    <td class="p-4 font-extrabold text-emerald-600">₹{{ row.totalRevenue.toFixed(2) }}</td>
+                                </tr>
+                                <tr v-if="!filteredDashboardGridData.length">
+                                    <td :colspan="dashboardCategory === 'all' ? 4 : 3" class="p-8 text-center text-slate-500">No sales records found matching your filters.</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- CASH FLOW TAB (NEW) -->
+            <!-- CASH FLOW TAB -->
             <div v-if="currentTab === 'cash-flow'" class="space-y-6 animate-fade-in">
                 <!-- Top controls -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -283,10 +362,17 @@
                     </form>
                 </div>
 
-                <!-- Data Table -->
+                <!-- Data Table with Search -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 overflow-hidden">
-                    <div class="flex justify-between items-center mb-5">
+                    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-5">
                         <h4 class="font-bold text-slate-800 text-lg">Ledger History</h4>
+                        <div class="flex items-center gap-3 w-full md:w-auto">
+                            <div class="relative flex-1 md:w-64">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
+                                <input v-model="searchLedger" placeholder="Search by date or remarks..." class="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                            </div>
+                            <button @click="exportToCSV(filteredDailySales, 'Ledger_History.csv')" class="btn-secondary text-xs py-2 px-3 flex items-center gap-1.5"><i class="fa-solid fa-download"></i> Export</button>
+                        </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
@@ -302,7 +388,7 @@
                             </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100 text-sm">
-                            <tr v-for="ds in sortedDailySales" :key="ds.id" class="hover:bg-slate-50/80 transition-colors">
+                            <tr v-for="ds in filteredDailySales" :key="ds.id" class="hover:bg-slate-50/80 transition-colors">
                                 <td class="p-4 font-bold text-slate-800">{{ ds.saleDate }}</td>
                                 <td class="p-4">
                                     <span class="font-semibold text-slate-600">₹{{ ds.waterCash || 0 }}</span> <span class="text-slate-300 px-1">|</span> <span class="font-semibold text-cyan-600">₹{{ ds.waterGpay || 0 }}</span>
@@ -318,7 +404,7 @@
                                     <button @click="deleteItem('/api/daily-sales/' + ds.id, loadDailySales)" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 transition"><i class="fa-solid fa-trash text-xs"></i></button>
                                 </td>
                             </tr>
-                            <tr v-if="!sortedDailySales.length"><td colspan="7" class="p-8 text-center text-slate-500">No consolidated data found.</td></tr>
+                            <tr v-if="!filteredDailySales.length"><td colspan="7" class="p-8 text-center text-slate-500">No consolidated data found.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -333,7 +419,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-5 gap-5">
                             <div>
                                 <label class="form-label">Sale Date</label>
-                                <input v-model="waterForm.saleDate" type="date" required class="input-field">
+                                <input v-model="waterForm.soldDate" type="date" required class="input-field">
                             </div>
                             <div>
                                 <label class="form-label">Cans Sold (Qty)</label>
@@ -355,21 +441,31 @@
                     </form>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden p-5">
+                    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-5">
+                        <h4 class="font-bold text-slate-800 text-lg">Water Sales History</h4>
+                        <div class="flex items-center gap-3 w-full md:w-auto">
+                            <div class="relative flex-1 md:w-64">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
+                                <input v-model="searchWater" placeholder="Search by date..." class="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                            </div>
+                            <button @click="exportToCSV(filteredWaterSales, 'Water_Sales.csv')" class="btn-secondary text-xs py-2 px-3 flex items-center gap-1.5"><i class="fa-solid fa-download"></i> Export</button>
+                        </div>
+                    </div>
                     <table class="w-full text-left border-collapse">
                         <thead>
                         <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
-                            <th class="p-4 font-bold">Date</th>
-                            <th class="p-4 font-bold">Quantity (Cans)</th>
-                            <th class="p-4 font-bold text-cyan-700">Cash Received</th>
-                            <th class="p-4 font-bold text-indigo-700">GPay Received</th>
-                            <th class="p-4 font-bold text-emerald-700">Total Value</th>
+                            <th @click="sortWaterBy('soldDate')" class="p-4 font-bold cursor-pointer hover:text-slate-700">Date <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
+                            <th @click="sortWaterBy('quantity')" class="p-4 font-bold cursor-pointer hover:text-slate-700">Quantity (Cans) <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
+                            <th @click="sortWaterBy('cashAmount')" class="p-4 font-bold text-cyan-700 cursor-pointer hover:text-cyan-900">Cash Received <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
+                            <th @click="sortWaterBy('gpayAmount')" class="p-4 font-bold text-indigo-700 cursor-pointer hover:text-indigo-900">GPay Received <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
+                            <th @click="sortWaterBy('totalValue')" class="p-4 font-bold text-emerald-700 cursor-pointer hover:text-emerald-900">Total Value <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
                             <th class="p-4 font-bold text-right">Actions</th>
                         </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-sm">
-                        <tr v-for="ws in sortedWaterSales" :key="ws.id" class="hover:bg-slate-50/80 transition-colors">
-                            <td class="p-4 font-bold text-slate-800">{{ ws.saleDate }}</td>
+                        <tr v-for="ws in filteredWaterSales" :key="ws.id" class="hover:bg-slate-50/80 transition-colors">
+                            <td class="p-4 font-bold text-slate-800">{{ ws.soldDate }}</td>
                             <td class="p-4 font-semibold text-slate-600">{{ ws.quantity }} Cans</td>
                             <td class="p-4 font-medium text-cyan-700">₹{{ ws.cashAmount || 0 }}</td>
                             <td class="p-4 font-medium text-indigo-700">₹{{ ws.gpayAmount || 0 }}</td>
@@ -379,7 +475,7 @@
                                 <button @click="deleteItem('/api/water-sales/' + ws.id, loadWaterSales)" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition"><i class="fa-solid fa-trash text-xs"></i></button>
                             </td>
                         </tr>
-                        <tr v-if="!sortedWaterSales.length"><td colspan="6" class="p-8 text-center text-slate-500">No water sales recorded yet.</td></tr>
+                        <tr v-if="!filteredWaterSales.length"><td colspan="6" class="p-8 text-center text-slate-500">No water sales recorded yet.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -393,7 +489,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
                             <div>
                                 <label class="form-label">Sale Date</label>
-                                <input v-model="materialForm.saleDate" type="date" required class="input-field">
+                                <input v-model="materialForm.soldDate" type="date" required class="input-field">
                             </div>
                             <div class="md:col-span-2">
                                 <label class="form-label">Product / Item Name</label>
@@ -426,21 +522,31 @@
                     </form>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden p-5">
+                    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-5">
+                        <h4 class="font-bold text-slate-800 text-lg">Material Sales History</h4>
+                        <div class="flex items-center gap-3 w-full md:w-auto">
+                            <div class="relative flex-1 md:w-64">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
+                                <input v-model="searchMaterial" placeholder="Search item or customer..." class="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                            </div>
+                            <button @click="exportToCSV(filteredMaterialSales, 'Material_Sales.csv')" class="btn-secondary text-xs py-2 px-3 flex items-center gap-1.5"><i class="fa-solid fa-download"></i> Export</button>
+                        </div>
+                    </div>
                     <table class="w-full text-left border-collapse">
                         <thead>
                         <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
-                            <th class="p-4 font-bold">Date</th>
-                            <th class="p-4 font-bold">Item & Details</th>
-                            <th class="p-4 font-bold">Quantity</th>
+                            <th @click="sortMaterialBy('soldDate')" class="p-4 font-bold cursor-pointer hover:text-slate-700">Date <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
+                            <th @click="sortMaterialBy('itemName')" class="p-4 font-bold cursor-pointer hover:text-slate-700">Item & Details <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
+                            <th @click="sortMaterialBy('quantity')" class="p-4 font-bold cursor-pointer hover:text-slate-700">Quantity <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
                             <th class="p-4 font-bold text-slate-700">Payment Split</th>
-                            <th class="p-4 font-bold text-emerald-700">Total Value</th>
+                            <th @click="sortMaterialBy('totalValue')" class="p-4 font-bold text-emerald-700 cursor-pointer hover:text-emerald-900">Total Value <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
                             <th class="p-4 font-bold text-right">Actions</th>
                         </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-sm">
-                        <tr v-for="ms in sortedMaterialSales" :key="ms.id" class="hover:bg-slate-50/80 transition-colors">
-                            <td class="p-4 font-bold text-slate-800">{{ ms.saleDate }}</td>
+                        <tr v-for="ms in filteredMaterialSales" :key="ms.id" class="hover:bg-slate-50/80 transition-colors">
+                            <td class="p-4 font-bold text-slate-800">{{ ms.soldDate }}</td>
                             <td class="p-4">
                                 <div class="font-bold text-slate-700">{{ ms.itemName }}</div>
                                 <div class="text-xs text-slate-400 mt-0.5">{{ ms.remarks || 'No remarks' }}</div>
@@ -456,7 +562,7 @@
                                 <button @click="deleteItem('/api/material-sales/' + ms.id, loadMaterialSales)" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition"><i class="fa-solid fa-trash text-xs"></i></button>
                             </td>
                         </tr>
-                        <tr v-if="!sortedMaterialSales.length"><td colspan="6" class="p-8 text-center text-slate-500">No material sales recorded yet.</td></tr>
+                        <tr v-if="!filteredMaterialSales.length"><td colspan="6" class="p-8 text-center text-slate-500">No material sales recorded yet.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -490,8 +596,16 @@
                     </form>
                 </div>
 
+                <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200">
+                    <h4 class="font-bold text-slate-800 text-md">Inventory Catalog</h4>
+                    <div class="relative w-64">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
+                        <input v-model="searchProduct" placeholder="Search products..." class="w-full pl-9 pr-4 py-1.5 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div v-for="prod in products" :key="prod.id" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative group hover:-translate-y-1 transition-transform">
+                    <div v-for="prod in filteredProducts" :key="prod.id" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative group hover:-translate-y-1 transition-transform">
                         <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
                             <button @click="editItem('product', prod)" class="text-blue-500 hover:text-blue-700 bg-white shadow-sm p-1.5 rounded-md"><i class="fa-solid fa-pen text-xs"></i></button>
                             <button @click="deleteItem('/api/products/' + prod.id, loadProducts)" class="text-rose-500 hover:text-rose-700 bg-white shadow-sm p-1.5 rounded-md"><i class="fa-solid fa-trash text-xs"></i></button>
@@ -504,6 +618,7 @@
                             <span class="text-sm font-bold text-emerald-600">₹{{ prod.sellingPrice || 0 }}</span>
                         </div>
                     </div>
+                    <div v-if="!filteredProducts.length" class="col-span-3 p-8 text-center text-slate-500 bg-white rounded-2xl border border-slate-200">No matching products found.</div>
                 </div>
             </div>
 
@@ -518,7 +633,7 @@
         setup() {
             const currentTab = ref('dashboard');
             const tabs = [
-                { id: 'dashboard', name: 'Dashboard', icon: 'fa-solid fa-chart-pie', desc: 'Real-time financial overview' },
+                { id: 'dashboard', name: 'Dashboard', icon: 'fa-solid fa-chart-pie', desc: 'Real-time financial overview & analytics' },
                 { id: 'cash-flow', name: 'Cash Flow', icon: 'fa-solid fa-money-bill-trend-up', desc: 'Financial trends & analysis' },
                 { id: 'daily-sales', name: 'Consolidated Ledger', icon: 'fa-solid fa-book', desc: 'Centralized daily profit & loss' },
                 { id: 'water', name: 'Water Sales', icon: 'fa-solid fa-droplet', desc: 'Track daily water can dispatches' },
@@ -532,13 +647,35 @@
             const waterSales = ref([]);
             const materialSales = ref([]);
 
+            // Search Filter States
+            const searchLedger = ref('');
+            const searchWater = ref('');
+            const searchMaterial = ref('');
+            const searchProduct = ref('');
+
+            // Water Sales Sorting State
+            const waterSortField = ref('soldDate');
+            const waterSortAsc = ref(false);
+            const sortWaterBy = (field) => {
+                if (waterSortField.value === field) waterSortAsc.value = !waterSortAsc.value;
+                else { waterSortField.value = field; waterSortAsc.value = true; }
+            };
+
+            // Material Sales Sorting State
+            const materialSortField = ref('soldDate');
+            const materialSortAsc = ref(false);
+            const sortMaterialBy = (field) => {
+                if (materialSortField.value === field) materialSortAsc.value = !materialSortAsc.value;
+                else { materialSortField.value = field; materialSortAsc.value = true; }
+            };
+
             const defaultDate = () => new Date().toISOString().split('T')[0];
 
             // Forms State
             const dailySalesForm = ref({ id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' });
             const productForm = ref({ id: null, itemName: '', description: '', quantity: null, sellingPrice: null });
-            const waterForm = ref({ id: null, saleDate: defaultDate(), quantity: null, cashAmount: null, gpayAmount: null });
-            const materialForm = ref({ id: null, saleDate: defaultDate(), itemName: '', quantity: null, cashAmount: null, gpayAmount: null, remarks: '' });
+            const waterForm = ref({ id: null, soldDate: defaultDate(), quantity: null, cashAmount: null, gpayAmount: null });
+            const materialForm = ref({ id: null, soldDate: defaultDate(), itemName: '', quantity: null, cashAmount: null, gpayAmount: null, remarks: '' });
 
             // UI Helpers
             const currentTabObj = computed(() => tabs.find(t => t.id === currentTab.value) || tabs[0]);
@@ -546,13 +683,287 @@
             const currentTabIcon = computed(() => currentTabObj.value.icon);
             const currentTabDescription = computed(() => currentTabObj.value.desc);
 
-            // Sorting
-            const sortAsc = (arr, dateField = 'saleDate') => [...(arr || [])].sort((a, b) => new Date(a[dateField]) - new Date(b[dateField]));
-            const sortDesc = (arr, dateField = 'saleDate') => [...(arr || [])].sort((a, b) => new Date(b[dateField]) - new Date(a[dateField]));
+            // Sorting helper
+            const sortAsc = (arr, dateField = 'soldDate') => [...(arr || [])].sort((a, b) => new Date(a[dateField]) - new Date(b[dateField]));
+            const sortDesc = (arr, dateField = 'soldDate') => [...(arr || [])].sort((a, b) => new Date(b[dateField]) - new Date(a[dateField]));
 
             const sortedDailySales = computed(() => sortDesc(dailySales.value));
-            const sortedWaterSales = computed(() => sortDesc(waterSales.value));
-            const sortedMaterialSales = computed(() => sortDesc(materialSales.value));
+
+            const sortedWaterSales = computed(() => {
+                const arr = [...waterSales.value];
+                return arr.sort((a, b) => {
+                    let valA = a[waterSortField.value];
+                    let valB = b[waterSortField.value];
+                    if (waterSortField.value === 'totalValue') {
+                        valA = (a.cashAmount || 0) + (a.gpayAmount || 0);
+                        valB = (b.cashAmount || 0) + (b.gpayAmount || 0);
+                    }
+                    if (waterSortField.value === 'soldDate') {
+                        return waterSortAsc.value ? new Date(a.soldDate) - new Date(b.soldDate) : new Date(b.soldDate) - new Date(a.soldDate);
+                    }
+                    if (valA < valB) return waterSortAsc.value ? -1 : 1;
+                    if (valA > valB) return waterSortAsc.value ? 1 : -1;
+                    return 0;
+                });
+            });
+
+            const sortedMaterialSales = computed(() => {
+                const arr = [...materialSales.value];
+                return arr.sort((a, b) => {
+                    let valA = a[materialSortField.value];
+                    let valB = b[materialSortField.value];
+                    if (materialSortField.value === 'totalValue') {
+                        valA = (a.cashAmount || 0) + (a.gpayAmount || 0);
+                        valB = (b.cashAmount || 0) + (b.gpayAmount || 0);
+                    }
+                    if (materialSortField.value === 'soldDate') {
+                        return materialSortAsc.value ? new Date(a.soldDate) - new Date(b.soldDate) : new Date(b.soldDate) - new Date(a.soldDate);
+                    }
+                    if (valA < valB) return materialSortAsc.value ? -1 : 1;
+                    if (valA > valB) return materialSortAsc.value ? 1 : -1;
+                    return 0;
+                });
+            });
+
+            // Filtered Computeds
+            const filteredDailySales = computed(() => {
+                if (!searchLedger.value) return sortedDailySales.value;
+                const q = searchLedger.value.toLowerCase();
+                return sortedDailySales.value.filter(item => (item.saleDate && item.saleDate.toLowerCase().includes(q)) || (item.remarks && item.remarks.toLowerCase().includes(q)));
+            });
+
+            const filteredWaterSales = computed(() => {
+                if (!searchWater.value) return sortedWaterSales.value;
+                const q = searchWater.value.toLowerCase();
+                return sortedWaterSales.value.filter(item => item.soldDate && item.soldDate.toLowerCase().includes(q));
+            });
+
+            const filteredMaterialSales = computed(() => {
+                if (!searchMaterial.value) return sortedMaterialSales.value;
+                const q = searchMaterial.value.toLowerCase();
+                return sortedMaterialSales.value.filter(item => (item.soldDate && item.soldDate.toLowerCase().includes(q)) || (item.itemName && item.itemName.toLowerCase().includes(q)) || (item.remarks && item.remarks.toLowerCase().includes(q)));
+            });
+
+            const filteredProducts = computed(() => {
+                if (!searchProduct.value) return products.value;
+                const q = searchProduct.value.toLowerCase();
+                return products.value.filter(p => (p.itemName && p.itemName.toLowerCase().includes(q)) || (p.description && p.description.toLowerCase().includes(q)));
+            });
+
+            // CSV Export Helper
+            const exportToCSV = (dataArr, filename) => {
+                if (!dataArr || !dataArr.length) { alert("No data available to export."); return; }
+                const keys = Object.keys(dataArr[0]);
+                let csvContent = "data:text/csv;charset=utf-8," + keys.join(",") + "\n";
+                dataArr.forEach(row => {
+                    let values = keys.map(k => `"${row[k] !== null && row[k] !== undefined ? row[k] : ''}"`);
+                    csvContent += values.join(",") + "\n";
+                });
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", filename);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+
+            // ------------- DASHBOARD TRENDS & CHARTS LOGIC -------------
+            const dashboardCategory = ref('all'); // 'all', 'water', 'material'
+            const dashboardPeriod = ref('monthly'); // 'daily', 'weekly', 'monthly', 'quarterly', 'annually'
+            const dashboardSearch = ref('');
+            const dashboardSortField = ref('periodKey');
+            const dashboardSortAsc = ref(false);
+
+            const toggleDashboardSort = (field) => {
+                if (dashboardSortField.value === field) dashboardSortAsc.value = !dashboardSortAsc.value;
+                else { dashboardSortField.value = field; dashboardSortAsc.value = true; }
+            };
+
+            const getWeekNumber = (d) => {
+                d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+                d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+                var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+                return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+            };
+
+            const dashboardProcessedData = computed(() => {
+                const map = new Map();
+
+                // Process Water Sales
+                if (dashboardCategory.value === 'all' || dashboardCategory.value === 'water') {
+                    waterSales.value.forEach(ws => {
+                        if (!ws.soldDate) return;
+                        const d = new Date(ws.soldDate);
+                        let periodKey = ws.soldDate;
+                        let periodLabel = ws.soldDate;
+
+                        if (dashboardPeriod.value === 'weekly') {
+                            periodKey = `${d.getFullYear()}-W${getWeekNumber(d)}`;
+                            periodLabel = `Week ${getWeekNumber(d)}, ${d.getFullYear()}`;
+                        } else if (dashboardPeriod.value === 'monthly') {
+                            periodKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                            periodLabel = new Intl.DateTimeFormat('en-IN', { month: 'short', year: 'numeric' }).format(d);
+                        } else if (dashboardPeriod.value === 'quarterly') {
+                            const q = Math.floor(d.getMonth() / 3) + 1;
+                            periodKey = `${d.getFullYear()}-Q${q}`;
+                            periodLabel = `Q${q} ${d.getFullYear()}`;
+                        } else if (dashboardPeriod.value === 'annually') {
+                            periodKey = `${d.getFullYear()}`;
+                            periodLabel = `${d.getFullYear()}`;
+                        }
+
+                        const mapKey = dashboardCategory.value === 'all' ? `${periodKey}_Water Can Sales` : periodKey;
+                        if (!map.has(mapKey)) {
+                            map.set(mapKey, {
+                                key: periodKey,
+                                periodKey,
+                                periodLabel,
+                                categoryName: 'Water Can Sales',
+                                totalQty: 0,
+                                totalRevenue: 0
+                            });
+                        }
+                        const entry = map.get(mapKey);
+                        entry.totalQty += (ws.quantity || 0);
+                        entry.totalRevenue += (ws.cashAmount || 0) + (ws.gpayAmount || 0);
+                    });
+                }
+
+                // Process Material Sales
+                if (dashboardCategory.value === 'all' || dashboardCategory.value === 'material') {
+                    materialSales.value.forEach(ms => {
+                        if (!ms.soldDate) return;
+                        const d = new Date(ms.soldDate);
+                        let periodKey = ms.soldDate;
+                        let periodLabel = ms.soldDate;
+
+                        if (dashboardPeriod.value === 'weekly') {
+                            periodKey = `${d.getFullYear()}-W${getWeekNumber(d)}`;
+                            periodLabel = `Week ${getWeekNumber(d)}, ${d.getFullYear()}`;
+                        } else if (dashboardPeriod.value === 'monthly') {
+                            periodKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                            periodLabel = new Intl.DateTimeFormat('en-IN', { month: 'short', year: 'numeric' }).format(d);
+                        } else if (dashboardPeriod.value === 'quarterly') {
+                            const q = Math.floor(d.getMonth() / 3) + 1;
+                            periodKey = `${d.getFullYear()}-Q${q}`;
+                            periodLabel = `Q${q} ${d.getFullYear()}`;
+                        } else if (dashboardPeriod.value === 'annually') {
+                            periodKey = `${d.getFullYear()}`;
+                            periodLabel = `${d.getFullYear()}`;
+                        }
+
+                        const mapKey = dashboardCategory.value === 'all' ? `${periodKey}_Material Sales` : periodKey;
+                        if (!map.has(mapKey)) {
+                            map.set(mapKey, {
+                                key: periodKey,
+                                periodKey,
+                                periodLabel,
+                                categoryName: 'Material Sales',
+                                totalQty: 0,
+                                totalRevenue: 0
+                            });
+                        }
+                        const entry = map.get(mapKey);
+                        entry.totalQty += (ms.quantity || 0);
+                        entry.totalRevenue += (ms.cashAmount || 0) + (ms.gpayAmount || 0);
+                    });
+                }
+
+                let result = Array.from(map.values());
+                result.sort((a, b) => {
+                    let valA = a[dashboardSortField.value];
+                    let valB = b[dashboardSortField.value];
+                    if (valA < valB) return dashboardSortAsc.value ? -1 : 1;
+                    if (valA > valB) return dashboardSortAsc.value ? 1 : -1;
+                    return 0;
+                });
+                return result;
+            });
+
+            const filteredDashboardGridData = computed(() => {
+                if (!dashboardSearch.value) return dashboardProcessedData.value;
+                const q = dashboardSearch.value.toLowerCase();
+                return dashboardProcessedData.value.filter(item =>
+                    item.periodLabel.toLowerCase().includes(q) ||
+                    (item.categoryName && item.categoryName.toLowerCase().includes(q))
+                );
+            });
+
+            let dashboardChartInstance = null;
+            const renderDashboardChart = async () => {
+                if (currentTab.value !== 'dashboard') return;
+                await nextTick();
+                const ctx = document.getElementById('salesDashboardChart');
+                if (!ctx) return;
+
+                if (dashboardChartInstance) dashboardChartInstance.destroy();
+
+                const dataList = dashboardProcessedData.value;
+
+                if (dashboardCategory.value === 'all') {
+                    // Group by period key for multi-dataset chart
+                    const periodsMap = new Map();
+                    dataList.forEach(item => {
+                        if (!periodsMap.has(item.periodKey)) {
+                            periodsMap.set(item.periodKey, { label: item.periodLabel, water: 0, material: 0 });
+                        }
+                        if (item.categoryName === 'Water Can Sales') periodsMap.get(item.periodKey).water = item.totalRevenue;
+                        if (item.categoryName === 'Material Sales') periodsMap.get(item.periodKey).material = item.totalRevenue;
+                    });
+
+                    const labels = Array.from(periodsMap.values()).map(p => p.label);
+                    const waterData = Array.from(periodsMap.values()).map(p => p.water);
+                    const materialData = Array.from(periodsMap.values()).map(p => p.material);
+
+                    dashboardChartInstance = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [
+                                { label: 'Water Can Sales (₹)', data: waterData, backgroundColor: 'rgba(6, 182, 212, 0.8)', borderRadius: 4 },
+                                { label: 'Material Sales (₹)', data: materialData, backgroundColor: 'rgba(245, 158, 11, 0.8)', borderRadius: 4 }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: { intersect: false, mode: 'index' },
+                            plugins: { legend: { position: 'top', align: 'end' } },
+                            scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
+                        }
+                    });
+                } else {
+                    const labels = dataList.map(d => d.periodLabel);
+                    const revenues = dataList.map(d => d.totalRevenue);
+                    const color = dashboardCategory.value === 'water' ? 'rgba(6, 182, 212, 0.8)' : 'rgba(245, 158, 11, 0.8)';
+
+                    dashboardChartInstance = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: `${dashboardCategory.value === 'water' ? 'Water Can' : 'Material'} Sales Revenue (₹)`,
+                                data: revenues,
+                                borderColor: dashboardCategory.value === 'water' ? '#06b6d4' : '#f59e0b',
+                                backgroundColor: color,
+                                fill: true,
+                                tension: 0.3
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { position: 'top', align: 'end' } },
+                            scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
+                        }
+                    });
+                }
+            };
+
+            watch([currentTab, dashboardCategory, dashboardPeriod, waterSales, materialSales], () => {
+                if (currentTab.value === 'dashboard') renderDashboardChart();
+            }, { deep: true });
 
             // ------------- CASH FLOW LOGIC -------------
             const cashFlowPeriod = ref('daily');
@@ -567,20 +978,13 @@
                     materialTotal += (ds.materialCash || 0) + (ds.materialGpay || 0);
                     totalExpenses += (ds.expenses || 0);
                 });
-                const combined = totalCash + totalGpay || 1; // prevent divide by zero
+                const combined = totalCash + totalGpay || 1;
                 return {
                     totalCash, totalGpay, totalExpenses, waterTotal, materialTotal,
                     cashPct: Math.round((totalCash / combined) * 100),
                     gpayPct: Math.round((totalGpay / combined) * 100)
                 };
             });
-
-            const getWeekNumber = (d) => {
-                d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-                d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
-                var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
-                return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
-            };
 
             const renderCashFlowChart = async () => {
                 if (currentTab.value !== 'cash-flow') return;
@@ -595,7 +999,7 @@
 
                 rawData.forEach(item => {
                     const d = new Date(item.saleDate);
-                    let key = item.saleDate; // default daily
+                    let key = item.saleDate;
                     let label = new Intl.DateTimeFormat('en-IN', { month: 'short', day: 'numeric' }).format(d);
 
                     if (cashFlowPeriod.value === 'weekly') {
@@ -612,7 +1016,6 @@
                     entry.outflow += (item.expenses || 0);
                 });
 
-                // Get last X periods to avoid crowding
                 let groupedArr = Array.from(groupedMap.values());
                 const limit = cashFlowPeriod.value === 'daily' ? 14 : cashFlowPeriod.value === 'weekly' ? 8 : 12;
                 groupedArr = groupedArr.slice(-limit);
@@ -642,18 +1045,23 @@
                 });
             };
 
-            watch([currentTab, cashFlowPeriod, dailySales], () => { renderCashFlowChart(); }, { deep: true });
+            watch([currentTab, cashFlowPeriod, dailySales], () => {
+                if (currentTab.value === 'cash-flow') renderCashFlowChart();
+            }, { deep: true });
 
             const switchTab = (tabId) => {
                 currentTab.value = tabId;
                 clearForms();
+                if (tabId === 'dashboard') {
+                    renderDashboardChart();
+                }
             };
 
             const clearForms = () => {
                 dailySalesForm.value = { id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' };
                 productForm.value = { id: null, itemName: '', description: '', quantity: null, sellingPrice: null };
-                waterForm.value = { id: null, saleDate: defaultDate(), quantity: null, cashAmount: null, gpayAmount: null };
-                materialForm.value = { id: null, saleDate: defaultDate(), itemName: '', quantity: null, cashAmount: null, gpayAmount: null, remarks: '' };
+                waterForm.value = { id: null, soldDate: defaultDate(), quantity: null, cashAmount: null, gpayAmount: null };
+                materialForm.value = { id: null, soldDate: defaultDate(), itemName: '', quantity: null, cashAmount: null, gpayAmount: null, remarks: '' };
             };
 
             const editItem = (type, item) => {
@@ -728,16 +1136,23 @@
                 }
             };
 
-            onMounted(() => { refreshData(); });
+            onMounted(async () => {
+                await refreshData();
+                renderDashboardChart();
+            });
 
             return {
                 currentTab, tabs, currentTabTitle, currentTabIcon, currentTabDescription,
                 summary, dailySales, products, waterSales, materialSales,
                 sortedDailySales, sortedWaterSales, sortedMaterialSales,
+                filteredDailySales, filteredWaterSales, filteredMaterialSales, filteredProducts,
+                searchLedger, searchWater, searchMaterial, searchProduct,
                 dailySalesForm, productForm, waterForm, materialForm,
                 cashFlowPeriod, cfAnalytics, switchTab,
                 saveDailySales, saveProduct, saveWaterSale, saveMaterialSale,
-                deleteItem, editItem, clearForms, loadDailySales, loadProducts, loadWaterSales, loadMaterialSales, refreshData, triggerSync
+                deleteItem, editItem, clearForms, loadDailySales, loadProducts, loadWaterSales, loadMaterialSales, refreshData, triggerSync, exportToCSV,
+                dashboardCategory, dashboardPeriod, dashboardSearch, filteredDashboardGridData, toggleDashboardSort,
+                waterSortField, waterSortAsc, sortWaterBy, materialSortField, materialSortAsc, sortMaterialBy
             };
         }
     }).mount('#app');
