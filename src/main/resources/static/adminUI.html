@@ -4,12 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Madhan Traders - Enterprise Management Portal</title>
+    <!-- Vue 3 -->
     <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for Pro Data Visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         [v-cloak] { display: none; }
-        /* Custom scrollbar for a cleaner look */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -27,18 +32,15 @@
 
     <!-- Sidebar -->
     <aside class="w-72 bg-slate-900 text-white flex flex-col justify-between shadow-2xl z-20 relative">
-        <!-- Decorative Background Glow -->
         <div class="absolute top-0 left-0 w-full h-32 bg-cyan-600/20 blur-3xl pointer-events-none"></div>
 
-        <div class="relative z-10">
+        <div class="relative z-10 flex flex-col h-full">
             <div class="p-6 text-2xl font-bold bg-slate-900/50 flex items-center gap-3 border-b border-slate-800">
-                <div class="bg-cyan-500/20 p-2 rounded-lg">
-                    <i class="fa-solid fa-water text-cyan-400"></i>
-                </div>
+                <div class="bg-cyan-500/20 p-2 rounded-lg"><i class="fa-solid fa-water text-cyan-400"></i></div>
                 Madhan Traders
             </div>
-            <nav class="mt-6 px-3 space-y-1.5">
-                <a v-for="tab in tabs" :key="tab.id" @click="currentTab = tab.id; clearForms();"
+            <nav class="mt-6 px-3 space-y-1.5 overflow-y-auto">
+                <a v-for="tab in tabs" :key="tab.id" @click="switchTab(tab.id)"
                    :class="['flex items-center gap-3 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-300',
                             currentTab === tab.id ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-900/50 font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-white']">
                     <i :class="tab.icon + ' w-6 text-center text-lg ' + (currentTab === tab.id ? 'text-cyan-100' : 'text-slate-500')"></i>
@@ -46,8 +48,8 @@
                 </a>
             </nav>
         </div>
-        <div class="p-5 text-xs text-slate-500 bg-slate-950/50 text-center border-t border-slate-800/80 relative z-10">
-            Enterprise Management v4.5<br>
+        <div class="p-5 text-xs text-slate-500 bg-slate-950/50 text-center border-t border-slate-800/80 relative z-10 mt-auto">
+            Enterprise Management v5.0<br>
             <span class="text-slate-600">Spring Boot + Vue 3</span>
         </div>
     </aside>
@@ -120,6 +122,82 @@
                                 <div class="bg-rose-100 text-rose-600 p-2 rounded-lg"><i class="fa-solid fa-arrow-trend-down"></i></div>
                             </div>
                             <h3 class="text-3xl font-extrabold text-rose-600">&#8377;{{ summary.totalOutflow?.toLocaleString('en-IN') || 0 }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CASH FLOW TAB (NEW) -->
+            <div v-if="currentTab === 'cash-flow'" class="space-y-6 animate-fade-in">
+                <!-- Top controls -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800">Financial Trajectory</h3>
+                        <p class="text-sm text-slate-500">Inflow vs Outflow charting derived from ledger analytics.</p>
+                    </div>
+                    <div class="bg-slate-100 p-1 rounded-xl flex gap-1 shadow-inner border border-slate-200">
+                        <button @click="cashFlowPeriod = 'daily'" :class="['px-5 py-2 rounded-lg text-sm font-bold transition-all', cashFlowPeriod === 'daily' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Daily</button>
+                        <button @click="cashFlowPeriod = 'weekly'" :class="['px-5 py-2 rounded-lg text-sm font-bold transition-all', cashFlowPeriod === 'weekly' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Weekly</button>
+                        <button @click="cashFlowPeriod = 'monthly'" :class="['px-5 py-2 rounded-lg text-sm font-bold transition-all', cashFlowPeriod === 'monthly' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Monthly</button>
+                    </div>
+                </div>
+
+                <!-- Pro Chart Area -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 relative">
+                    <canvas id="cashFlowChart" height="100"></canvas>
+                </div>
+
+                <!-- Sales Details & Analytics Breakdowns -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Revenue Split -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-blue-500">
+                        <h4 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-5">Payment Mode Distribution</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="font-semibold text-slate-700"><i class="fa-solid fa-money-bill text-emerald-500 mr-2"></i>Cash Receipts</span>
+                                    <span class="font-bold text-slate-800">₹{{ cfAnalytics.totalCash.toLocaleString('en-IN') }}</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-emerald-400 h-2 rounded-full" :style="`width: ${cfAnalytics.cashPct}%`"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="font-semibold text-slate-700"><i class="fa-brands fa-google-pay text-indigo-500 mr-2"></i>Digital (GPay)</span>
+                                    <span class="font-bold text-slate-800">₹{{ cfAnalytics.totalGpay.toLocaleString('en-IN') }}</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-indigo-400 h-2 rounded-full" :style="`width: ${cfAnalytics.gpayPct}%`"></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category Split -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-cyan-500">
+                        <h4 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-5">Revenue Source</h4>
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-12 h-12 rounded-full bg-cyan-50 flex items-center justify-center text-cyan-600 text-xl"><i class="fa-solid fa-droplet"></i></div>
+                            <div class="flex-1">
+                                <p class="text-xs text-slate-500 font-bold">Water Sales Total</p>
+                                <p class="text-xl font-extrabold text-slate-800">₹{{ cfAnalytics.waterTotal.toLocaleString('en-IN') }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 border-t border-slate-100 pt-4">
+                            <div class="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 text-xl"><i class="fa-solid fa-truck-ramp-box"></i></div>
+                            <div class="flex-1">
+                                <p class="text-xs text-slate-500 font-bold">Material Sales Total</p>
+                                <p class="text-xl font-extrabold text-slate-800">₹{{ cfAnalytics.materialTotal.toLocaleString('en-IN') }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Expenses Summary -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-rose-500">
+                        <h4 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-5">Operating Outflows</h4>
+                        <div class="text-center py-2">
+                            <p class="text-slate-500 text-sm font-semibold mb-1">Total Expenses Recorded</p>
+                            <p class="text-4xl font-extrabold text-rose-600">₹{{ cfAnalytics.totalExpenses.toLocaleString('en-IN') }}</p>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-slate-100 text-center">
+                            <p class="text-xs text-slate-400">Derived securely from Consolidated Ledger.<br>Maintain daily logs for accurate tracking.</p>
                         </div>
                     </div>
                 </div>
@@ -209,7 +287,6 @@
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 overflow-hidden">
                     <div class="flex justify-between items-center mb-5">
                         <h4 class="font-bold text-slate-800 text-lg">Ledger History</h4>
-                        <!-- Add table toggles here if needed -->
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
@@ -320,7 +397,6 @@
                             </div>
                             <div class="md:col-span-2">
                                 <label class="form-label">Product / Item Name</label>
-                                <!-- Using datalist for pseudo-dropdown connected to Products tab data -->
                                 <input v-model="materialForm.itemName" list="product-list" required placeholder="Select or type product..." class="input-field">
                                 <datalist id="product-list">
                                     <option v-for="prod in products" :key="prod.id" :value="prod.itemName"></option>
@@ -414,16 +490,13 @@
                     </form>
                 </div>
 
-                <!-- Products Table Area (Simplified for space) -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div v-for="prod in products" :key="prod.id" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative group">
+                    <div v-for="prod in products" :key="prod.id" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative group hover:-translate-y-1 transition-transform">
                         <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
                             <button @click="editItem('product', prod)" class="text-blue-500 hover:text-blue-700 bg-white shadow-sm p-1.5 rounded-md"><i class="fa-solid fa-pen text-xs"></i></button>
                             <button @click="deleteItem('/api/products/' + prod.id, loadProducts)" class="text-rose-500 hover:text-rose-700 bg-white shadow-sm p-1.5 rounded-md"><i class="fa-solid fa-trash text-xs"></i></button>
                         </div>
-                        <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mb-3">
-                            <i class="fa-solid fa-box"></i>
-                        </div>
+                        <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mb-3"><i class="fa-solid fa-box"></i></div>
                         <h4 class="font-bold text-slate-800 text-lg">{{ prod.itemName }}</h4>
                         <p class="text-xs text-slate-400 mb-3 h-4">{{ prod.description || 'No description' }}</p>
                         <div class="flex justify-between items-center border-t border-slate-100 pt-3">
@@ -439,13 +512,14 @@
 </div>
 
 <script>
-    const { createApp, ref, computed, onMounted } = Vue;
+    const { createApp, ref, computed, onMounted, watch, nextTick } = Vue;
 
     createApp({
         setup() {
             const currentTab = ref('dashboard');
             const tabs = [
                 { id: 'dashboard', name: 'Dashboard', icon: 'fa-solid fa-chart-pie', desc: 'Real-time financial overview' },
+                { id: 'cash-flow', name: 'Cash Flow', icon: 'fa-solid fa-money-bill-trend-up', desc: 'Financial trends & analysis' },
                 { id: 'daily-sales', name: 'Consolidated Ledger', icon: 'fa-solid fa-book', desc: 'Centralized daily profit & loss' },
                 { id: 'water', name: 'Water Sales', icon: 'fa-solid fa-droplet', desc: 'Track daily water can dispatches' },
                 { id: 'material', name: 'Material Sales', icon: 'fa-solid fa-truck-ramp-box', desc: 'Track cement and material invoices' },
@@ -455,8 +529,6 @@
             const summary = ref({});
             const dailySales = ref([]);
             const products = ref([]);
-
-            // New Reactive arrays for the missing tabs
             const waterSales = ref([]);
             const materialSales = ref([]);
 
@@ -465,25 +537,117 @@
             // Forms State
             const dailySalesForm = ref({ id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' });
             const productForm = ref({ id: null, itemName: '', description: '', quantity: null, sellingPrice: null });
-
-            // New Forms State
             const waterForm = ref({ id: null, saleDate: defaultDate(), quantity: null, cashAmount: null, gpayAmount: null });
             const materialForm = ref({ id: null, saleDate: defaultDate(), itemName: '', quantity: null, cashAmount: null, gpayAmount: null, remarks: '' });
 
-            // Computed UI Helpers
+            // UI Helpers
             const currentTabObj = computed(() => tabs.find(t => t.id === currentTab.value) || tabs[0]);
             const currentTabTitle = computed(() => currentTabObj.value.name);
             const currentTabIcon = computed(() => currentTabObj.value.icon);
             const currentTabDescription = computed(() => currentTabObj.value.desc);
 
-            // Computed Sorting Methods
-            const sortDesc = (arr, dateField = 'saleDate') => {
-                if (!arr) return [];
-                return [...arr].sort((a, b) => new Date(b[dateField]) - new Date(a[dateField]));
-            };
+            // Sorting
+            const sortAsc = (arr, dateField = 'saleDate') => [...(arr || [])].sort((a, b) => new Date(a[dateField]) - new Date(b[dateField]));
+            const sortDesc = (arr, dateField = 'saleDate') => [...(arr || [])].sort((a, b) => new Date(b[dateField]) - new Date(a[dateField]));
+
             const sortedDailySales = computed(() => sortDesc(dailySales.value));
             const sortedWaterSales = computed(() => sortDesc(waterSales.value));
             const sortedMaterialSales = computed(() => sortDesc(materialSales.value));
+
+            // ------------- CASH FLOW LOGIC -------------
+            const cashFlowPeriod = ref('daily');
+            let cfChartInstance = null;
+
+            const cfAnalytics = computed(() => {
+                let totalCash = 0, totalGpay = 0, totalExpenses = 0, waterTotal = 0, materialTotal = 0;
+                dailySales.value.forEach(ds => {
+                    totalCash += (ds.waterCash || 0) + (ds.materialCash || 0);
+                    totalGpay += (ds.waterGpay || 0) + (ds.materialGpay || 0);
+                    waterTotal += (ds.waterCash || 0) + (ds.waterGpay || 0);
+                    materialTotal += (ds.materialCash || 0) + (ds.materialGpay || 0);
+                    totalExpenses += (ds.expenses || 0);
+                });
+                const combined = totalCash + totalGpay || 1; // prevent divide by zero
+                return {
+                    totalCash, totalGpay, totalExpenses, waterTotal, materialTotal,
+                    cashPct: Math.round((totalCash / combined) * 100),
+                    gpayPct: Math.round((totalGpay / combined) * 100)
+                };
+            });
+
+            const getWeekNumber = (d) => {
+                d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+                d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+                var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+                return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+            };
+
+            const renderCashFlowChart = async () => {
+                if (currentTab.value !== 'cash-flow') return;
+                await nextTick();
+                const ctx = document.getElementById('cashFlowChart');
+                if (!ctx) return;
+
+                if (cfChartInstance) cfChartInstance.destroy();
+
+                const rawData = sortAsc(dailySales.value);
+                const groupedMap = new Map();
+
+                rawData.forEach(item => {
+                    const d = new Date(item.saleDate);
+                    let key = item.saleDate; // default daily
+                    let label = new Intl.DateTimeFormat('en-IN', { month: 'short', day: 'numeric' }).format(d);
+
+                    if (cashFlowPeriod.value === 'weekly') {
+                        key = `${d.getFullYear()}-W${getWeekNumber(d)}`;
+                        label = `Week ${getWeekNumber(d)}`;
+                    } else if (cashFlowPeriod.value === 'monthly') {
+                        key = `${d.getFullYear()}-${d.getMonth()}`;
+                        label = new Intl.DateTimeFormat('en-IN', { month: 'short', year: 'numeric' }).format(d);
+                    }
+
+                    if (!groupedMap.has(key)) groupedMap.set(key, { label, inflow: 0, outflow: 0 });
+                    const entry = groupedMap.get(key);
+                    entry.inflow += (item.waterCash || 0) + (item.waterGpay || 0) + (item.materialCash || 0) + (item.materialGpay || 0);
+                    entry.outflow += (item.expenses || 0);
+                });
+
+                // Get last X periods to avoid crowding
+                let groupedArr = Array.from(groupedMap.values());
+                const limit = cashFlowPeriod.value === 'daily' ? 14 : cashFlowPeriod.value === 'weekly' ? 8 : 12;
+                groupedArr = groupedArr.slice(-limit);
+
+                const labels = groupedArr.map(g => g.label);
+                const inflows = groupedArr.map(g => g.inflow);
+                const outflows = groupedArr.map(g => g.outflow);
+
+                cfChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            { label: 'Cash Inflow (₹)', data: inflows, backgroundColor: 'rgba(52, 211, 153, 0.8)', borderRadius: 4 },
+                            { label: 'Expenses/Outflow (₹)', data: outflows, backgroundColor: 'rgba(244, 63, 94, 0.8)', borderRadius: 4 }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        interaction: { intersect: false, mode: 'index' },
+                        plugins: { legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 8 } } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { borderDash: [4, 4], color: '#f1f5f9' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            };
+
+            watch([currentTab, cashFlowPeriod, dailySales], () => { renderCashFlowChart(); }, { deep: true });
+
+            const switchTab = (tabId) => {
+                currentTab.value = tabId;
+                clearForms();
+            };
 
             const clearForms = () => {
                 dailySalesForm.value = { id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' };
@@ -500,7 +664,7 @@
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             };
 
-            // Generic Fetch GET
+            // Generic Fetch
             const loadData = async (url, targetRef) => {
                 try {
                     const res = await fetch(url);
@@ -508,74 +672,52 @@
                 } catch (e) { console.error(`Error loading ${url}:`, e); }
             };
 
-            // Data Loaders
             const loadDashboard = () => loadData('/api/dashboard/summary', summary);
             const loadDailySales = () => loadData('/api/daily-sales', dailySales);
             const loadProducts = () => loadData('/api/products', products);
             const loadWaterSales = () => loadData('/api/water-sales', waterSales);
             const loadMaterialSales = () => loadData('/api/material-sales', materialSales);
 
-            const refreshData = () => {
-                loadDashboard(); loadDailySales(); loadProducts(); loadWaterSales(); loadMaterialSales();
-            };
+            const refreshData = () => { loadDashboard(); loadDailySales(); loadProducts(); loadWaterSales(); loadMaterialSales(); };
 
-            // Existing BAU Sync Handler
             const triggerSync = async () => {
                 try {
                     const res = await fetch('/api/daily-sales/sync', { method: 'POST' });
                     const text = await res.text();
-                    if (res.ok) {
-                        alert("Sync Successful: " + text);
-                        loadDailySales(); loadDashboard();
-                    } else alert('Sync failed: ' + text);
+                    if (res.ok) { alert("Sync Successful: " + text); loadDailySales(); loadDashboard(); }
+                    else alert('Sync failed: ' + text);
                 } catch (e) { alert('Network error during sync.'); }
             };
 
-            // Generic Save Method (POST/PUT)
+            // Generic Save
             const postData = async (url, data, onSuccess) => {
                 const isUpdate = !!data.id;
                 const finalUrl = isUpdate ? `${url}/${data.id}` : url;
-
                 try {
                     const response = await fetch(finalUrl, {
                         method: isUpdate ? 'PUT' : 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(data)
                     });
-                    if (response.ok) {
-                        onSuccess();
-                        loadDashboard(); // Refresh dash metrics automatically on any save
-                    } else alert(`Failed to save data. (Status: ${response.status})`);
+                    if (response.ok) { onSuccess(); loadDashboard(); }
+                    else alert(`Failed to save data. (Status: ${response.status})`);
                 } catch (error) { alert("Network error. Backend connection failed."); }
             };
 
-            // Save Handlers
             const saveDailySales = () => {
-                const payload = {
-                    ...dailySalesForm.value,
-                    waterCash: dailySalesForm.value.waterCash || 0,
-                    waterGpay: dailySalesForm.value.waterGpay || 0,
-                    materialCash: dailySalesForm.value.materialCash || 0,
-                    materialGpay: dailySalesForm.value.materialGpay || 0,
-                    expenses: dailySalesForm.value.expenses || 0
-                };
+                const payload = { ...dailySalesForm.value, waterCash: dailySalesForm.value.waterCash || 0, waterGpay: dailySalesForm.value.waterGpay || 0, materialCash: dailySalesForm.value.materialCash || 0, materialGpay: dailySalesForm.value.materialGpay || 0, expenses: dailySalesForm.value.expenses || 0 };
                 postData('/api/daily-sales', payload, () => { clearForms(); loadDailySales(); });
             };
-
             const saveProduct = () => postData('/api/products', productForm.value, () => { clearForms(); loadProducts(); });
-
-            // New Handlers for Water & Material
             const saveWaterSale = () => {
                 const payload = { ...waterForm.value, cashAmount: waterForm.value.cashAmount || 0, gpayAmount: waterForm.value.gpayAmount || 0 };
                 postData('/api/water-sales', payload, () => { clearForms(); loadWaterSales(); });
             };
-
             const saveMaterialSale = () => {
                 const payload = { ...materialForm.value, cashAmount: materialForm.value.cashAmount || 0, gpayAmount: materialForm.value.gpayAmount || 0 };
                 postData('/api/material-sales', payload, () => { clearForms(); loadMaterialSales(); });
             };
 
-            // Delete Handler
             const deleteItem = async (url, reloadCallback) => {
                 if (confirm('Are you sure you want to delete this record?')) {
                     try {
@@ -593,6 +735,7 @@
                 summary, dailySales, products, waterSales, materialSales,
                 sortedDailySales, sortedWaterSales, sortedMaterialSales,
                 dailySalesForm, productForm, waterForm, materialForm,
+                cashFlowPeriod, cfAnalytics, switchTab,
                 saveDailySales, saveProduct, saveWaterSale, saveMaterialSale,
                 deleteItem, editItem, clearForms, loadDailySales, loadProducts, loadWaterSales, loadMaterialSales, refreshData, triggerSync
             };
