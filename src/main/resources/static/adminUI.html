@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Madhan Traders - Enterprise Management Portal</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        [v-cloak] { display: none; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+<div id="app" v-cloak class="flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-900 text-white flex flex-col justify-between shadow-xl z-10">
+        <div>
+            <div class="p-5 text-2xl font-bold bg-slate-950 flex items-center gap-3 border-b border-slate-800">
+                <i class="fa-solid fa-water text-cyan-400"></i> Madhan Traders
+            </div>
+            <nav class="mt-4 space-y-1">
+                <a v-for="tab in tabs" :key="tab.id" @click="currentTab = tab.id; clearForms();"
+                   :class="['flex items-center gap-3 px-6 py-3 cursor-pointer transition-all duration-200',
+                                currentTab === tab.id ? 'bg-cyan-600 text-white border-l-4 border-cyan-300 font-semibold shadow-inner' : 'text-gray-400 hover:bg-slate-800 hover:text-white border-l-4 border-transparent']">
+                    <i :class="tab.icon + ' w-5 text-center'"></i> {{ tab.name }}
+                </a>
+            </nav>
+        </div>
+        <div class="p-4 text-xs text-gray-500 bg-slate-950 text-center border-t border-slate-800">
+            Enterprise v4.0 &bull; Spring Boot + Vue 3
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col overflow-y-auto bg-gray-50">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b px-8 py-4 flex justify-between items-center sticky top-0 z-10">
+            <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                <i :class="currentTabIcon" class="text-cyan-600"></i> {{ currentTabTitle }}
+            </h1>
+            <div class="flex items-center gap-4">
+                    <span class="text-sm bg-green-100 text-green-800 px-3 py-1 rounded-full font-medium flex items-center gap-1 shadow-sm">
+                        <i class="fa-solid fa-circle-check text-xs"></i> API Connected
+                    </span>
+                <button @click="refreshData" class="text-gray-500 hover:text-cyan-600 transition" title="Refresh Data">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="p-8">
+            <!-- DASHBOARD TAB -->
+            <div v-if="currentTab === 'dashboard'" class="space-y-6 transform transition-all">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-cyan-500 hover:shadow-md transition">
+                        <p class="text-gray-500 text-sm font-semibold uppercase tracking-wider">Net Revenue</p>
+                        <h3 class="text-3xl font-bold mt-2 text-gray-800">&#8377;{{ summary.netRevenue?.toLocaleString('en-IN') || 0 }}</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-emerald-500 hover:shadow-md transition">
+                        <p class="text-gray-500 text-sm font-semibold uppercase tracking-wider">Net Profit</p>
+                        <h3 class="text-3xl font-bold mt-2 text-emerald-600">&#8377;{{ summary.netProfit?.toLocaleString('en-IN') || 0 }}</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500 hover:shadow-md transition">
+                        <p class="text-gray-500 text-sm font-semibold uppercase tracking-wider">Total Cash Inflow</p>
+                        <h3 class="text-3xl font-bold mt-2 text-blue-600">&#8377;{{ summary.totalInflow?.toLocaleString('en-IN') || 0 }}</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-rose-500 hover:shadow-md transition">
+                        <p class="text-gray-500 text-sm font-semibold uppercase tracking-wider">Total Cash Outflow</p>
+                        <h3 class="text-3xl font-bold mt-2 text-rose-600">&#8377;{{ summary.totalOutflow?.toLocaleString('en-IN') || 0 }}</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DAILY SALES TAB -->
+            <div v-if="currentTab === 'daily-sales'" class="space-y-6">
+                <!-- Action Bar with Sync Button -->
+                <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">Consolidated Daily Ledger</h3>
+                        <p class="text-xs text-gray-500">Auto-syncs or lets you manually record water and material collections.</p>
+                    </div>
+                    <button @click="triggerSync" class="bg-emerald-600 text-white px-4 py-2 rounded-lg shadow hover:bg-emerald-700 font-semibold flex items-center gap-2 transition">
+                        <i class="fa-solid fa-sync"></i> Sync From Water & Materials
+                    </button>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <h3 class="text-lg font-bold mb-4 text-gray-700">{{ dailySalesForm.id ? 'Edit' : 'Record' }} Daily Consolidated Sales</h3>
+                    <form @submit.prevent="saveDailySales" class="space-y-5">
+
+                        <!-- Date Input -->
+                        <div class="w-full md:w-1/4">
+                            <label class="block text-sm font-semibold text-gray-600 mb-1">Sale Date</label>
+                            <input v-model="dailySalesForm.saleDate" type="date" required class="border p-2.5 rounded shadow-sm w-full focus:ring-2 focus:ring-cyan-500 outline-none bg-gray-50">
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Water Sales Block -->
+                            <div class="bg-cyan-50/50 p-5 rounded-lg border border-cyan-100">
+                                <h4 class="font-bold text-cyan-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-droplet"></i> Water Sales Collections</h4>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Cash (₹)</label>
+                                        <input v-model.number="dailySalesForm.waterCash" type="number" step="0.01" placeholder="0.00" class="border p-2.5 rounded shadow-sm w-full focus:ring-2 focus:ring-cyan-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">GPay (₹)</label>
+                                        <input v-model.number="dailySalesForm.waterGpay" type="number" step="0.01" placeholder="0.00" class="border p-2.5 rounded shadow-sm w-full focus:ring-2 focus:ring-cyan-500 outline-none">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Material Sales Block -->
+                            <div class="bg-amber-50/50 p-5 rounded-lg border border-amber-100">
+                                <h4 class="font-bold text-amber-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-boxes-stacked"></i> Material Sales Collections</h4>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Cash (₹)</label>
+                                        <input v-model.number="dailySalesForm.materialCash" type="number" step="0.01" placeholder="0.00" class="border p-2.5 rounded shadow-sm w-full focus:ring-2 focus:ring-amber-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">GPay (₹)</label>
+                                        <input v-model.number="dailySalesForm.materialGpay" type="number" step="0.01" placeholder="0.00" class="border p-2.5 rounded shadow-sm w-full focus:ring-2 focus:ring-amber-500 outline-none">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Expenses Block -->
+                        <div class="bg-rose-50/50 p-5 rounded-lg border border-rose-100">
+                            <h4 class="font-bold text-rose-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-money-bill-transfer"></i> Expenses & Outflows</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Amount (₹)</label>
+                                    <input v-model.number="dailySalesForm.expenses" type="number" step="0.01" placeholder="0.00" class="border p-2.5 rounded shadow-sm w-full focus:ring-2 focus:ring-rose-500 outline-none">
+                                </div>
+                                <div class="md:col-span-3">
+                                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Remarks / Details</label>
+                                    <input v-model="dailySalesForm.remarks" placeholder="e.g. Dalmia Cement 50 - 14750" class="border p-2.5 rounded shadow-sm w-full focus:ring-2 focus:ring-rose-500 outline-none">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-2">
+                            <div class="text-lg font-bold text-gray-800 border bg-gray-50 px-4 py-2 rounded shadow-sm">
+                                Total Cash Inflow: <span class="text-emerald-600">₹{{ ((dailySalesForm.waterCash || 0) + (dailySalesForm.waterGpay || 0) + (dailySalesForm.materialCash || 0) + (dailySalesForm.materialGpay || 0)).toFixed(2) }}</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="submit" class="bg-cyan-600 text-white py-2.5 px-8 rounded shadow hover:bg-cyan-700 font-semibold transition">{{ dailySalesForm.id ? 'Update Entry' : 'Save Daily Record' }}</button>
+                                <button type="button" v-if="dailySalesForm.id" @click="clearForms" class="bg-gray-400 text-white py-2.5 px-6 rounded shadow hover:bg-gray-500 font-semibold transition">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Daily Sales History Table Section with Column Toggles -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
+                        <h4 class="font-bold text-gray-700">Recorded History (Sorted by Date Descending)</h4>
+
+                        <!-- Column Option / Visibility Dropdown -->
+                        <div class="relative">
+                            <button @click="showColumnMenu = !showColumnMenu" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition">
+                                <i class="fa-solid fa-columns"></i> Column Options <i class="fa-solid fa-chevron-down text-xs"></i>
+                            </button>
+                            <div v-if="showColumnMenu" class="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-20 p-3 space-y-2">
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Toggle Columns</p>
+                                <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                    <input type="checkbox" v-model="columns.water" class="rounded text-cyan-600 focus:ring-cyan-500"> Water Sales
+                                </label>
+                                <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                    <input type="checkbox" v-model="columns.material" class="rounded text-cyan-600 focus:ring-cyan-500"> Material Sales
+                                </label>
+                                <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                    <input type="checkbox" v-model="columns.expenses" class="rounded text-cyan-600 focus:ring-cyan-500"> Expenses
+                                </label>
+                                <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                    <input type="checkbox" v-model="columns.remarks" class="rounded text-cyan-600 focus:ring-cyan-500"> Remarks
+                                </label>
+                                <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                    <input type="checkbox" v-model="columns.revenue" class="rounded text-cyan-600 focus:ring-cyan-500"> Total Revenue
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse whitespace-nowrap">
+                            <tr class="bg-gray-100 text-gray-700 uppercase text-xs tracking-wider border-b">
+                                <th class="p-4 cursor-pointer hover:bg-gray-200 transition" title="Sorted Descending">
+                                    Date <i class="fa-solid fa-arrow-down-wide-short text-cyan-600"></i>
+                                </th>
+                                <th v-if="columns.water" class="p-4 text-cyan-800 bg-cyan-50/50">Water (Cash | GPay)</th>
+                                <th v-if="columns.material" class="p-4 text-amber-800 bg-amber-50/50">Material (Cash | GPay)</th>
+                                <th v-if="columns.expenses" class="p-4 text-rose-800 bg-rose-50/50">Expenses</th>
+                                <th v-if="columns.remarks" class="p-4">Remarks</th>
+                                <th v-if="columns.revenue" class="p-4 text-emerald-800 bg-emerald-50/50">Total Revenue</th>
+                                <th class="p-4">Actions</th>
+                            </tr>
+                            <tr v-for="ds in sortedDailySales" :key="ds.id" class="border-b hover:bg-gray-50 transition">
+                                <td class="p-4 font-semibold text-gray-800">{{ ds.saleDate }}</td>
+                                <td v-if="columns.water" class="p-4 bg-cyan-50/20 text-gray-600">
+                                    <span class="font-medium text-cyan-700">₹{{ ds.waterCash || 0 }}</span> &nbsp;|&nbsp; <span class="font-medium text-indigo-600">₹{{ ds.waterGpay || 0 }}</span>
+                                </td>
+                                <td v-if="columns.material" class="p-4 bg-amber-50/20 text-gray-600">
+                                    <span class="font-medium text-amber-700">₹{{ ds.materialCash || 0 }}</span> &nbsp;|&nbsp; <span class="font-medium text-indigo-600">₹{{ ds.materialGpay || 0 }}</span>
+                                </td>
+                                <td v-if="columns.expenses" class="p-4 font-bold text-rose-600 bg-rose-50/20">₹{{ ds.expenses || 0 }}</td>
+                                <td v-if="columns.remarks" class="p-4 text-gray-500 max-w-[200px] truncate" :title="ds.remarks">{{ ds.remarks || '-' }}</td>
+                                <td v-if="columns.revenue" class="p-4 font-bold text-emerald-600 bg-emerald-50/20">
+                                    ₹{{ ((ds.waterCash || 0) + (ds.waterGpay || 0) + (ds.materialCash || 0) + (ds.materialGpay || 0)).toFixed(2) }}
+                                </td>
+                                <td class="p-4 flex gap-2">
+                                    <button @click="editItem('daily-sales', ds)" class="text-blue-500 hover:text-blue-700 bg-blue-50 p-2 rounded" title="Edit Entry"><i class="fa-solid fa-pen"></i></button>
+                                    <button @click="deleteItem('/api/daily-sales/' + ds.id, loadDailySales)" class="text-rose-500 hover:text-rose-700 bg-rose-50 p-2 rounded" title="Delete Entry"><i class="fa-solid fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRODUCTS TAB -->
+            <div v-if="currentTab === 'products'" class="space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <h3 class="text-lg font-bold mb-4 text-gray-700">{{ productForm.id ? 'Edit' : 'Add' }} Inventory Item</h3>
+                    <form @submit.prevent="saveProduct" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                        <input v-model="productForm.itemName" placeholder="Item Name" required class="border p-2.5 rounded shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none">
+                        <input v-model="productForm.description" placeholder="Description" class="border p-2.5 rounded shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none">
+                        <input v-model.number="productForm.quantity" type="number" placeholder="Quantity" required class="border p-2.5 rounded shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none">
+                        <input v-model.number="productForm.sellingPrice" type="number" step="0.01" placeholder="Selling Price (₹)" class="border p-2.5 rounded shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none">
+                        <div class="flex gap-2">
+                            <button type="submit" class="bg-cyan-600 text-white p-2.5 rounded shadow hover:bg-cyan-700 font-semibold transition w-full">{{ productForm.id ? 'Update' : 'Save' }}</button>
+                            <button type="button" v-if="productForm.id" @click="clearForms" class="bg-gray-400 text-white p-2.5 rounded shadow hover:bg-gray-500 font-semibold transition">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- WATER SALES TAB -->
+            <div v-if="currentTab === 'water'" class="space-y-6">
+                <!-- Water Sales content placeholder -->
+            </div>
+
+            <!-- MATERIAL SALES TAB -->
+            <div v-if="currentTab === 'material'" class="space-y-6">
+                <!-- Material Sales content placeholder -->
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    createApp({
+        setup() {
+            const currentTab = ref('daily-sales');
+            const tabs = [
+                { id: 'dashboard', name: 'Dashboard & Reports', icon: 'fa-solid fa-chart-pie' },
+                { id: 'daily-sales', name: 'Daily Consolidations', icon: 'fa-solid fa-calendar-check' },
+                { id: 'products', name: 'Products & Inventory', icon: 'fa-solid fa-boxes-stacked' },
+                { id: 'water', name: 'Water Can Sales', icon: 'fa-solid fa-droplet' },
+                { id: 'material', name: 'Material Sales', icon: 'fa-solid fa-truck-ramp-box' }
+            ];
+
+            const summary = ref({});
+            const dailySales = ref([]);
+            const products = ref([]);
+            const waterSales = ref([]);
+            const materialSales = ref([]);
+
+            // Column Options visibility state
+            const showColumnMenu = ref(false);
+            const columns = ref({
+                water: true,
+                material: true,
+                expenses: true,
+                remarks: true,
+                revenue: true
+            });
+
+            // Computed property to sort daily sales by date in descending order (latest first)[cite: 5]
+            const sortedDailySales = computed(() => {
+                if (!dailySales.value) return [];
+                return [...dailySales.value].sort((a, b) => new Date(b.saleDate) - new Date(a.saleDate));
+            });
+
+            const defaultDate = () => new Date().toISOString().split('T')[0];
+
+            const dailySalesForm = ref({ id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' });
+            const productForm = ref({ id: null, itemName: '', description: '', quantity: null, sellingPrice: null });
+
+            const currentTabTitle = computed(() => tabs.find(t => t.id === currentTab.value)?.name || '');
+            const currentTabIcon = computed(() => tabs.find(t => t.id === currentTab.value)?.icon || '');
+
+            const clearForms = () => {
+                dailySalesForm.value = { id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' };
+                productForm.value = { id: null, itemName: '', description: '', quantity: null, sellingPrice: null };
+            };
+
+            const editItem = (type, item) => {
+                if(type === 'daily-sales') dailySalesForm.value = { ...item };
+                if(type === 'product') productForm.value = { ...item };
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            const loadData = async (url, targetRef) => {
+                try {
+                    const res = await fetch(url);
+                    if (res.ok) targetRef.value = await res.json();
+                } catch (e) { console.error(`Error loading ${url}:`, e); }
+            };
+
+            const loadDashboard = () => loadData('/api/dashboard/summary', summary);
+            const loadDailySales = () => loadData('/api/daily-sales', dailySales);
+            const loadProducts = () => loadData('/api/products', products);
+
+            const refreshData = () => {
+                loadDashboard(); loadDailySales(); loadProducts();
+            };
+
+            // Sync Button Handler
+            const triggerSync = async () => {
+                try {
+                    const res = await fetch('/api/daily-sales/sync', { method: 'POST' });
+                    const text = await res.text();
+                    if (res.ok) {
+                        alert(text);
+                        loadDailySales();
+                        loadDashboard();
+                    } else {
+                        alert('Sync failed: ' + text);
+                    }
+                } catch (e) {
+                    console.error('Network error during sync:', e);
+                    alert('Network error during sync.');
+                }
+            };
+
+            const postData = async (url, data, onSuccess) => {
+                const isUpdate = data.id !== null && data.id !== undefined;
+                const finalUrl = isUpdate ? `${url}/${data.id}` : url;
+                const method = isUpdate ? 'PUT' : 'POST';
+
+                try {
+                    const response = await fetch(finalUrl, {
+                        method: method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    if (response.ok) {
+                        onSuccess();
+                        loadDashboard();
+                    } else {
+                        alert(`Failed to ${isUpdate ? 'update' : 'save'} data. API returned status ${response.status}.`);
+                    }
+                } catch (error) {
+                    console.error(`Error processing request to ${finalUrl}:`, error);
+                    alert("Network error. Please check your backend connection.");
+                }
+            };
+
+            const saveDailySales = () => {
+                const payload = {
+                    ...dailySalesForm.value,
+                    waterCash: dailySalesForm.value.waterCash || 0,
+                    waterGpay: dailySalesForm.value.waterGpay || 0,
+                    materialCash: dailySalesForm.value.materialCash || 0,
+                    materialGpay: dailySalesForm.value.materialGpay || 0,
+                    expenses: dailySalesForm.value.expenses || 0
+                };
+                postData('/api/daily-sales', payload, () => { clearForms(); loadDailySales(); });
+            };
+
+            const saveProduct = () => postData('/api/products', productForm.value, () => { clearForms(); loadProducts(); });
+
+            const deleteItem = async (url, reloadCallback) => {
+                if (confirm('Are you sure you want to delete this record? This action cannot be undone.')) {
+                    try {
+                        const res = await fetch(url, { method: 'DELETE' });
+                        if (res.ok) {
+                            reloadCallback();
+                            loadDashboard();
+                        } else {
+                            alert(`Failed to delete record. API returned status ${res.status}.`);
+                        }
+                    } catch (error) {
+                        console.error("Error deleting item:", error);
+                        alert("Network error during deletion.");
+                    }
+                }
+            };
+
+            onMounted(() => {
+                refreshData();
+            });
+
+            return {
+                currentTab, tabs, currentTabTitle, currentTabIcon,
+                summary, dailySales, sortedDailySales, products, waterSales, materialSales,
+                dailySalesForm, productForm, showColumnMenu, columns,
+                saveDailySales, saveProduct,
+                deleteItem, editItem, clearForms, loadDailySales, refreshData, triggerSync
+            };
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>

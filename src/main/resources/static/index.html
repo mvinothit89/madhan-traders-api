@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Madhan Traders | Premium Construction Materials Chennai</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+Tamil:wght@300;400;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', 'Noto Sans Tamil', sans-serif; background-color: #0b0f19; color: #f1f5f9; }
+        .ambient-card { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5); }
+        .ambient-card-glow:hover { border-color: rgba(245, 158, 11, 0.4); box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.15); transform: translateY(-2px); }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #f59e0b; }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 300px; max-height: 350px; }
+        .text-glow-amber { text-shadow: 0 0 12px rgba(245, 158, 11, 0.4); }
+        #toast { visibility: hidden; min-width: 300px; margin-left: -150px; background-color: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.5); color: #fff; text-align: center; border-radius: 12px; padding: 16px; position: fixed; z-index: 100; left: 50%; bottom: 30px; font-size: 14px; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5); }
+        #toast.show { visibility: visible; -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @-webkit-keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @-webkit-keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+    </style>
+</head>
+<body class="bg-[#0b0f19] text-[#f1f5f9] antialiased">
+<div id="toast">Message Status</div>
+
+<div class="bg-slate-950 text-slate-300 text-xs py-2 px-4 sm:px-6 lg:px-8 border-b border-slate-900">
+    <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
+        <div class="flex items-center gap-4">
+            <span class="flex items-center gap-1"><span class="text-amber-400">📞</span> <a href="tel:+919884494275" class="hover:text-amber-400 font-semibold transition-colors">+91-9884494275</a></span>
+            <span class="hidden md:inline flex items-center gap-1"><span class="text-amber-400">✉️</span> <a href="mailto:madhantraders.tn@gmail.com" class="hover:text-amber-400 transition-colors">madhantraders.tn@gmail.com</a></span>
+        </div>
+        <div class="flex items-center gap-4">
+            <button onclick="toggleLanguage()" id="langBtn" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-3 py-1 rounded border border-slate-800 flex items-center gap-1 transition-all">🌐 Tamil / தமிழ்</button>
+        </div>
+    </div>
+</div>
+
+<header class="bg-[#0b0f19]/80 sticky top-0 z-40 backdrop-blur-md border-b border-slate-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-20">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center text-slate-950 font-black text-2xl tracking-wider shadow-lg">M</div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 leading-none">
+                        <span data-en="MADHAN TRADERS" data-ta="மதன் டிரேடர்ஸ்">MADHAN TRADERS</span>
+                    </h1>
+                </div>
+            </div>
+            <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-300">
+                <a href="#materials" class="hover:text-amber-400 transition-colors" data-en="Materials" data-ta="பொருட்கள் பட்டியல்">Materials</a>
+                <a href="#checkout-station" class="hover:text-amber-400 transition-colors" data-en="Cart" data-ta="கார்ட்">Cart</a>
+            </nav>
+            <div class="flex items-center gap-3">
+                <a href="#checkout-station" class="relative bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 transition-all shadow-md">
+                    <span>🛒</span> <span data-en="Live Memo" data-ta="எனது பில்">Live Memo</span> <span id="cartCount" class="bg-slate-950 text-amber-400 font-extrabold px-2 py-0.5 rounded-full text-xs">0</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <section id="materials" class="py-12">
+        <div class="flex flex-col xl:flex-row xl:items-end justify-between gap-6 mb-8">
+            <div>
+                <h3 class="text-2xl font-black text-white" data-en="📦 Live Materials Marketplace" data-ta="📦 மாறும் பொருட்கள் அங்காடி">📦 Live Materials Marketplace</h3>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="relative w-full sm:w-64">
+                    <input type="text" id="catalogSearch" oninput="filterCatalog()" placeholder="Search materials..." class="w-full bg-slate-950 text-white border border-slate-800 rounded-xl px-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-inner">
+                </div>
+                <select id="catalogSort" onchange="filterCatalog()" class="bg-slate-950 border border-slate-800 text-xs font-semibold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 text-white">
+                    <option value="default">Default Sort</option>
+                    <option value="price_low">Price: Low to High</option>
+                    <option value="price_high">Price: High to Low</option>
+                </select>
+                <div class="bg-slate-950 p-1 rounded-xl flex items-center gap-1 border border-slate-800">
+                    <button id="wholesaleBtn" onclick="setPriceMode('wholesale')" class="bg-amber-500 text-slate-950 font-bold px-4 py-1.5 rounded-lg text-xs transition-all shadow-sm">🏢 Wholesale</button>
+                    <button id="retailBtn" onclick="setPriceMode('retail')" class="text-slate-400 font-medium px-4 py-1.5 rounded-lg text-xs transition-all">🛒 Retail</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-8">
+            <div class="lg:col-span-8 space-y-6">
+                <div class="flex flex-wrap gap-2 border-b border-slate-800 pb-4" id="categoryTabs">
+                    <button onclick="selectCategory('All')" class="category-tab bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-lg text-xs transition-all shadow-sm">All Materials</button>
+                    <button onclick="selectCategory('Sand')" class="category-tab bg-slate-900 text-slate-300 border border-slate-800 font-medium px-4 py-2 rounded-lg text-xs transition-all">Sands</button>
+                    <button onclick="selectCategory('Cement')" class="category-tab bg-slate-900 text-slate-300 border border-slate-800 font-medium px-4 py-2 rounded-lg text-xs transition-all">Cements</button>
+                </div>
+
+                <!-- DYNAMIC RENDER GRID -->
+                <div id="materialsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+            </div>
+
+            <div class="lg:col-span-4 ambient-card p-6 rounded-2xl border border-slate-800">
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-500/10 text-amber-400 text-[10px] font-bold uppercase rounded-full mb-4">⚙️ Sales Configurator</span>
+                <h4 class="font-bold text-white border-b border-slate-800 pb-3 mb-4">Add Custom Material to API</h4>
+                <div class="space-y-4 text-xs">
+                    <div>
+                        <label class="block text-slate-400 mb-1">Material Name (English)</label>
+                        <input type="text" id="customNameEn" class="w-full bg-slate-950 text-white border border-slate-800 rounded-lg p-2.5">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-slate-400 mb-1">Wholesale Price (₹)</label>
+                            <input type="number" id="customWholesale" class="w-full bg-slate-950 text-white border border-slate-800 rounded-lg p-2.5">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-1">Retail Price (₹)</label>
+                            <input type="number" id="customRetail" class="w-full bg-slate-950 text-white border border-slate-800 rounded-lg p-2.5">
+                        </div>
+                    </div>
+                    <button onclick="injectCustomMaterial()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-lg transition-all text-xs shadow-md mt-2">
+                        ➕ API Inject & Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Checkout / Memo -->
+    <section id="checkout-station" class="py-12 border-t border-slate-900">
+        <div class="mb-8">
+            <h3 class="text-2xl font-black text-white flex items-center gap-2">🗒️ Custom Live Memo Receipt</h3>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div class="ambient-card p-6 rounded-2xl border border-slate-800 lg:col-span-5 space-y-4">
+                <h4 class="font-bold text-white border-b border-slate-800 pb-3">Customer Details</h4>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Full Name</label>
+                    <input type="text" id="custName" class="w-full bg-slate-950 text-white border border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Mobile Number</label>
+                    <input type="tel" id="custPhone" class="w-full bg-slate-950 text-white border border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                </div>
+            </div>
+
+            <div class="lg:col-span-7">
+                <div id="memoSlipPhysical" class="bg-[#fcfbf7] border-2 border-dashed border-slate-400 p-6 sm:p-8 rounded-lg shadow-xl relative text-slate-900 font-mono">
+                    <div class="text-center border-b border-slate-300 pb-4 mb-4">
+                        <h2 class="text-2xl font-black tracking-tight text-slate-950">MADHAN TRADERS</h2>
+                        <div class="text-xs font-bold">Wholesale & Retail</div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left mb-6 border-collapse font-sans min-w-[500px]">
+                            <thead>
+                            <tr class="border-b border-slate-300 text-slate-700 uppercase font-mono">
+                                <th class="pb-2">Material / Specs</th>
+                                <th class="pb-2 text-right">Qty</th>
+                                <th class="pb-2 text-right">Price</th>
+                                <th class="pb-2 text-right">Total</th>
+                            </tr>
+                            </thead>
+                            <tbody id="memoItemsBody" class="font-mono"></tbody>
+                        </table>
+                    </div>
+                    <div class="border-t border-slate-300 pt-3 text-xs space-y-1.5 text-right font-semibold">
+                        <div class="flex justify-between text-base font-extrabold text-slate-950 border-t border-slate-300 pt-2">
+                            <span>NET TOTAL:</span>
+                            <span id="memoNetTotal">₹0.00</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 flex flex-col sm:flex-row gap-4">
+                    <button onclick="submitOrderViaAPI()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl text-sm transition-all flex items-center justify-center gap-2 flex-1 shadow-md">
+                        <span>💬</span> Submit to Backend & WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script>
+    let currentLang = 'en';
+    let currentPriceMode = 'wholesale';
+    let currentCategory = 'All';
+    let cart = {};
+    let negotiatedPrices = {};
+    let materialCatalog = []; // DYNAMICALLY LOADED NOW
+
+    // API Initialization
+    async function fetchCatalog() {
+        try {
+            // Fetch dynamically from your backend API
+            const response = await fetch('/api/products');
+            if (!response.ok) throw new Error('API down');
+
+            const apiData = await response.json();
+
+            // Map the backend DB structure to the UI structure
+            materialCatalog = apiData.map(product => ({
+                id: product.id,
+                category: product.category || 'Cement', // fallback
+                en_title: product.itemName,
+                ta_title: product.itemName, // Requires translation table if backend doesn't support it
+                description: product.description || 'Premium material',
+                wholesale: product.sellingPrice - (product.sellingPrice * 0.1), // Example logic
+                retail: product.sellingPrice,
+                unit: 'Unit',
+                minOrder: 1
+            }));
+        } catch (error) {
+            console.error("Failed to load catalog. Falling back to default empty state.", error);
+            showToast("Error loading catalog from API");
+        }
+        filterCatalog();
+    }
+
+    // Run fetch on load
+    document.addEventListener('DOMContentLoaded', fetchCatalog);
+
+    function showToast(text) {
+        const toast = document.getElementById("toast");
+        toast.innerText = text;
+        toast.className = "show";
+        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+    }
+
+    function toggleLanguage() {
+        currentLang = currentLang === 'en' ? 'ta' : 'en';
+        document.getElementById('langBtn').innerHTML = currentLang === 'en' ? '🌐 Tamil / தமிழ்' : '🌐 English / ஆங்கிலம்';
+        filterCatalog();
+        renderMemoSlip();
+    }
+
+    function setPriceMode(mode) {
+        currentPriceMode = mode;
+        filterCatalog();
+        renderMemoSlip();
+    }
+
+    function selectCategory(category) {
+        currentCategory = category;
+        filterCatalog();
+    }
+
+    function filterCatalog() {
+        const searchQuery = document.getElementById('catalogSearch').value.toLowerCase().trim();
+        const sortBy = document.getElementById('catalogSort').value;
+
+        let filteredList = materialCatalog.filter(p => currentCategory === 'All' || p.category === currentCategory);
+
+        if (searchQuery) {
+            filteredList = filteredList.filter(p => p.en_title.toLowerCase().includes(searchQuery));
+        }
+
+        if (sortBy === 'price_low') {
+            filteredList.sort((a, b) => a[currentPriceMode] - b[currentPriceMode]);
+        } else if (sortBy === 'price_high') {
+            filteredList.sort((a, b) => b[currentPriceMode] - a[currentPriceMode]);
+        }
+
+        renderGrid(filteredList);
+    }
+
+    function renderGrid(items) {
+        const grid = document.getElementById('materialsGrid');
+        grid.innerHTML = '';
+
+        items.forEach(item => {
+            const price = currentPriceMode === 'wholesale' ? item.wholesale : item.retail;
+            const qtyInCart = cart[item.id] || 0;
+
+            grid.innerHTML += `
+                    <div class="ambient-card p-5 rounded-2xl flex flex-col justify-between ambient-card-glow transition-all">
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <h5 class="font-bold text-white text-sm">${currentLang === 'en' ? item.en_title : item.ta_title}</h5>
+                            </div>
+                            <p class="text-xs text-slate-400 mb-4 h-8">${item.description}</p>
+                            <div class="flex justify-between items-end mb-4 border-t border-slate-800 pt-4">
+                                <div><div class="text-[10px] text-slate-500 uppercase tracking-widest">${currentPriceMode} Rate</div>
+                                <div class="text-xl font-black text-amber-400">₹${price} <span class="text-xs font-normal text-slate-400">/${item.unit}</span></div></div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="updateCart('${item.id}', -1)" class="bg-slate-800 hover:bg-slate-700 text-white h-10 w-10 rounded-lg font-bold flex items-center justify-center">-</button>
+                            <input type="number" id="qty_${item.id}" value="${qtyInCart}" min="0" onchange="setCartQty('${item.id}', this.value)" class="bg-slate-900 border border-slate-700 text-center text-white h-10 w-16 rounded-lg focus:outline-none focus:border-amber-500">
+                            <button onclick="updateCart('${item.id}', 1)" class="bg-amber-500 hover:bg-amber-600 text-slate-950 h-10 w-10 rounded-lg font-bold flex items-center justify-center">+</button>
+                        </div>
+                    </div>
+                `;
+        });
+    }
+
+    function updateCart(id, change) {
+        let current = cart[id] || 0;
+        let newVal = Math.max(0, current + change);
+        setCartQty(id, newVal);
+    }
+
+    function setCartQty(id, val) {
+        val = parseFloat(val);
+        if (val <= 0 || isNaN(val)) {
+            delete cart[id];
+            delete negotiatedPrices[id];
+        } else {
+            cart[id] = val;
+        }
+        document.getElementById(`qty_${id}`).value = val || 0;
+        updateCartIcon();
+        renderMemoSlip();
+    }
+
+    function updateCartIcon() {
+        let total = Object.values(cart).reduce((a, b) => a + b, 0);
+        document.getElementById('cartCount').innerText = total;
+    }
+
+    function renderMemoSlip() {
+        const body = document.getElementById('memoItemsBody');
+        body.innerHTML = '';
+        let subtotal = 0;
+
+        if (Object.keys(cart).length === 0) {
+            body.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-slate-400 italic">No items selected</td></tr>';
+            document.getElementById('memoNetTotal').innerText = '₹0.00';
+            return;
+        }
+
+        for (const [id, qty] of Object.entries(cart)) {
+            const item = materialCatalog.find(m => m.id == id);
+            if (!item) continue;
+
+            const basePrice = currentPriceMode === 'wholesale' ? item.wholesale : item.retail;
+            const activePrice = negotiatedPrices[id] || basePrice;
+            const total = qty * activePrice;
+            subtotal += total;
+
+            body.innerHTML += `
+                    <tr class="border-b border-slate-200">
+                        <td class="py-3 font-semibold text-slate-800">${item.en_title}</td>
+                        <td class="py-3 text-right"><input type="number" value="${qty}" onchange="setCartQty('${id}', this.value)" class="w-16 text-right bg-transparent border-b border-slate-400 focus:outline-none focus:border-amber-500 text-slate-900 font-bold p-1"></td>
+                        <td class="py-3 text-right"><div class="flex items-center justify-end gap-1">₹<input type="number" value="${activePrice}" onchange="overridePrice('${id}', this.value)" class="w-16 text-right bg-transparent border-b border-slate-400 focus:outline-none focus:border-amber-500 text-slate-900 font-bold p-1"></div></td>
+                        <td class="py-3 text-right font-bold text-slate-950">₹${total.toFixed(2)}</td>
+                    </tr>
+                `;
+        }
+        document.getElementById('memoNetTotal').innerText = `₹${subtotal.toFixed(2)}`;
+    }
+
+    function overridePrice(id, newPrice) {
+        newPrice = parseFloat(newPrice);
+        if (!isNaN(newPrice) && newPrice >= 0) {
+            negotiatedPrices[id] = newPrice;
+            renderMemoSlip();
+        }
+    }
+
+    // DYNAMIC API CREATION FOR CUSTOM MATERIALS
+    async function injectCustomMaterial() {
+        const nameEn = document.getElementById('customNameEn').value;
+        const wsPrice = parseFloat(document.getElementById('customWholesale').value);
+        const rtPrice = parseFloat(document.getElementById('customRetail').value);
+
+        if (!nameEn || isNaN(wsPrice) || isNaN(rtPrice)) {
+            showToast("Please fill all required fields correctly.");
+            return;
+        }
+
+        const payload = {
+            itemName: nameEn,
+            description: "Custom site requirement",
+            quantity: 99,
+            sellingPrice: rtPrice
+        };
+
+        try {
+            // Post to API First
+            const res = await fetch('/api/products', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                showToast("Custom Material Added via API!");
+                // Re-fetch catalog to get official ID
+                await fetchCatalog();
+            } else {
+                showToast("Failed to save to database");
+            }
+        } catch (err) {
+            console.error(err);
+            showToast("Network Error.");
+        }
+    }
+
+    // DYNAMIC API ORDER SUBMISSION
+    async function submitOrderViaAPI() {
+        const name = document.getElementById('custName').value;
+        const phone = document.getElementById('custPhone').value;
+
+        if (Object.keys(cart).length === 0) {
+            showToast("Cart is empty!");
+            return;
+        }
+
+        const orderPayload = {
+            customerName: name,
+            phoneNumber: phone,
+            items: Object.entries(cart).map(([id, qty]) => {
+                const item = materialCatalog.find(m => m.id == id);
+                const basePrice = currentPriceMode === 'wholesale' ? item.wholesale : item.retail;
+                const finalPrice = negotiatedPrices[id] || basePrice;
+                return { productId: id, quantity: qty, unitPrice: finalPrice };
+            })
+        };
+
+        try {
+            // Assuming standard POST structure for new orders/sales
+            const res = await fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderPayload)
+            });
+
+            if(res.ok) {
+                showToast("Order Saved to Backend!");
+                // Now redirect to Whatsapp as requested
+                let msg = `*NEW ORDER - MADHAN TRADERS*\nCustomer: ${name || 'Walk-In'}\nPhone: ${phone || 'N/A'}\n\n`;
+                for (const [id, qty] of Object.entries(cart)) {
+                    const item = materialCatalog.find(m => m.id == id);
+                    msg += `- ${item.en_title} x ${qty}\n`;
+                }
+                window.open(`https://wa.me/919884494275?text=${encodeURIComponent(msg)}`, '_blank');
+                cart = {};
+                negotiatedPrices = {};
+                updateCartIcon();
+                renderMemoSlip();
+            } else {
+                showToast("Failed to save order to database.");
+            }
+        } catch (err) {
+            console.error(err);
+            showToast("Network Error saving order.");
+        }
+    }
+</script>
+</body>
+</html>
