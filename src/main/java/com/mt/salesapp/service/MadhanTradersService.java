@@ -53,13 +53,20 @@ public class MadhanTradersService {
         if(entry.getTotalAmount() == null && entry.getCashAmount() != null && entry.getGpayAmount() != null) {
             entry.setTotalAmount(entry.getCashAmount() + entry.getGpayAmount());
         }
+        entry.setProfit(entry.getTotalCansSold() * Double.valueOf("20"));
         return waterSalesRepository.save(entry); 
     }
     public void deleteWaterSales(Long id) { waterSalesRepository.deleteById(id); }
 
     // --- MATERIAL SALES ---
     public List<MaterialSalesEntry> getAllMaterialSales() { return materialSalesRepository.findAll(); }
-    public MaterialSalesEntry saveMaterialSales(MaterialSalesEntry entry) { return materialSalesRepository.save(entry); }
+    public MaterialSalesEntry saveMaterialSales(MaterialSalesEntry entry) {
+        if(entry.getTotalAmount() == null && entry.getCashAmount() != null && entry.getGpayAmount() != null) {
+            entry.setTotalAmount(entry.getCashAmount() + entry.getGpayAmount());
+        }
+        if(entry.getProfit() == 0)
+            entry.setProfit(Double.valueOf("0"));
+        return materialSalesRepository.save(entry); }
     public void deleteMaterialSales(Long id) { materialSalesRepository.deleteById(id); }
 
     // --- CASH FLOW ---

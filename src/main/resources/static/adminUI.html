@@ -486,7 +486,7 @@
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-amber-500">
                     <h3 class="text-lg font-bold mb-5 text-slate-800">{{ materialForm.id ? 'Edit' : 'Record' }} Material Sale</h3>
                     <form @submit.prevent="saveMaterialSale" class="space-y-5">
-                        <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-4">
                             <div>
                                 <label class="form-label">Sale Date</label>
                                 <input v-model="materialForm.soldDate" type="date" required class="input-field">
@@ -503,6 +503,10 @@
                                 <input v-model.number="materialForm.quantity" type="number" min="0.01" step="0.01" required placeholder="0" class="input-field">
                             </div>
                             <div>
+                                <label class="form-label">Unit Price (₹)</label>
+                                <input v-model.number="materialForm.unitPrice" type="number" step="0.01" min="0" required placeholder="0.00" class="input-field border-amber-200">
+                            </div>
+                            <div>
                                 <label class="form-label">Cash (₹)</label>
                                 <input v-model.number="materialForm.cashAmount" type="number" step="0.01" placeholder="0.00" class="input-field">
                             </div>
@@ -510,7 +514,7 @@
                                 <label class="form-label">GPay (₹)</label>
                                 <input v-model.number="materialForm.gpayAmount" type="number" step="0.01" placeholder="0.00" class="input-field">
                             </div>
-                            <div class="md:col-span-4">
+                            <div class="md:col-span-5">
                                 <label class="form-label">Customer / Remarks</label>
                                 <input v-model="materialForm.remarks" placeholder="Customer Name or Invoice Ref..." class="input-field">
                             </div>
@@ -539,6 +543,7 @@
                             <th @click="sortMaterialBy('soldDate')" class="p-4 font-bold cursor-pointer hover:text-slate-700">Date <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
                             <th @click="sortMaterialBy('itemName')" class="p-4 font-bold cursor-pointer hover:text-slate-700">Item & Details <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
                             <th @click="sortMaterialBy('quantity')" class="p-4 font-bold cursor-pointer hover:text-slate-700">Quantity <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
+                            <th class="p-4 font-bold text-slate-700">Unit Price</th>
                             <th class="p-4 font-bold text-slate-700">Payment Split</th>
                             <th @click="sortMaterialBy('totalValue')" class="p-4 font-bold text-emerald-700 cursor-pointer hover:text-emerald-900">Total Value <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
                             <th class="p-4 font-bold text-right">Actions</th>
@@ -552,6 +557,7 @@
                                 <div class="text-xs text-slate-400 mt-0.5">{{ ms.remarks || 'No remarks' }}</div>
                             </td>
                             <td class="p-4 font-semibold text-slate-600">{{ ms.quantity }}</td>
+                            <td class="p-4 font-semibold text-slate-600">₹{{ ms.unitPrice || 0 }}</td>
                             <td class="p-4 text-xs">
                                 <div class="text-slate-600">Cash: <span class="font-bold">₹{{ ms.cashAmount || 0 }}</span></div>
                                 <div class="text-indigo-600">GPay: <span class="font-bold">₹{{ ms.gpayAmount || 0 }}</span></div>
@@ -562,7 +568,7 @@
                                 <button @click="deleteItem('/api/material-sales/' + ms.id, loadMaterialSales)" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition"><i class="fa-solid fa-trash text-xs"></i></button>
                             </td>
                         </tr>
-                        <tr v-if="!filteredMaterialSales.length"><td colspan="6" class="p-8 text-center text-slate-500">No material sales recorded yet.</td></tr>
+                        <tr v-if="!filteredMaterialSales.length"><td colspan="7" class="p-8 text-center text-slate-500">No material sales recorded yet.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -675,7 +681,7 @@
             const dailySalesForm = ref({ id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' });
             const productForm = ref({ id: null, itemName: '', description: '', quantity: null, sellingPrice: null });
             const waterForm = ref({ id: null, soldDate: defaultDate(), quantity: null, cashAmount: null, gpayAmount: null });
-            const materialForm = ref({ id: null, soldDate: defaultDate(), itemName: '', quantity: null, cashAmount: null, gpayAmount: null, remarks: '' });
+            const materialForm = ref({ id: null, soldDate: defaultDate(), itemName: '', quantity: null, unitPrice: null, cashAmount: null, gpayAmount: null, remarks: '' });
 
             // UI Helpers
             const currentTabObj = computed(() => tabs.find(t => t.id === currentTab.value) || tabs[0]);
@@ -902,7 +908,6 @@
                 const dataList = dashboardProcessedData.value;
 
                 if (dashboardCategory.value === 'all') {
-                    // Group by period key for multi-dataset chart
                     const periodsMap = new Map();
                     dataList.forEach(item => {
                         if (!periodsMap.has(item.periodKey)) {
@@ -1061,13 +1066,13 @@
                 dailySalesForm.value = { id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' };
                 productForm.value = { id: null, itemName: '', description: '', quantity: null, sellingPrice: null };
                 waterForm.value = { id: null, soldDate: defaultDate(), quantity: null, cashAmount: null, gpayAmount: null };
-                materialForm.value = { id: null, soldDate: defaultDate(), itemName: '', quantity: null, cashAmount: null, gpayAmount: null, remarks: '' };
+                materialForm.value = { id: null, soldDate: defaultDate(), itemName: '', quantity: null, unitPrice: null, cashAmount: null, gpayAmount: null, remarks: '' };
             };
 
             const editItem = (type, item) => {
                 if(type === 'daily-sales') dailySalesForm.value = { ...item };
                 if(type === 'product') productForm.value = { ...item };
-                if(type === 'water') waterForm.value = { ...item };
+                if(type === 'water') waterForm.value = { ...item, quantity: item.quantity !== undefined ? item.quantity : item.totalCansSold };
                 if(type === 'material') materialForm.value = { ...item };
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             };
@@ -1117,12 +1122,28 @@
                 postData('/api/daily-sales', payload, () => { clearForms(); loadDailySales(); });
             };
             const saveProduct = () => postData('/api/products', productForm.value, () => { clearForms(); loadProducts(); });
+
+            // Fixed Water Sale Save with mapped totalCansSold
             const saveWaterSale = () => {
-                const payload = { ...waterForm.value, cashAmount: waterForm.value.cashAmount || 0, gpayAmount: waterForm.value.gpayAmount || 0 };
+                const payload = {
+                    ...waterForm.value,
+                    quantity: waterForm.value.quantity || 0,
+                    totalCansSold: waterForm.value.quantity || 0,
+                    cashAmount: waterForm.value.cashAmount || 0,
+                    gpayAmount: waterForm.value.gpayAmount || 0
+                };
                 postData('/api/water-sales', payload, () => { clearForms(); loadWaterSales(); });
             };
+
+            // Fixed Material Sale Save with unitPrice inclusion
             const saveMaterialSale = () => {
-                const payload = { ...materialForm.value, cashAmount: materialForm.value.cashAmount || 0, gpayAmount: materialForm.value.gpayAmount || 0 };
+                const payload = {
+                    ...materialForm.value,
+                    quantity: materialForm.value.quantity || 0,
+                    unitPrice: materialForm.value.unitPrice || 0,
+                    cashAmount: materialForm.value.cashAmount || 0,
+                    gpayAmount: materialForm.value.gpayAmount || 0
+                };
                 postData('/api/material-sales', payload, () => { clearForms(); loadMaterialSales(); });
             };
 
