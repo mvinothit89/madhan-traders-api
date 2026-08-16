@@ -9,243 +9,429 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         [v-cloak] { display: none; }
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .input-field { @apply w-full border border-gray-200 bg-gray-50/50 p-3 rounded-lg shadow-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition-all duration-200; }
+        .form-label { @apply block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5; }
+        .btn-primary { @apply bg-gradient-to-r from-cyan-600 to-blue-600 text-white py-2.5 px-6 rounded-lg shadow-md hover:shadow-lg hover:from-cyan-700 hover:to-blue-700 font-semibold transition-all duration-200 transform hover:-translate-y-0.5 flex items-center gap-2 justify-center; }
+        .btn-secondary { @apply bg-white border border-gray-200 text-gray-700 py-2.5 px-6 rounded-lg shadow-sm hover:bg-gray-50 font-semibold transition-all duration-200; }
     </style>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-slate-50 font-sans text-slate-800 selection:bg-cyan-200 selection:text-cyan-900">
 <div id="app" v-cloak class="flex h-screen overflow-hidden">
+
     <!-- Sidebar -->
-    <aside class="w-64 bg-slate-900 text-white flex flex-col justify-between shadow-xl z-10">
-        <div>
-            <div class="p-5 text-2xl font-bold bg-slate-950 flex items-center gap-3 border-b border-slate-800">
-                <i class="fa-solid fa-water text-cyan-400"></i> Madhan Traders
+    <aside class="w-72 bg-slate-900 text-white flex flex-col justify-between shadow-2xl z-20 relative">
+        <!-- Decorative Background Glow -->
+        <div class="absolute top-0 left-0 w-full h-32 bg-cyan-600/20 blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10">
+            <div class="p-6 text-2xl font-bold bg-slate-900/50 flex items-center gap-3 border-b border-slate-800">
+                <div class="bg-cyan-500/20 p-2 rounded-lg">
+                    <i class="fa-solid fa-water text-cyan-400"></i>
+                </div>
+                Madhan Traders
             </div>
-            <nav class="mt-4 space-y-1">
+            <nav class="mt-6 px-3 space-y-1.5">
                 <a v-for="tab in tabs" :key="tab.id" @click="currentTab = tab.id; clearForms();"
-                   :class="['flex items-center gap-3 px-6 py-3 cursor-pointer transition-all duration-200',
-                                currentTab === tab.id ? 'bg-cyan-600 text-white border-l-4 border-cyan-300 font-semibold shadow-inner' : 'text-gray-400 hover:bg-slate-800 hover:text-white border-l-4 border-transparent']">
-                    <i :class="tab.icon + ' w-5 text-center'"></i> {{ tab.name }}
+                   :class="['flex items-center gap-3 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-300',
+                            currentTab === tab.id ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-900/50 font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-white']">
+                    <i :class="tab.icon + ' w-6 text-center text-lg ' + (currentTab === tab.id ? 'text-cyan-100' : 'text-slate-500')"></i>
+                    {{ tab.name }}
                 </a>
             </nav>
         </div>
-        <div class="p-4 text-xs text-gray-500 bg-slate-950 text-center border-t border-slate-800">
-            Enterprise v4.0 &bull; Spring Boot + Vue 3
+        <div class="p-5 text-xs text-slate-500 bg-slate-950/50 text-center border-t border-slate-800/80 relative z-10">
+            Enterprise Management v4.5<br>
+            <span class="text-slate-600">Spring Boot + Vue 3</span>
         </div>
     </aside>
 
     <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col overflow-y-auto bg-gray-50">
+    <main class="flex-1 flex flex-col overflow-y-auto bg-slate-50/50 relative">
+
         <!-- Header -->
-        <header class="bg-white shadow-sm border-b px-8 py-4 flex justify-between items-center sticky top-0 z-10">
-            <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                <i :class="currentTabIcon" class="text-cyan-600"></i> {{ currentTabTitle }}
-            </h1>
-            <div class="flex items-center gap-4">
-                    <span class="text-sm bg-green-100 text-green-800 px-3 py-1 rounded-full font-medium flex items-center gap-1 shadow-sm">
-                        <i class="fa-solid fa-circle-check text-xs"></i> API Connected
-                    </span>
-                <button @click="refreshData" class="text-gray-500 hover:text-cyan-600 transition" title="Refresh Data">
-                    <i class="fa-solid fa-rotate-right"></i>
+        <header class="glass-panel shadow-sm border-b border-slate-200 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
+            <div>
+                <h1 class="text-2xl font-extrabold text-slate-800 flex items-center gap-3">
+                    <div class="bg-cyan-100 text-cyan-600 p-2 rounded-lg text-lg"><i :class="currentTabIcon"></i></div>
+                    {{ currentTabTitle }}
+                </h1>
+                <p class="text-sm text-slate-500 mt-1">{{ currentTabDescription }}</p>
+            </div>
+            <div class="flex items-center gap-5">
+                <span class="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-full font-bold flex items-center gap-2 shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> API Online
+                </span>
+                <button @click="refreshData" class="bg-white border border-slate-200 p-2.5 rounded-lg text-slate-500 hover:text-cyan-600 hover:border-cyan-200 hover:bg-cyan-50 transition-all shadow-sm group" title="Refresh Data">
+                    <i class="fa-solid fa-rotate-right group-hover:rotate-180 transition-transform duration-500"></i>
                 </button>
             </div>
         </header>
 
-        <div class="p-8">
+        <div class="p-8 max-w-screen-2xl mx-auto w-full">
+
             <!-- DASHBOARD TAB -->
-            <div v-if="currentTab === 'dashboard'" class="space-y-6 transform transition-all">
+            <div v-if="currentTab === 'dashboard'" class="space-y-8 animate-fade-in">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-cyan-500 hover:shadow-md transition">
-                        <p class="text-gray-500 text-sm font-semibold uppercase tracking-wider">Net Revenue</p>
-                        <h3 class="text-3xl font-bold mt-2 text-gray-800">&#8377;{{ summary.netRevenue?.toLocaleString('en-IN') || 0 }}</h3>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-cyan-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-start mb-4">
+                                <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Net Revenue</p>
+                                <div class="bg-cyan-100 text-cyan-600 p-2 rounded-lg"><i class="fa-solid fa-chart-line"></i></div>
+                            </div>
+                            <h3 class="text-3xl font-extrabold text-slate-800">&#8377;{{ summary.netRevenue?.toLocaleString('en-IN') || 0 }}</h3>
+                        </div>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-emerald-500 hover:shadow-md transition">
-                        <p class="text-gray-500 text-sm font-semibold uppercase tracking-wider">Net Profit</p>
-                        <h3 class="text-3xl font-bold mt-2 text-emerald-600">&#8377;{{ summary.netProfit?.toLocaleString('en-IN') || 0 }}</h3>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-start mb-4">
+                                <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Net Profit</p>
+                                <div class="bg-emerald-100 text-emerald-600 p-2 rounded-lg"><i class="fa-solid fa-sack-dollar"></i></div>
+                            </div>
+                            <h3 class="text-3xl font-extrabold text-emerald-600">&#8377;{{ summary.netProfit?.toLocaleString('en-IN') || 0 }}</h3>
+                        </div>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500 hover:shadow-md transition">
-                        <p class="text-gray-500 text-sm font-semibold uppercase tracking-wider">Total Cash Inflow</p>
-                        <h3 class="text-3xl font-bold mt-2 text-blue-600">&#8377;{{ summary.totalInflow?.toLocaleString('en-IN') || 0 }}</h3>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-start mb-4">
+                                <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Cash Inflow</p>
+                                <div class="bg-blue-100 text-blue-600 p-2 rounded-lg"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                            </div>
+                            <h3 class="text-3xl font-extrabold text-blue-600">&#8377;{{ summary.totalInflow?.toLocaleString('en-IN') || 0 }}</h3>
+                        </div>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-rose-500 hover:shadow-md transition">
-                        <p class="text-gray-500 text-sm font-semibold uppercase tracking-wider">Total Cash Outflow</p>
-                        <h3 class="text-3xl font-bold mt-2 text-rose-600">&#8377;{{ summary.totalOutflow?.toLocaleString('en-IN') || 0 }}</h3>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-rose-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-start mb-4">
+                                <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Cash Outflow</p>
+                                <div class="bg-rose-100 text-rose-600 p-2 rounded-lg"><i class="fa-solid fa-arrow-trend-down"></i></div>
+                            </div>
+                            <h3 class="text-3xl font-extrabold text-rose-600">&#8377;{{ summary.totalOutflow?.toLocaleString('en-IN') || 0 }}</h3>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- DAILY SALES TAB -->
             <div v-if="currentTab === 'daily-sales'" class="space-y-6">
-                <!-- Action Bar with Sync Button -->
-                <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <!-- Action Bar -->
+                <div class="flex justify-between items-center bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
                     <div>
-                        <h3 class="text-lg font-bold text-gray-800">Consolidated Daily Ledger</h3>
-                        <p class="text-xs text-gray-500">Auto-syncs or lets you manually record water and material collections.</p>
+                        <h3 class="text-lg font-bold text-slate-800">Ledger Actions</h3>
+                        <p class="text-sm text-slate-500">Pull data from individual water and material sub-ledgers.</p>
                     </div>
-                    <button @click="triggerSync" class="bg-emerald-600 text-white px-4 py-2 rounded-lg shadow hover:bg-emerald-700 font-semibold flex items-center gap-2 transition">
-                        <i class="fa-solid fa-sync"></i> Sync From Water & Materials
+                    <button @click="triggerSync" class="btn-primary from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700">
+                        <i class="fa-solid fa-rotate"></i> Sync Consolidated Data
                     </button>
                 </div>
 
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <h3 class="text-lg font-bold mb-4 text-gray-700">{{ dailySalesForm.id ? 'Edit' : 'Record' }} Daily Consolidated Sales</h3>
-                    <form @submit.prevent="saveDailySales" class="space-y-5">
-
-                        <!-- Date Input -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-bold mb-5 text-slate-800">{{ dailySalesForm.id ? 'Edit Ledger Entry' : 'Manual Ledger Entry' }}</h3>
+                    <form @submit.prevent="saveDailySales" class="space-y-6">
                         <div class="w-full md:w-1/4">
-                            <label class="block text-sm font-semibold text-gray-600 mb-1">Sale Date</label>
-                            <input v-model="dailySalesForm.saleDate" type="date" required class="border p-2.5 rounded shadow-sm w-full focus:ring-2 focus:ring-cyan-500 outline-none bg-gray-50">
+                            <label class="form-label">Sale Date</label>
+                            <input v-model="dailySalesForm.saleDate" type="date" required class="input-field">
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Water Sales Block -->
-                            <div class="bg-cyan-50/50 p-5 rounded-lg border border-cyan-100">
-                                <h4 class="font-bold text-cyan-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-droplet"></i> Water Sales Collections</h4>
+                            <div class="bg-cyan-50/50 p-5 rounded-xl border border-cyan-100">
+                                <h4 class="font-bold text-cyan-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-droplet text-cyan-500"></i> Water Collections</h4>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Cash (₹)</label>
-                                        <input v-model.number="dailySalesForm.waterCash" type="number" step="0.01" placeholder="0.00" class="border p-2.5 rounded shadow-sm w-full focus:ring-2 focus:ring-cyan-500 outline-none">
+                                        <label class="form-label">Cash (₹)</label>
+                                        <input v-model.number="dailySalesForm.waterCash" type="number" step="0.01" class="input-field bg-white">
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">GPay (₹)</label>
-                                        <input v-model.number="dailySalesForm.waterGpay" type="number" step="0.01" placeholder="0.00" class="border p-2.5 rounded shadow-sm w-full focus:ring-2 focus:ring-cyan-500 outline-none">
+                                        <label class="form-label">GPay (₹)</label>
+                                        <input v-model.number="dailySalesForm.waterGpay" type="number" step="0.01" class="input-field bg-white">
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Material Sales Block -->
-                            <div class="bg-amber-50/50 p-5 rounded-lg border border-amber-100">
-                                <h4 class="font-bold text-amber-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-boxes-stacked"></i> Material Sales Collections</h4>
+                            <div class="bg-amber-50/50 p-5 rounded-xl border border-amber-100">
+                                <h4 class="font-bold text-amber-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-boxes-stacked text-amber-500"></i> Material Collections</h4>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Cash (₹)</label>
-                                        <input v-model.number="dailySalesForm.materialCash" type="number" step="0.01" placeholder="0.00" class="border p-2.5 rounded shadow-sm w-full focus:ring-2 focus:ring-amber-500 outline-none">
+                                        <label class="form-label">Cash (₹)</label>
+                                        <input v-model.number="dailySalesForm.materialCash" type="number" step="0.01" class="input-field bg-white">
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">GPay (₹)</label>
-                                        <input v-model.number="dailySalesForm.materialGpay" type="number" step="0.01" placeholder="0.00" class="border p-2.5 rounded shadow-sm w-full focus:ring-2 focus:ring-amber-500 outline-none">
+                                        <label class="form-label">GPay (₹)</label>
+                                        <input v-model.number="dailySalesForm.materialGpay" type="number" step="0.01" class="input-field bg-white">
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Expenses Block -->
-                        <div class="bg-rose-50/50 p-5 rounded-lg border border-rose-100">
-                            <h4 class="font-bold text-rose-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-money-bill-transfer"></i> Expenses & Outflows</h4>
+                        <div class="bg-rose-50/50 p-5 rounded-xl border border-rose-100">
+                            <h4 class="font-bold text-rose-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-money-bill-transfer text-rose-500"></i> Expenses & Outflows</h4>
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                                 <div>
-                                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Amount (₹)</label>
-                                    <input v-model.number="dailySalesForm.expenses" type="number" step="0.01" placeholder="0.00" class="border p-2.5 rounded shadow-sm w-full focus:ring-2 focus:ring-rose-500 outline-none">
+                                    <label class="form-label">Amount (₹)</label>
+                                    <input v-model.number="dailySalesForm.expenses" type="number" step="0.01" class="input-field bg-white border-rose-200 focus:ring-rose-500">
                                 </div>
                                 <div class="md:col-span-3">
-                                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Remarks / Details</label>
-                                    <input v-model="dailySalesForm.remarks" placeholder="e.g. Dalmia Cement 50 - 14750" class="border p-2.5 rounded shadow-sm w-full focus:ring-2 focus:ring-rose-500 outline-none">
+                                    <label class="form-label">Remarks / Details</label>
+                                    <input v-model="dailySalesForm.remarks" placeholder="Description of expense..." class="input-field bg-white border-rose-200 focus:ring-rose-500">
                                 </div>
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-between pt-2">
-                            <div class="text-lg font-bold text-gray-800 border bg-gray-50 px-4 py-2 rounded shadow-sm">
-                                Total Cash Inflow: <span class="text-emerald-600">₹{{ ((dailySalesForm.waterCash || 0) + (dailySalesForm.waterGpay || 0) + (dailySalesForm.materialCash || 0) + (dailySalesForm.materialGpay || 0)).toFixed(2) }}</span>
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                            <div class="text-lg font-bold text-slate-700 bg-slate-50 px-5 py-3 rounded-xl border border-slate-200 shadow-inner">
+                                Total Inflow: <span class="text-emerald-600">₹{{ ((dailySalesForm.waterCash || 0) + (dailySalesForm.waterGpay || 0) + (dailySalesForm.materialCash || 0) + (dailySalesForm.materialGpay || 0)).toFixed(2) }}</span>
                             </div>
-                            <div class="flex gap-2">
-                                <button type="submit" class="bg-cyan-600 text-white py-2.5 px-8 rounded shadow hover:bg-cyan-700 font-semibold transition">{{ dailySalesForm.id ? 'Update Entry' : 'Save Daily Record' }}</button>
-                                <button type="button" v-if="dailySalesForm.id" @click="clearForms" class="bg-gray-400 text-white py-2.5 px-6 rounded shadow hover:bg-gray-500 font-semibold transition">Cancel</button>
+                            <div class="flex gap-3">
+                                <button type="button" v-if="dailySalesForm.id" @click="clearForms" class="btn-secondary">Cancel</button>
+                                <button type="submit" class="btn-primary"><i class="fa-solid fa-save"></i> {{ dailySalesForm.id ? 'Update Ledger' : 'Save Record' }}</button>
                             </div>
                         </div>
                     </form>
                 </div>
 
-                <!-- Daily Sales History Table Section with Column Toggles -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-                    <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
-                        <h4 class="font-bold text-gray-700">Recorded History (Sorted by Date Descending)</h4>
-
-                        <!-- Column Option / Visibility Dropdown -->
-                        <div class="relative">
-                            <button @click="showColumnMenu = !showColumnMenu" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition">
-                                <i class="fa-solid fa-columns"></i> Column Options <i class="fa-solid fa-chevron-down text-xs"></i>
-                            </button>
-                            <div v-if="showColumnMenu" class="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-20 p-3 space-y-2">
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Toggle Columns</p>
-                                <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                    <input type="checkbox" v-model="columns.water" class="rounded text-cyan-600 focus:ring-cyan-500"> Water Sales
-                                </label>
-                                <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                    <input type="checkbox" v-model="columns.material" class="rounded text-cyan-600 focus:ring-cyan-500"> Material Sales
-                                </label>
-                                <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                    <input type="checkbox" v-model="columns.expenses" class="rounded text-cyan-600 focus:ring-cyan-500"> Expenses
-                                </label>
-                                <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                    <input type="checkbox" v-model="columns.remarks" class="rounded text-cyan-600 focus:ring-cyan-500"> Remarks
-                                </label>
-                                <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                    <input type="checkbox" v-model="columns.revenue" class="rounded text-cyan-600 focus:ring-cyan-500"> Total Revenue
-                                </label>
-                            </div>
-                        </div>
+                <!-- Data Table -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 overflow-hidden">
+                    <div class="flex justify-between items-center mb-5">
+                        <h4 class="font-bold text-slate-800 text-lg">Ledger History</h4>
+                        <!-- Add table toggles here if needed -->
                     </div>
-
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse whitespace-nowrap">
-                            <tr class="bg-gray-100 text-gray-700 uppercase text-xs tracking-wider border-b">
-                                <th class="p-4 cursor-pointer hover:bg-gray-200 transition" title="Sorted Descending">
-                                    Date <i class="fa-solid fa-arrow-down-wide-short text-cyan-600"></i>
-                                </th>
-                                <th v-if="columns.water" class="p-4 text-cyan-800 bg-cyan-50/50">Water (Cash | GPay)</th>
-                                <th v-if="columns.material" class="p-4 text-amber-800 bg-amber-50/50">Material (Cash | GPay)</th>
-                                <th v-if="columns.expenses" class="p-4 text-rose-800 bg-rose-50/50">Expenses</th>
-                                <th v-if="columns.remarks" class="p-4">Remarks</th>
-                                <th v-if="columns.revenue" class="p-4 text-emerald-800 bg-emerald-50/50">Total Revenue</th>
-                                <th class="p-4">Actions</th>
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                            <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                <th class="p-4 font-bold">Date</th>
+                                <th class="p-4 font-bold text-cyan-700">Water (Cash | GPay)</th>
+                                <th class="p-4 font-bold text-amber-700">Material (Cash | GPay)</th>
+                                <th class="p-4 font-bold text-rose-700">Expenses</th>
+                                <th class="p-4 font-bold">Remarks</th>
+                                <th class="p-4 font-bold text-emerald-700">Net Revenue</th>
+                                <th class="p-4 font-bold text-right">Actions</th>
                             </tr>
-                            <tr v-for="ds in sortedDailySales" :key="ds.id" class="border-b hover:bg-gray-50 transition">
-                                <td class="p-4 font-semibold text-gray-800">{{ ds.saleDate }}</td>
-                                <td v-if="columns.water" class="p-4 bg-cyan-50/20 text-gray-600">
-                                    <span class="font-medium text-cyan-700">₹{{ ds.waterCash || 0 }}</span> &nbsp;|&nbsp; <span class="font-medium text-indigo-600">₹{{ ds.waterGpay || 0 }}</span>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm">
+                            <tr v-for="ds in sortedDailySales" :key="ds.id" class="hover:bg-slate-50/80 transition-colors">
+                                <td class="p-4 font-bold text-slate-800">{{ ds.saleDate }}</td>
+                                <td class="p-4">
+                                    <span class="font-semibold text-slate-600">₹{{ ds.waterCash || 0 }}</span> <span class="text-slate-300 px-1">|</span> <span class="font-semibold text-cyan-600">₹{{ ds.waterGpay || 0 }}</span>
                                 </td>
-                                <td v-if="columns.material" class="p-4 bg-amber-50/20 text-gray-600">
-                                    <span class="font-medium text-amber-700">₹{{ ds.materialCash || 0 }}</span> &nbsp;|&nbsp; <span class="font-medium text-indigo-600">₹{{ ds.materialGpay || 0 }}</span>
+                                <td class="p-4">
+                                    <span class="font-semibold text-slate-600">₹{{ ds.materialCash || 0 }}</span> <span class="text-slate-300 px-1">|</span> <span class="font-semibold text-indigo-600">₹{{ ds.materialGpay || 0 }}</span>
                                 </td>
-                                <td v-if="columns.expenses" class="p-4 font-bold text-rose-600 bg-rose-50/20">₹{{ ds.expenses || 0 }}</td>
-                                <td v-if="columns.remarks" class="p-4 text-gray-500 max-w-[200px] truncate" :title="ds.remarks">{{ ds.remarks || '-' }}</td>
-                                <td v-if="columns.revenue" class="p-4 font-bold text-emerald-600 bg-emerald-50/20">
-                                    ₹{{ ((ds.waterCash || 0) + (ds.waterGpay || 0) + (ds.materialCash || 0) + (ds.materialGpay || 0)).toFixed(2) }}
-                                </td>
-                                <td class="p-4 flex gap-2">
-                                    <button @click="editItem('daily-sales', ds)" class="text-blue-500 hover:text-blue-700 bg-blue-50 p-2 rounded" title="Edit Entry"><i class="fa-solid fa-pen"></i></button>
-                                    <button @click="deleteItem('/api/daily-sales/' + ds.id, loadDailySales)" class="text-rose-500 hover:text-rose-700 bg-rose-50 p-2 rounded" title="Delete Entry"><i class="fa-solid fa-trash"></i></button>
+                                <td class="p-4 font-bold text-rose-600">₹{{ ds.expenses || 0 }}</td>
+                                <td class="p-4 text-slate-500 max-w-[150px] truncate">{{ ds.remarks || '-' }}</td>
+                                <td class="p-4 font-bold text-emerald-600">₹{{ ((ds.waterCash || 0) + (ds.waterGpay || 0) + (ds.materialCash || 0) + (ds.materialGpay || 0)).toFixed(2) }}</td>
+                                <td class="p-4 text-right space-x-2">
+                                    <button @click="editItem('daily-sales', ds)" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button @click="deleteItem('/api/daily-sales/' + ds.id, loadDailySales)" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 transition"><i class="fa-solid fa-trash text-xs"></i></button>
                                 </td>
                             </tr>
+                            <tr v-if="!sortedDailySales.length"><td colspan="7" class="p-8 text-center text-slate-500">No consolidated data found.</td></tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- PRODUCTS TAB -->
-            <div v-if="currentTab === 'products'" class="space-y-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <h3 class="text-lg font-bold mb-4 text-gray-700">{{ productForm.id ? 'Edit' : 'Add' }} Inventory Item</h3>
-                    <form @submit.prevent="saveProduct" class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                        <input v-model="productForm.itemName" placeholder="Item Name" required class="border p-2.5 rounded shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none">
-                        <input v-model="productForm.description" placeholder="Description" class="border p-2.5 rounded shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none">
-                        <input v-model.number="productForm.quantity" type="number" placeholder="Quantity" required class="border p-2.5 rounded shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none">
-                        <input v-model.number="productForm.sellingPrice" type="number" step="0.01" placeholder="Selling Price (₹)" class="border p-2.5 rounded shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none">
-                        <div class="flex gap-2">
-                            <button type="submit" class="bg-cyan-600 text-white p-2.5 rounded shadow hover:bg-cyan-700 font-semibold transition w-full">{{ productForm.id ? 'Update' : 'Save' }}</button>
-                            <button type="button" v-if="productForm.id" @click="clearForms" class="bg-gray-400 text-white p-2.5 rounded shadow hover:bg-gray-500 font-semibold transition">Cancel</button>
+            <!-- WATER SALES TAB -->
+            <div v-if="currentTab === 'water'" class="space-y-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-cyan-500">
+                    <h3 class="text-lg font-bold mb-5 text-slate-800">{{ waterForm.id ? 'Edit' : 'Record' }} Water Can Sale</h3>
+                    <form @submit.prevent="saveWaterSale" class="space-y-5">
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-5">
+                            <div>
+                                <label class="form-label">Sale Date</label>
+                                <input v-model="waterForm.saleDate" type="date" required class="input-field">
+                            </div>
+                            <div>
+                                <label class="form-label">Cans Sold (Qty)</label>
+                                <input v-model.number="waterForm.quantity" type="number" min="0" required placeholder="0" class="input-field">
+                            </div>
+                            <div>
+                                <label class="form-label">Cash Recv. (₹)</label>
+                                <input v-model.number="waterForm.cashAmount" type="number" step="0.01" min="0" placeholder="0.00" class="input-field border-cyan-200">
+                            </div>
+                            <div>
+                                <label class="form-label">GPay Recv. (₹)</label>
+                                <input v-model.number="waterForm.gpayAmount" type="number" step="0.01" min="0" placeholder="0.00" class="input-field border-indigo-200">
+                            </div>
+                            <div class="flex items-end gap-2 pb-[2px]">
+                                <button type="submit" class="btn-primary w-full h-[46px]">{{ waterForm.id ? 'Update' : 'Save Sale' }}</button>
+                                <button type="button" v-if="waterForm.id" @click="clearForms" class="btn-secondary h-[46px] px-4"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
                         </div>
                     </form>
                 </div>
-            </div>
 
-            <!-- WATER SALES TAB -->
-            <div v-if="currentTab === 'water'" class="space-y-6">
-                <!-- Water Sales content placeholder -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                            <th class="p-4 font-bold">Date</th>
+                            <th class="p-4 font-bold">Quantity (Cans)</th>
+                            <th class="p-4 font-bold text-cyan-700">Cash Received</th>
+                            <th class="p-4 font-bold text-indigo-700">GPay Received</th>
+                            <th class="p-4 font-bold text-emerald-700">Total Value</th>
+                            <th class="p-4 font-bold text-right">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-sm">
+                        <tr v-for="ws in sortedWaterSales" :key="ws.id" class="hover:bg-slate-50/80 transition-colors">
+                            <td class="p-4 font-bold text-slate-800">{{ ws.saleDate }}</td>
+                            <td class="p-4 font-semibold text-slate-600">{{ ws.quantity }} Cans</td>
+                            <td class="p-4 font-medium text-cyan-700">₹{{ ws.cashAmount || 0 }}</td>
+                            <td class="p-4 font-medium text-indigo-700">₹{{ ws.gpayAmount || 0 }}</td>
+                            <td class="p-4 font-bold text-emerald-600">₹{{ ((ws.cashAmount || 0) + (ws.gpayAmount || 0)).toFixed(2) }}</td>
+                            <td class="p-4 text-right space-x-2">
+                                <button @click="editItem('water', ws)" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition"><i class="fa-solid fa-pen text-xs"></i></button>
+                                <button @click="deleteItem('/api/water-sales/' + ws.id, loadWaterSales)" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition"><i class="fa-solid fa-trash text-xs"></i></button>
+                            </td>
+                        </tr>
+                        <tr v-if="!sortedWaterSales.length"><td colspan="6" class="p-8 text-center text-slate-500">No water sales recorded yet.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- MATERIAL SALES TAB -->
             <div v-if="currentTab === 'material'" class="space-y-6">
-                <!-- Material Sales content placeholder -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-amber-500">
+                    <h3 class="text-lg font-bold mb-5 text-slate-800">{{ materialForm.id ? 'Edit' : 'Record' }} Material Sale</h3>
+                    <form @submit.prevent="saveMaterialSale" class="space-y-5">
+                        <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+                            <div>
+                                <label class="form-label">Sale Date</label>
+                                <input v-model="materialForm.saleDate" type="date" required class="input-field">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="form-label">Product / Item Name</label>
+                                <!-- Using datalist for pseudo-dropdown connected to Products tab data -->
+                                <input v-model="materialForm.itemName" list="product-list" required placeholder="Select or type product..." class="input-field">
+                                <datalist id="product-list">
+                                    <option v-for="prod in products" :key="prod.id" :value="prod.itemName"></option>
+                                </datalist>
+                            </div>
+                            <div>
+                                <label class="form-label">Quantity</label>
+                                <input v-model.number="materialForm.quantity" type="number" min="0.01" step="0.01" required placeholder="0" class="input-field">
+                            </div>
+                            <div>
+                                <label class="form-label">Cash (₹)</label>
+                                <input v-model.number="materialForm.cashAmount" type="number" step="0.01" placeholder="0.00" class="input-field">
+                            </div>
+                            <div>
+                                <label class="form-label">GPay (₹)</label>
+                                <input v-model.number="materialForm.gpayAmount" type="number" step="0.01" placeholder="0.00" class="input-field">
+                            </div>
+                            <div class="md:col-span-4">
+                                <label class="form-label">Customer / Remarks</label>
+                                <input v-model="materialForm.remarks" placeholder="Customer Name or Invoice Ref..." class="input-field">
+                            </div>
+                            <div class="md:col-span-2 flex items-end gap-2 pb-[2px]">
+                                <button type="submit" class="btn-primary w-full h-[46px] from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700">{{ materialForm.id ? 'Update' : 'Save Material Sale' }}</button>
+                                <button type="button" v-if="materialForm.id" @click="clearForms" class="btn-secondary h-[46px] px-4"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                            <th class="p-4 font-bold">Date</th>
+                            <th class="p-4 font-bold">Item & Details</th>
+                            <th class="p-4 font-bold">Quantity</th>
+                            <th class="p-4 font-bold text-slate-700">Payment Split</th>
+                            <th class="p-4 font-bold text-emerald-700">Total Value</th>
+                            <th class="p-4 font-bold text-right">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-sm">
+                        <tr v-for="ms in sortedMaterialSales" :key="ms.id" class="hover:bg-slate-50/80 transition-colors">
+                            <td class="p-4 font-bold text-slate-800">{{ ms.saleDate }}</td>
+                            <td class="p-4">
+                                <div class="font-bold text-slate-700">{{ ms.itemName }}</div>
+                                <div class="text-xs text-slate-400 mt-0.5">{{ ms.remarks || 'No remarks' }}</div>
+                            </td>
+                            <td class="p-4 font-semibold text-slate-600">{{ ms.quantity }}</td>
+                            <td class="p-4 text-xs">
+                                <div class="text-slate-600">Cash: <span class="font-bold">₹{{ ms.cashAmount || 0 }}</span></div>
+                                <div class="text-indigo-600">GPay: <span class="font-bold">₹{{ ms.gpayAmount || 0 }}</span></div>
+                            </td>
+                            <td class="p-4 font-bold text-emerald-600 text-base">₹{{ ((ms.cashAmount || 0) + (ms.gpayAmount || 0)).toFixed(2) }}</td>
+                            <td class="p-4 text-right space-x-2">
+                                <button @click="editItem('material', ms)" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition"><i class="fa-solid fa-pen text-xs"></i></button>
+                                <button @click="deleteItem('/api/material-sales/' + ms.id, loadMaterialSales)" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition"><i class="fa-solid fa-trash text-xs"></i></button>
+                            </td>
+                        </tr>
+                        <tr v-if="!sortedMaterialSales.length"><td colspan="6" class="p-8 text-center text-slate-500">No material sales recorded yet.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PRODUCTS TAB -->
+            <div v-if="currentTab === 'products'" class="space-y-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-indigo-500">
+                    <h3 class="text-lg font-bold mb-5 text-slate-800">{{ productForm.id ? 'Edit' : 'Add New' }} Inventory Product</h3>
+                    <form @submit.prevent="saveProduct" class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
+                        <div class="md:col-span-2">
+                            <label class="form-label">Item Name</label>
+                            <input v-model="productForm.itemName" required class="input-field">
+                        </div>
+                        <div class="md:col-span-1">
+                            <label class="form-label">Stock Qty</label>
+                            <input v-model.number="productForm.quantity" type="number" required class="input-field">
+                        </div>
+                        <div class="md:col-span-1">
+                            <label class="form-label">Price (₹)</label>
+                            <input v-model.number="productForm.sellingPrice" type="number" step="0.01" class="input-field">
+                        </div>
+                        <div class="md:col-span-2 flex gap-2 pb-[2px]">
+                            <button type="submit" class="btn-primary flex-1 h-[46px]">{{ productForm.id ? 'Update' : 'Add Product' }}</button>
+                            <button type="button" v-if="productForm.id" @click="clearForms" class="btn-secondary h-[46px] px-4"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <div class="md:col-span-6 mt-1">
+                            <label class="form-label">Description</label>
+                            <input v-model="productForm.description" placeholder="Optional details..." class="input-field bg-transparent border-slate-200">
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Products Table Area (Simplified for space) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div v-for="prod in products" :key="prod.id" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative group">
+                        <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                            <button @click="editItem('product', prod)" class="text-blue-500 hover:text-blue-700 bg-white shadow-sm p-1.5 rounded-md"><i class="fa-solid fa-pen text-xs"></i></button>
+                            <button @click="deleteItem('/api/products/' + prod.id, loadProducts)" class="text-rose-500 hover:text-rose-700 bg-white shadow-sm p-1.5 rounded-md"><i class="fa-solid fa-trash text-xs"></i></button>
+                        </div>
+                        <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-box"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-lg">{{ prod.itemName }}</h4>
+                        <p class="text-xs text-slate-400 mb-3 h-4">{{ prod.description || 'No description' }}</p>
+                        <div class="flex justify-between items-center border-t border-slate-100 pt-3">
+                            <span class="text-sm text-slate-500">Stock: <strong class="text-slate-800">{{ prod.quantity }}</strong></span>
+                            <span class="text-sm font-bold text-emerald-600">₹{{ prod.sellingPrice || 0 }}</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -257,56 +443,64 @@
 
     createApp({
         setup() {
-            const currentTab = ref('daily-sales');
+            const currentTab = ref('dashboard');
             const tabs = [
-                { id: 'dashboard', name: 'Dashboard & Reports', icon: 'fa-solid fa-chart-pie' },
-                { id: 'daily-sales', name: 'Daily Consolidations', icon: 'fa-solid fa-calendar-check' },
-                { id: 'products', name: 'Products & Inventory', icon: 'fa-solid fa-boxes-stacked' },
-                { id: 'water', name: 'Water Can Sales', icon: 'fa-solid fa-droplet' },
-                { id: 'material', name: 'Material Sales', icon: 'fa-solid fa-truck-ramp-box' }
+                { id: 'dashboard', name: 'Dashboard', icon: 'fa-solid fa-chart-pie', desc: 'Real-time financial overview' },
+                { id: 'daily-sales', name: 'Consolidated Ledger', icon: 'fa-solid fa-book', desc: 'Centralized daily profit & loss' },
+                { id: 'water', name: 'Water Sales', icon: 'fa-solid fa-droplet', desc: 'Track daily water can dispatches' },
+                { id: 'material', name: 'Material Sales', icon: 'fa-solid fa-truck-ramp-box', desc: 'Track cement and material invoices' },
+                { id: 'products', name: 'Inventory Base', icon: 'fa-solid fa-boxes-stacked', desc: 'Manage stock limits and pricing' }
             ];
 
             const summary = ref({});
             const dailySales = ref([]);
             const products = ref([]);
+
+            // New Reactive arrays for the missing tabs
             const waterSales = ref([]);
             const materialSales = ref([]);
 
-            // Column Options visibility state
-            const showColumnMenu = ref(false);
-            const columns = ref({
-                water: true,
-                material: true,
-                expenses: true,
-                remarks: true,
-                revenue: true
-            });
-
-            // Computed property to sort daily sales by date in descending order (latest first)[cite: 5]
-            const sortedDailySales = computed(() => {
-                if (!dailySales.value) return [];
-                return [...dailySales.value].sort((a, b) => new Date(b.saleDate) - new Date(a.saleDate));
-            });
-
             const defaultDate = () => new Date().toISOString().split('T')[0];
 
+            // Forms State
             const dailySalesForm = ref({ id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' });
             const productForm = ref({ id: null, itemName: '', description: '', quantity: null, sellingPrice: null });
 
-            const currentTabTitle = computed(() => tabs.find(t => t.id === currentTab.value)?.name || '');
-            const currentTabIcon = computed(() => tabs.find(t => t.id === currentTab.value)?.icon || '');
+            // New Forms State
+            const waterForm = ref({ id: null, saleDate: defaultDate(), quantity: null, cashAmount: null, gpayAmount: null });
+            const materialForm = ref({ id: null, saleDate: defaultDate(), itemName: '', quantity: null, cashAmount: null, gpayAmount: null, remarks: '' });
+
+            // Computed UI Helpers
+            const currentTabObj = computed(() => tabs.find(t => t.id === currentTab.value) || tabs[0]);
+            const currentTabTitle = computed(() => currentTabObj.value.name);
+            const currentTabIcon = computed(() => currentTabObj.value.icon);
+            const currentTabDescription = computed(() => currentTabObj.value.desc);
+
+            // Computed Sorting Methods
+            const sortDesc = (arr, dateField = 'saleDate') => {
+                if (!arr) return [];
+                return [...arr].sort((a, b) => new Date(b[dateField]) - new Date(a[dateField]));
+            };
+            const sortedDailySales = computed(() => sortDesc(dailySales.value));
+            const sortedWaterSales = computed(() => sortDesc(waterSales.value));
+            const sortedMaterialSales = computed(() => sortDesc(materialSales.value));
 
             const clearForms = () => {
                 dailySalesForm.value = { id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' };
                 productForm.value = { id: null, itemName: '', description: '', quantity: null, sellingPrice: null };
+                waterForm.value = { id: null, saleDate: defaultDate(), quantity: null, cashAmount: null, gpayAmount: null };
+                materialForm.value = { id: null, saleDate: defaultDate(), itemName: '', quantity: null, cashAmount: null, gpayAmount: null, remarks: '' };
             };
 
             const editItem = (type, item) => {
                 if(type === 'daily-sales') dailySalesForm.value = { ...item };
                 if(type === 'product') productForm.value = { ...item };
+                if(type === 'water') waterForm.value = { ...item };
+                if(type === 'material') materialForm.value = { ...item };
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             };
 
+            // Generic Fetch GET
             const loadData = async (url, targetRef) => {
                 try {
                     const res = await fetch(url);
@@ -314,55 +508,48 @@
                 } catch (e) { console.error(`Error loading ${url}:`, e); }
             };
 
+            // Data Loaders
             const loadDashboard = () => loadData('/api/dashboard/summary', summary);
             const loadDailySales = () => loadData('/api/daily-sales', dailySales);
             const loadProducts = () => loadData('/api/products', products);
+            const loadWaterSales = () => loadData('/api/water-sales', waterSales);
+            const loadMaterialSales = () => loadData('/api/material-sales', materialSales);
 
             const refreshData = () => {
-                loadDashboard(); loadDailySales(); loadProducts();
+                loadDashboard(); loadDailySales(); loadProducts(); loadWaterSales(); loadMaterialSales();
             };
 
-            // Sync Button Handler
+            // Existing BAU Sync Handler
             const triggerSync = async () => {
                 try {
                     const res = await fetch('/api/daily-sales/sync', { method: 'POST' });
                     const text = await res.text();
                     if (res.ok) {
-                        alert(text);
-                        loadDailySales();
-                        loadDashboard();
-                    } else {
-                        alert('Sync failed: ' + text);
-                    }
-                } catch (e) {
-                    console.error('Network error during sync:', e);
-                    alert('Network error during sync.');
-                }
+                        alert("Sync Successful: " + text);
+                        loadDailySales(); loadDashboard();
+                    } else alert('Sync failed: ' + text);
+                } catch (e) { alert('Network error during sync.'); }
             };
 
+            // Generic Save Method (POST/PUT)
             const postData = async (url, data, onSuccess) => {
-                const isUpdate = data.id !== null && data.id !== undefined;
+                const isUpdate = !!data.id;
                 const finalUrl = isUpdate ? `${url}/${data.id}` : url;
-                const method = isUpdate ? 'PUT' : 'POST';
 
                 try {
                     const response = await fetch(finalUrl, {
-                        method: method,
+                        method: isUpdate ? 'PUT' : 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(data)
                     });
                     if (response.ok) {
                         onSuccess();
-                        loadDashboard();
-                    } else {
-                        alert(`Failed to ${isUpdate ? 'update' : 'save'} data. API returned status ${response.status}.`);
-                    }
-                } catch (error) {
-                    console.error(`Error processing request to ${finalUrl}:`, error);
-                    alert("Network error. Please check your backend connection.");
-                }
+                        loadDashboard(); // Refresh dash metrics automatically on any save
+                    } else alert(`Failed to save data. (Status: ${response.status})`);
+                } catch (error) { alert("Network error. Backend connection failed."); }
             };
 
+            // Save Handlers
             const saveDailySales = () => {
                 const payload = {
                     ...dailySalesForm.value,
@@ -377,33 +564,37 @@
 
             const saveProduct = () => postData('/api/products', productForm.value, () => { clearForms(); loadProducts(); });
 
+            // New Handlers for Water & Material
+            const saveWaterSale = () => {
+                const payload = { ...waterForm.value, cashAmount: waterForm.value.cashAmount || 0, gpayAmount: waterForm.value.gpayAmount || 0 };
+                postData('/api/water-sales', payload, () => { clearForms(); loadWaterSales(); });
+            };
+
+            const saveMaterialSale = () => {
+                const payload = { ...materialForm.value, cashAmount: materialForm.value.cashAmount || 0, gpayAmount: materialForm.value.gpayAmount || 0 };
+                postData('/api/material-sales', payload, () => { clearForms(); loadMaterialSales(); });
+            };
+
+            // Delete Handler
             const deleteItem = async (url, reloadCallback) => {
-                if (confirm('Are you sure you want to delete this record? This action cannot be undone.')) {
+                if (confirm('Are you sure you want to delete this record?')) {
                     try {
                         const res = await fetch(url, { method: 'DELETE' });
-                        if (res.ok) {
-                            reloadCallback();
-                            loadDashboard();
-                        } else {
-                            alert(`Failed to delete record. API returned status ${res.status}.`);
-                        }
-                    } catch (error) {
-                        console.error("Error deleting item:", error);
-                        alert("Network error during deletion.");
-                    }
+                        if (res.ok) { reloadCallback(); loadDashboard(); }
+                        else alert(`Deletion failed. (Status: ${res.status})`);
+                    } catch (error) { alert("Network error during deletion."); }
                 }
             };
 
-            onMounted(() => {
-                refreshData();
-            });
+            onMounted(() => { refreshData(); });
 
             return {
-                currentTab, tabs, currentTabTitle, currentTabIcon,
-                summary, dailySales, sortedDailySales, products, waterSales, materialSales,
-                dailySalesForm, productForm, showColumnMenu, columns,
-                saveDailySales, saveProduct,
-                deleteItem, editItem, clearForms, loadDailySales, refreshData, triggerSync
+                currentTab, tabs, currentTabTitle, currentTabIcon, currentTabDescription,
+                summary, dailySales, products, waterSales, materialSales,
+                sortedDailySales, sortedWaterSales, sortedMaterialSales,
+                dailySalesForm, productForm, waterForm, materialForm,
+                saveDailySales, saveProduct, saveWaterSale, saveMaterialSale,
+                deleteItem, editItem, clearForms, loadDailySales, loadProducts, loadWaterSales, loadMaterialSales, refreshData, triggerSync
             };
         }
     }).mount('#app');

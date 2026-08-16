@@ -6,6 +6,7 @@ import com.mt.salesapp.repository.WaterSalesRepository;
 import com.mt.salesapp.repository.MaterialSalesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -25,7 +26,7 @@ public class DailySalesSyncService {
     @Autowired
     private MaterialSalesRepository materialSalesRepository;
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public int syncDailySalesFromSourceTables() {
         // 1. Gather all unique dates from water and material sales
         Set<LocalDate> allDates = new HashSet<>();
