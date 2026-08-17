@@ -61,12 +61,20 @@ public class MadhanTradersService {
     // --- MATERIAL SALES ---
     public List<MaterialSalesEntry> getAllMaterialSales() { return materialSalesRepository.findAll(); }
     public MaterialSalesEntry saveMaterialSales(MaterialSalesEntry entry) {
-        if(entry.getTotalAmount() == null && entry.getCashAmount() != null && entry.getGpayAmount() != null) {
-            entry.setTotalAmount(entry.getCashAmount() + entry.getGpayAmount());
+        try{
+            if(entry.getTotalAmount() == null && entry.getCashAmount() != null && entry.getGpayAmount() != null) {
+                entry.setTotalAmount(entry.getCashAmount() + entry.getGpayAmount());
+            }
+            if(entry.getProfit() == null)
+                entry.setProfit(Double.valueOf("0"));
+            entry.setUnitPrice(entry.getTotalAmount()/entry.getQuantity());
+            return materialSalesRepository.save(entry);
+            }
+        catch (Exception ex ){
+            ex.printStackTrace();
+            return new MaterialSalesEntry();
         }
-        if(entry.getProfit() == 0)
-            entry.setProfit(Double.valueOf("0"));
-        return materialSalesRepository.save(entry); }
+    }
     public void deleteMaterialSales(Long id) { materialSalesRepository.deleteById(id); }
 
     // --- CASH FLOW ---
