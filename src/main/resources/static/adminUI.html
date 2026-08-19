@@ -28,19 +28,27 @@
     </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800 selection:bg-cyan-200 selection:text-cyan-900">
-<div id="app" v-cloak class="flex h-screen overflow-hidden">
+<div id="app" v-cloak class="flex h-screen overflow-hidden relative">
+
+    <!-- Mobile Sidebar Overlay -->
+    <div v-if="isSidebarOpen" @click="isSidebarOpen = false" class="fixed inset-0 bg-slate-900/50 z-20 md:hidden backdrop-blur-sm transition-opacity"></div>
 
     <!-- Sidebar -->
-    <aside class="w-72 bg-slate-900 text-white flex flex-col justify-between shadow-2xl z-20 relative">
+    <aside :class="['fixed md:relative z-30 inset-y-0 left-0 w-72 shrink-0 bg-slate-900 text-white flex flex-col justify-between shadow-2xl transition-transform duration-300 ease-in-out md:translate-x-0', isSidebarOpen ? 'translate-x-0' : '-translate-x-full']">
         <div class="absolute top-0 left-0 w-full h-32 bg-cyan-600/20 blur-3xl pointer-events-none"></div>
 
         <div class="relative z-10 flex flex-col h-full">
-            <div class="p-6 text-2xl font-bold bg-slate-900/50 flex items-center gap-3 border-b border-slate-800">
-                <div class="bg-cyan-500/20 p-2 rounded-lg"><i class="fa-solid fa-water text-cyan-400"></i></div>
-                Madhan Traders
+            <div class="p-6 text-xl md:text-2xl font-bold bg-slate-900/50 flex items-center justify-between border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="bg-cyan-500/20 p-2 rounded-lg"><i class="fa-solid fa-water text-cyan-400"></i></div>
+                    Madhan Traders
+                </div>
+                <button @click="isSidebarOpen = false" class="md:hidden text-slate-400 hover:text-white transition-colors">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
             </div>
             <nav class="mt-6 px-3 space-y-1.5 overflow-y-auto">
-                <a v-for="tab in tabs" :key="tab.id" @click="switchTab(tab.id)"
+                <a v-for="tab in tabs" :key="tab.id" @click="switchTab(tab.id); isSidebarOpen = false;"
                    :class="['flex items-center gap-3 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-300',
                             currentTab === tab.id ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-900/50 font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-white']">
                     <i :class="tab.icon + ' w-6 text-center text-lg ' + (currentTab === tab.id ? 'text-cyan-100' : 'text-slate-500')"></i>
@@ -49,152 +57,158 @@
             </nav>
         </div>
         <div class="p-5 text-xs text-slate-500 bg-slate-950/50 text-center border-t border-slate-800/80 relative z-10 mt-auto">
-            Enterprise Management v5.2<br>
+            Enterprise Management v5.3<br>
             <span class="text-slate-600">Spring Boot + Vue 3</span>
         </div>
     </aside>
 
     <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col overflow-y-auto bg-slate-50/50 relative">
+    <main class="flex-1 flex flex-col min-w-0 overflow-y-auto bg-slate-50/50 relative">
 
         <!-- Header -->
-        <header class="glass-panel shadow-sm border-b border-slate-200 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
-            <div>
-                <h1 class="text-2xl font-extrabold text-slate-800 flex items-center gap-3">
-                    <div class="bg-cyan-100 text-cyan-600 p-2 rounded-lg text-lg"><i :class="currentTabIcon"></i></div>
-                    {{ currentTabTitle }}
-                </h1>
-                <p class="text-sm text-slate-500 mt-1">{{ currentTabDescription }}</p>
+        <header class="glass-panel shadow-sm border-b border-slate-200 px-4 md:px-8 py-4 flex flex-wrap gap-4 justify-between items-center sticky top-0 z-10">
+            <div class="flex items-center gap-3 md:gap-4">
+                <!-- Mobile Menu Button -->
+                <button @click="isSidebarOpen = true" class="md:hidden p-2 -ml-2 text-slate-500 hover:text-cyan-600 focus:outline-none transition-colors">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-extrabold text-slate-800 flex items-center gap-3">
+                        <div class="hidden md:block bg-cyan-100 text-cyan-600 p-2 rounded-lg text-lg"><i :class="currentTabIcon"></i></div>
+                        {{ currentTabTitle }}
+                    </h1>
+                    <p class="text-xs md:text-sm text-slate-500 mt-1 hidden sm:block">{{ currentTabDescription }}</p>
+                </div>
             </div>
-            <div class="flex items-center gap-5">
-                <span class="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-full font-bold flex items-center gap-2 shadow-sm">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> API Online
+            <div class="flex items-center gap-3 md:gap-5 ml-auto">
+                <span class="text-[10px] md:text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 md:px-3 py-1.5 rounded-full font-bold flex items-center gap-1 md:gap-2 shadow-sm">
+                    <span class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-emerald-500 animate-pulse"></span> <span class="hidden sm:inline">API</span> Online
                 </span>
-                <button @click="refreshData" class="bg-white border border-slate-200 p-2.5 rounded-lg text-slate-500 hover:text-cyan-600 hover:border-cyan-200 hover:bg-cyan-50 transition-all shadow-sm group" title="Refresh Data">
+                <button @click="refreshData" class="bg-white border border-slate-200 p-2 md:p-2.5 rounded-lg text-slate-500 hover:text-cyan-600 hover:border-cyan-200 hover:bg-cyan-50 transition-all shadow-sm group" title="Refresh Data">
                     <i class="fa-solid fa-rotate-right group-hover:rotate-180 transition-transform duration-500"></i>
                 </button>
             </div>
         </header>
 
-        <div class="p-8 max-w-screen-2xl mx-auto w-full">
+        <div class="p-4 md:p-8 max-w-screen-2xl mx-auto w-full">
 
             <!-- DASHBOARD TAB -->
-            <div v-if="currentTab === 'dashboard'" class="space-y-8 animate-fade-in">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+            <div v-if="currentTab === 'dashboard'" class="space-y-6 md:space-y-8 animate-fade-in">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
                         <div class="absolute -right-4 -top-4 w-24 h-24 bg-cyan-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
                         <div class="relative z-10">
                             <div class="flex justify-between items-start mb-4">
                                 <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Net Revenue</p>
                                 <div class="bg-cyan-100 text-cyan-600 p-2 rounded-lg"><i class="fa-solid fa-chart-line"></i></div>
                             </div>
-                            <h3 class="text-3xl font-extrabold text-slate-800">&#8377;{{ summary.netRevenue?.toLocaleString('en-IN') || 0 }}</h3>
+                            <h3 class="text-2xl md:text-3xl font-extrabold text-slate-800">&#8377;{{ summary.netRevenue?.toLocaleString('en-IN') || 0 }}</h3>
                         </div>
                     </div>
 
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
                         <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
                         <div class="relative z-10">
                             <div class="flex justify-between items-start mb-4">
                                 <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Net Profit</p>
                                 <div class="bg-emerald-100 text-emerald-600 p-2 rounded-lg"><i class="fa-solid fa-sack-dollar"></i></div>
                             </div>
-                            <h3 class="text-3xl font-extrabold text-emerald-600">&#8377;{{ summary.netProfit?.toLocaleString('en-IN') || 0 }}</h3>
+                            <h3 class="text-2xl md:text-3xl font-extrabold text-emerald-600">&#8377;{{ summary.netProfit?.toLocaleString('en-IN') || 0 }}</h3>
                         </div>
                     </div>
 
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
                         <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
                         <div class="relative z-10">
                             <div class="flex justify-between items-start mb-4">
                                 <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Cash Inflow</p>
                                 <div class="bg-blue-100 text-blue-600 p-2 rounded-lg"><i class="fa-solid fa-arrow-trend-up"></i></div>
                             </div>
-                            <h3 class="text-3xl font-extrabold text-blue-600">&#8377;{{ summary.totalInflow?.toLocaleString('en-IN') || 0 }}</h3>
+                            <h3 class="text-2xl md:text-3xl font-extrabold text-blue-600">&#8377;{{ summary.totalInflow?.toLocaleString('en-IN') || 0 }}</h3>
                         </div>
                     </div>
 
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
                         <div class="absolute -right-4 -top-4 w-24 h-24 bg-rose-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
                         <div class="relative z-10">
                             <div class="flex justify-between items-start mb-4">
                                 <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Cash Outflow</p>
                                 <div class="bg-rose-100 text-rose-600 p-2 rounded-lg"><i class="fa-solid fa-arrow-trend-down"></i></div>
                             </div>
-                            <h3 class="text-3xl font-extrabold text-rose-600">&#8377;{{ summary.totalOutflow?.toLocaleString('en-IN') || 0 }}</h3>
+                            <h3 class="text-2xl md:text-3xl font-extrabold text-rose-600">&#8377;{{ summary.totalOutflow?.toLocaleString('en-IN') || 0 }}</h3>
                         </div>
                     </div>
                 </div>
 
                 <!-- Sales Trends & Analytics Section -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
-                    <div class="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-slate-100 pb-4">
+                <div class="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+                    <div class="flex flex-col xl:flex-row justify-between xl:items-center gap-4 border-b border-slate-100 pb-4">
                         <div>
-                            <h3 class="text-xl font-extrabold text-slate-800">Sales Trends & Category Analysis</h3>
-                            <p class="text-sm text-slate-500">Analyze performance by category across daily, weekly, monthly, quarterly, and annual timeframes.</p>
+                            <h3 class="text-lg md:text-xl font-extrabold text-slate-800">Sales Trends & Category Analysis</h3>
+                            <p class="text-xs md:text-sm text-slate-500 mt-1">Analyze performance by category across varying timeframes.</p>
                         </div>
-                        <div class="flex flex-wrap items-center gap-3">
+                        <div class="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3">
                             <!-- Category Filter -->
-                            <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                            <div class="flex flex-wrap items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 w-full sm:w-auto">
                                 <span class="text-xs font-bold text-slate-500 px-2 uppercase">Category:</span>
-                                <button @click="dashboardCategory = 'all'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all', dashboardCategory === 'all' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">All</button>
-                                <button @click="dashboardCategory = 'water'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all', dashboardCategory === 'water' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Water Can</button>
-                                <button @click="dashboardCategory = 'material'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all', dashboardCategory === 'material' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Material</button>
+                                <button @click="dashboardCategory = 'all'" :class="['px-2.5 md:px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex-1 sm:flex-none text-center', dashboardCategory === 'all' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">All</button>
+                                <button @click="dashboardCategory = 'water'" :class="['px-2.5 md:px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex-1 sm:flex-none text-center', dashboardCategory === 'water' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Water Can</button>
+                                <button @click="dashboardCategory = 'material'" :class="['px-2.5 md:px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex-1 sm:flex-none text-center', dashboardCategory === 'material' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Material</button>
                             </div>
                             <!-- Period Filter -->
-                            <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
-                                <span class="text-xs font-bold text-slate-500 px-2 uppercase">View:</span>
-                                <button @click="dashboardPeriod = 'daily'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all', dashboardPeriod === 'daily' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Daily</button>
-                                <button @click="dashboardPeriod = 'weekly'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all', dashboardPeriod === 'weekly' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Weekly</button>
-                                <button @click="dashboardPeriod = 'monthly'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all', dashboardPeriod === 'monthly' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Monthly</button>
-                                <button @click="dashboardPeriod = 'quarterly'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all', dashboardPeriod === 'quarterly' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Quarterly</button>
-                                <button @click="dashboardPeriod = 'annually'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all', dashboardPeriod === 'annually' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Annually</button>
+                            <div class="flex flex-wrap items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 w-full sm:w-auto overflow-x-auto">
+                                <span class="text-xs font-bold text-slate-500 px-2 uppercase shrink-0">View:</span>
+                                <button @click="dashboardPeriod = 'daily'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0', dashboardPeriod === 'daily' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Daily</button>
+                                <button @click="dashboardPeriod = 'weekly'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0', dashboardPeriod === 'weekly' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Weekly</button>
+                                <button @click="dashboardPeriod = 'monthly'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0', dashboardPeriod === 'monthly' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Monthly</button>
+                                <button @click="dashboardPeriod = 'quarterly'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0', dashboardPeriod === 'quarterly' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Quarterly</button>
+                                <button @click="dashboardPeriod = 'annually'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0', dashboardPeriod === 'annually' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Annually</button>
                             </div>
                         </div>
                     </div>
 
                     <!-- Chart Container -->
-                    <div class="relative h-80">
+                    <div class="relative h-64 md:h-80 w-full">
                         <canvas id="salesDashboardChart"></canvas>
                     </div>
 
                     <!-- Data Grid with Filter & CSV Export -->
                     <div class="pt-4 border-t border-slate-100 space-y-4">
-                        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <h4 class="font-bold text-slate-800 text-md">Aggregated Sales Data Grid</h4>
-                            <div class="flex items-center gap-3 w-full md:w-auto">
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
                                 <div class="relative flex-1 md:w-64">
                                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
                                     <input v-model="dashboardSearch" placeholder="Search period or category..." class="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
                                 </div>
-                                <button @click="exportToCSV(filteredDashboardGridData, 'Sales_Dashboard_Report.csv')" class="btn-secondary text-xs py-2 px-3 flex items-center gap-1.5"><i class="fa-solid fa-download"></i> Export CSV</button>
+                                <button @click="exportToCSV(filteredDashboardGridData, 'Sales_Dashboard_Report.csv')" class="btn-secondary text-xs py-2 px-4 flex items-center justify-center gap-2"><i class="fa-solid fa-download"></i> Export CSV</button>
                             </div>
                         </div>
 
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse">
+                        <div class="overflow-x-auto rounded-lg border border-slate-200">
+                            <table class="w-full text-left border-collapse min-w-[600px]">
                                 <thead>
                                 <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
-                                    <th @click="toggleDashboardSort('periodLabel')" class="p-4 font-bold cursor-pointer hover:text-slate-700">
+                                    <th @click="toggleDashboardSort('periodLabel')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-slate-700">
                                         Period <i class="fa-solid fa-sort ml-1 text-slate-400"></i>
                                     </th>
-                                    <th @click="toggleDashboardSort('categoryName')" class="p-4 font-bold cursor-pointer hover:text-slate-700" v-if="dashboardCategory === 'all'">
+                                    <th @click="toggleDashboardSort('categoryName')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-slate-700" v-if="dashboardCategory === 'all'">
                                         Category <i class="fa-solid fa-sort ml-1 text-slate-400"></i>
                                     </th>
-                                    <th @click="toggleDashboardSort('totalQty')" class="p-4 font-bold cursor-pointer hover:text-slate-700">
+                                    <th @click="toggleDashboardSort('totalQty')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-slate-700">
                                         Total Quantity <i class="fa-solid fa-sort ml-1 text-slate-400"></i>
                                     </th>
-                                    <th @click="toggleDashboardSort('totalRevenue')" class="p-4 font-bold text-emerald-700 cursor-pointer hover:text-emerald-900">
+                                    <th @click="toggleDashboardSort('totalRevenue')" class="p-3 md:p-4 font-bold text-emerald-700 cursor-pointer hover:text-emerald-900">
                                         Total Revenue (₹) <i class="fa-solid fa-sort ml-1 text-slate-400"></i>
                                     </th>
                                 </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100 text-sm">
                                 <tr v-for="row in filteredDashboardGridData" :key="row.key + (row.categoryName || '')" class="hover:bg-slate-50/80 transition-colors">
-                                    <td class="p-4 font-bold text-slate-800">{{ row.periodLabel }}</td>
-                                    <td class="p-4 font-semibold text-cyan-700" v-if="dashboardCategory === 'all'">{{ row.categoryName }}</td>
-                                    <td class="p-4 font-semibold text-slate-600">{{ row.totalQty }}</td>
-                                    <td class="p-4 font-extrabold text-emerald-600">₹{{ row.totalRevenue.toFixed(2) }}</td>
+                                    <td class="p-3 md:p-4 font-bold text-slate-800">{{ row.periodLabel }}</td>
+                                    <td class="p-3 md:p-4 font-semibold text-cyan-700" v-if="dashboardCategory === 'all'">{{ row.categoryName }}</td>
+                                    <td class="p-3 md:p-4 font-semibold text-slate-600">{{ row.totalQty }}</td>
+                                    <td class="p-3 md:p-4 font-extrabold text-emerald-600">₹{{ row.totalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
                                 </tr>
                                 <tr v-if="!filteredDashboardGridData.length">
                                     <td :colspan="dashboardCategory === 'all' ? 4 : 3" class="p-8 text-center text-slate-500">No sales records found matching your filters.</td>
@@ -209,28 +223,28 @@
             <!-- CASH FLOW TAB -->
             <div v-if="currentTab === 'cash-flow'" class="space-y-6 animate-fade-in">
                 <!-- Top controls -->
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
                         <h3 class="text-lg font-bold text-slate-800">Financial Trajectory</h3>
-                        <p class="text-sm text-slate-500">Inflow vs Outflow charting derived from ledger analytics.</p>
+                        <p class="text-sm text-slate-500 mt-1">Inflow vs Outflow charting derived from ledger analytics.</p>
                     </div>
-                    <div class="bg-slate-100 p-1 rounded-xl flex gap-1 shadow-inner border border-slate-200">
-                        <button @click="cashFlowPeriod = 'daily'" :class="['px-5 py-2 rounded-lg text-sm font-bold transition-all', cashFlowPeriod === 'daily' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Daily</button>
-                        <button @click="cashFlowPeriod = 'weekly'" :class="['px-5 py-2 rounded-lg text-sm font-bold transition-all', cashFlowPeriod === 'weekly' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Weekly</button>
-                        <button @click="cashFlowPeriod = 'monthly'" :class="['px-5 py-2 rounded-lg text-sm font-bold transition-all', cashFlowPeriod === 'monthly' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Monthly</button>
+                    <div class="bg-slate-100 p-1 rounded-xl flex w-full md:w-auto gap-1 shadow-inner border border-slate-200">
+                        <button @click="cashFlowPeriod = 'daily'" :class="['flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-bold transition-all', cashFlowPeriod === 'daily' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Daily</button>
+                        <button @click="cashFlowPeriod = 'weekly'" :class="['flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-bold transition-all', cashFlowPeriod === 'weekly' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Weekly</button>
+                        <button @click="cashFlowPeriod = 'monthly'" :class="['flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-bold transition-all', cashFlowPeriod === 'monthly' ? 'bg-white text-cyan-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']">Monthly</button>
                     </div>
                 </div>
 
                 <!-- Pro Chart Area -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 relative">
-                    <canvas id="cashFlowChart" height="100"></canvas>
+                <div class="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-200 relative min-h-[300px]">
+                    <canvas id="cashFlowChart"></canvas>
                 </div>
 
                 <!-- Sales Details & Analytics Breakdowns -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                     <!-- Revenue Split -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-blue-500">
-                        <h4 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-5">Payment Mode Distribution</h4>
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-blue-500">
+                        <h4 class="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider mb-5">Payment Mode Distribution</h4>
                         <div class="space-y-4">
                             <div>
                                 <div class="flex justify-between text-sm mb-1">
@@ -250,52 +264,52 @@
                     </div>
 
                     <!-- Category Split -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-cyan-500">
-                        <h4 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-5">Revenue Source</h4>
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-cyan-500">
+                        <h4 class="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider mb-5">Revenue Source</h4>
                         <div class="flex items-center gap-4 mb-4">
-                            <div class="w-12 h-12 rounded-full bg-cyan-50 flex items-center justify-center text-cyan-600 text-xl"><i class="fa-solid fa-droplet"></i></div>
+                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-cyan-50 flex items-center justify-center text-cyan-600 text-lg md:text-xl"><i class="fa-solid fa-droplet"></i></div>
                             <div class="flex-1">
                                 <p class="text-xs text-slate-500 font-bold">Water Sales Total</p>
-                                <p class="text-xl font-extrabold text-slate-800">₹{{ cfAnalytics.waterTotal.toLocaleString('en-IN') }}</p>
+                                <p class="text-lg md:text-xl font-extrabold text-slate-800">₹{{ cfAnalytics.waterTotal.toLocaleString('en-IN') }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-4 border-t border-slate-100 pt-4">
-                            <div class="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 text-xl"><i class="fa-solid fa-truck-ramp-box"></i></div>
+                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 text-lg md:text-xl"><i class="fa-solid fa-truck-ramp-box"></i></div>
                             <div class="flex-1">
                                 <p class="text-xs text-slate-500 font-bold">Material Sales Total</p>
-                                <p class="text-xl font-extrabold text-slate-800">₹{{ cfAnalytics.materialTotal.toLocaleString('en-IN') }}</p>
+                                <p class="text-lg md:text-xl font-extrabold text-slate-800">₹{{ cfAnalytics.materialTotal.toLocaleString('en-IN') }}</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Expenses Summary -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-rose-500">
-                        <h4 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-5">Operating Outflows</h4>
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-rose-500">
+                        <h4 class="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider mb-5">Operating Outflows</h4>
                         <div class="text-center py-2">
-                            <p class="text-slate-500 text-sm font-semibold mb-1">Total Expenses Recorded</p>
-                            <p class="text-4xl font-extrabold text-rose-600">₹{{ cfAnalytics.totalExpenses.toLocaleString('en-IN') }}</p>
+                            <p class="text-slate-500 text-xs md:text-sm font-semibold mb-1">Total Expenses Recorded</p>
+                            <p class="text-3xl md:text-4xl font-extrabold text-rose-600">₹{{ cfAnalytics.totalExpenses.toLocaleString('en-IN') }}</p>
                         </div>
                         <div class="mt-4 pt-4 border-t border-slate-100 text-center">
-                            <p class="text-xs text-slate-400">Derived securely from Consolidated Ledger.<br>Maintain daily logs for accurate tracking.</p>
+                            <p class="text-[10px] md:text-xs text-slate-400">Derived securely from Consolidated Ledger.<br>Maintain daily logs for accurate tracking.</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- DAILY SALES TAB -->
+            <!-- DAILY SALES TAB (Consolidated Ledger) -->
             <div v-if="currentTab === 'daily-sales'" class="space-y-6">
                 <!-- Action Bar -->
-                <div class="flex justify-between items-center bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200">
                     <div>
                         <h3 class="text-lg font-bold text-slate-800">Ledger Actions</h3>
-                        <p class="text-sm text-slate-500">Pull data from individual water and material sub-ledgers.</p>
+                        <p class="text-xs md:text-sm text-slate-500 mt-1">Pull data automatically from water and material sub-ledgers.</p>
                     </div>
-                    <button @click="triggerSync" class="btn-primary from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700">
-                        <i class="fa-solid fa-rotate"></i> Sync Consolidated Data
+                    <button @click="triggerSync" class="btn-primary w-full sm:w-auto from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700">
+                        <i class="fa-solid fa-rotate"></i> Sync Data
                     </button>
                 </div>
 
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div class="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-200">
                     <h3 class="text-lg font-bold mb-5 text-slate-800">{{ dailySalesForm.id ? 'Edit Ledger Entry' : 'Manual Ledger Entry' }}</h3>
                     <form @submit.prevent="saveDailySales" class="space-y-6">
                         <div class="w-full md:w-1/4">
@@ -303,11 +317,11 @@
                             <input v-model="dailySalesForm.saleDate" type="date" required class="input-field">
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                             <!-- Water Sales Block -->
-                            <div class="bg-cyan-50/50 p-5 rounded-xl border border-cyan-100">
+                            <div class="bg-cyan-50/50 p-4 md:p-5 rounded-xl border border-cyan-100">
                                 <h4 class="font-bold text-cyan-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-droplet text-cyan-500"></i> Water Collections</h4>
-                                <div class="grid grid-cols-2 gap-4">
+                                <div class="grid grid-cols-2 gap-3 md:gap-4">
                                     <div>
                                         <label class="form-label">Cash (₹)</label>
                                         <input v-model.number="dailySalesForm.waterCash" type="number" step="0.01" class="input-field bg-white">
@@ -320,9 +334,9 @@
                             </div>
 
                             <!-- Material Sales Block -->
-                            <div class="bg-amber-50/50 p-5 rounded-xl border border-amber-100">
+                            <div class="bg-amber-50/50 p-4 md:p-5 rounded-xl border border-amber-100">
                                 <h4 class="font-bold text-amber-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-boxes-stacked text-amber-500"></i> Material Collections</h4>
-                                <div class="grid grid-cols-2 gap-4">
+                                <div class="grid grid-cols-2 gap-3 md:gap-4">
                                     <div>
                                         <label class="form-label">Cash (₹)</label>
                                         <input v-model.number="dailySalesForm.materialCash" type="number" step="0.01" class="input-field bg-white">
@@ -336,7 +350,7 @@
                         </div>
 
                         <!-- Expenses Block -->
-                        <div class="bg-rose-50/50 p-5 rounded-xl border border-rose-100">
+                        <div class="bg-rose-50/50 p-4 md:p-5 rounded-xl border border-rose-100">
                             <h4 class="font-bold text-rose-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-money-bill-transfer text-rose-500"></i> Expenses & Outflows</h4>
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                                 <div>
@@ -350,56 +364,56 @@
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-between pt-4 border-t border-slate-100">
-                            <div class="text-lg font-bold text-slate-700 bg-slate-50 px-5 py-3 rounded-xl border border-slate-200 shadow-inner">
-                                Total Inflow: <span class="text-emerald-600">₹{{ ((dailySalesForm.waterCash || 0) + (dailySalesForm.waterGpay || 0) + (dailySalesForm.materialCash || 0) + (dailySalesForm.materialGpay || 0)).toFixed(2) }}</span>
+                        <div class="flex flex-col md:flex-row items-center justify-between pt-4 border-t border-slate-100 gap-4">
+                            <div class="w-full md:w-auto text-center md:text-left text-lg font-bold text-slate-700 bg-slate-50 px-5 py-3 rounded-xl border border-slate-200 shadow-inner">
+                                Total Inflow: <span class="text-emerald-600">₹{{ ((dailySalesForm.waterCash || 0) + (dailySalesForm.waterGpay || 0) + (dailySalesForm.materialCash || 0) + (dailySalesForm.materialGpay || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
                             </div>
-                            <div class="flex gap-3">
-                                <button type="button" v-if="dailySalesForm.id" @click="clearForms" class="btn-secondary">Cancel</button>
-                                <button type="submit" class="btn-primary"><i class="fa-solid fa-save"></i> {{ dailySalesForm.id ? 'Update Ledger' : 'Save Record' }}</button>
+                            <div class="flex w-full md:w-auto gap-3">
+                                <button type="button" v-if="dailySalesForm.id" @click="clearForms" class="btn-secondary flex-1 md:flex-none">Cancel</button>
+                                <button type="submit" class="btn-primary flex-1 md:flex-none"><i class="fa-solid fa-save"></i> {{ dailySalesForm.id ? 'Update Ledger' : 'Save Record' }}</button>
                             </div>
                         </div>
                     </form>
                 </div>
 
                 <!-- Data Table with Search -->
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 overflow-hidden">
-                    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-5">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-5">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5">
                         <h4 class="font-bold text-slate-800 text-lg">Ledger History</h4>
-                        <div class="flex items-center gap-3 w-full md:w-auto">
-                            <div class="relative flex-1 md:w-64">
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+                            <div class="relative flex-1 sm:w-64">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
                                 <input v-model="searchLedger" placeholder="Search by date or remarks..." class="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
                             </div>
-                            <button @click="exportToCSV(filteredDailySales, 'Ledger_History.csv')" class="btn-secondary text-xs py-2 px-3 flex items-center gap-1.5"><i class="fa-solid fa-download"></i> Export</button>
+                            <button @click="exportToCSV(filteredDailySales, 'Ledger_History.csv')" class="btn-secondary text-xs py-2 px-3 flex items-center justify-center gap-1.5"><i class="fa-solid fa-download"></i> Export</button>
                         </div>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
+                    <div class="overflow-x-auto rounded-lg border border-slate-200">
+                        <table class="w-full text-left border-collapse min-w-[900px]">
                             <thead>
                             <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
-                                <th class="p-4 font-bold">Date</th>
-                                <th class="p-4 font-bold text-cyan-700">Water (Cash | GPay)</th>
-                                <th class="p-4 font-bold text-amber-700">Material (Cash | GPay)</th>
-                                <th class="p-4 font-bold text-rose-700">Expenses</th>
-                                <th class="p-4 font-bold">Remarks</th>
-                                <th class="p-4 font-bold text-emerald-700">Net Revenue</th>
-                                <th class="p-4 font-bold text-right">Actions</th>
+                                <th class="p-3 md:p-4 font-bold">Date</th>
+                                <th class="p-3 md:p-4 font-bold text-cyan-700">Water (Cash | GPay)</th>
+                                <th class="p-3 md:p-4 font-bold text-amber-700">Material (Cash | GPay)</th>
+                                <th class="p-3 md:p-4 font-bold text-rose-700">Expenses</th>
+                                <th class="p-3 md:p-4 font-bold">Remarks</th>
+                                <th class="p-3 md:p-4 font-bold text-emerald-700">Net Revenue</th>
+                                <th class="p-3 md:p-4 font-bold text-right">Actions</th>
                             </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100 text-sm">
                             <tr v-for="ds in filteredDailySales" :key="ds.id" class="hover:bg-slate-50/80 transition-colors">
-                                <td class="p-4 font-bold text-slate-800">{{ ds.saleDate }}</td>
-                                <td class="p-4">
-                                    <span class="font-semibold text-slate-600">₹{{ ds.waterCash || 0 }}</span> <span class="text-slate-300 px-1">|</span> <span class="font-semibold text-cyan-600">₹{{ ds.waterGpay || 0 }}</span>
+                                <td class="p-3 md:p-4 font-bold text-slate-800">{{ ds.saleDate }}</td>
+                                <td class="p-3 md:p-4">
+                                    <span class="font-semibold text-slate-600">₹{{ ds.waterCash?.toLocaleString('en-IN') || 0 }}</span> <span class="text-slate-300 px-1">|</span> <span class="font-semibold text-cyan-600">₹{{ ds.waterGpay?.toLocaleString('en-IN') || 0 }}</span>
                                 </td>
-                                <td class="p-4">
-                                    <span class="font-semibold text-slate-600">₹{{ ds.materialCash || 0 }}</span> <span class="text-slate-300 px-1">|</span> <span class="font-semibold text-indigo-600">₹{{ ds.materialGpay || 0 }}</span>
+                                <td class="p-3 md:p-4">
+                                    <span class="font-semibold text-slate-600">₹{{ ds.materialCash?.toLocaleString('en-IN') || 0 }}</span> <span class="text-slate-300 px-1">|</span> <span class="font-semibold text-indigo-600">₹{{ ds.materialGpay?.toLocaleString('en-IN') || 0 }}</span>
                                 </td>
-                                <td class="p-4 font-bold text-rose-600">₹{{ ds.expenses || 0 }}</td>
-                                <td class="p-4 text-slate-500 max-w-[150px] truncate">{{ ds.remarks || '-' }}</td>
-                                <td class="p-4 font-bold text-emerald-600">₹{{ ((ds.waterCash || 0) + (ds.waterGpay || 0) + (ds.materialCash || 0) + (ds.materialGpay || 0)).toFixed(2) }}</td>
-                                <td class="p-4 text-right space-x-2">
+                                <td class="p-3 md:p-4 font-bold text-rose-600">₹{{ ds.expenses?.toLocaleString('en-IN') || 0 }}</td>
+                                <td class="p-3 md:p-4 text-slate-500 max-w-[150px] truncate">{{ ds.remarks || '-' }}</td>
+                                <td class="p-3 md:p-4 font-bold text-emerald-600">₹{{ ((ds.waterCash || 0) + (ds.waterGpay || 0) + (ds.materialCash || 0) + (ds.materialGpay || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</td>
+                                <td class="p-3 md:p-4 text-right space-x-1 md:space-x-2 whitespace-nowrap">
                                     <button @click="editItem('daily-sales', ds)" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition"><i class="fa-solid fa-pen text-xs"></i></button>
                                     <button @click="deleteItem('/api/daily-sales/' + ds.id, loadDailySales)" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 transition"><i class="fa-solid fa-trash text-xs"></i></button>
                                 </td>
@@ -413,10 +427,10 @@
 
             <!-- WATER SALES TAB -->
             <div v-if="currentTab === 'water'" class="space-y-6">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-cyan-500">
+                <div class="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-cyan-500">
                     <h3 class="text-lg font-bold mb-5 text-slate-800">{{ waterForm.id ? 'Edit' : 'Record' }} Water Can Sale</h3>
                     <form @submit.prevent="saveWaterSale" class="space-y-5">
-                        <div class="grid grid-cols-1 md:grid-cols-5 gap-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 md:gap-5">
                             <div>
                                 <label class="form-label">Sale Date</label>
                                 <input v-model="waterForm.soldDate" type="date" required class="input-field">
@@ -433,7 +447,7 @@
                                 <label class="form-label">GPay Recv. (₹)</label>
                                 <input v-model.number="waterForm.gpayAmount" type="number" step="0.01" min="0" placeholder="0.00" class="input-field border-indigo-200">
                             </div>
-                            <div class="flex items-end gap-2 pb-[2px]">
+                            <div class="flex sm:col-span-2 md:col-span-1 items-end gap-2 pb-[2px]">
                                 <button type="submit" class="btn-primary w-full h-[46px]">{{ waterForm.id ? 'Update' : 'Save Sale' }}</button>
                                 <button type="button" v-if="waterForm.id" @click="clearForms" class="btn-secondary h-[46px] px-4"><i class="fa-solid fa-xmark"></i></button>
                             </div>
@@ -441,57 +455,59 @@
                     </form>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden p-5">
-                    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-5">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-5">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5">
                         <h4 class="font-bold text-slate-800 text-lg">Water Sales History</h4>
-                        <div class="flex items-center gap-3 w-full md:w-auto">
-                            <div class="relative flex-1 md:w-64">
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+                            <div class="relative flex-1 sm:w-64">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
                                 <input v-model="searchWater" placeholder="Search by date..." class="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
                             </div>
-                            <button @click="exportToCSV(filteredWaterSales, 'Water_Sales.csv')" class="btn-secondary text-xs py-2 px-3 flex items-center gap-1.5"><i class="fa-solid fa-download"></i> Export</button>
+                            <button @click="exportToCSV(filteredWaterSales, 'Water_Sales.csv')" class="btn-secondary text-xs py-2 px-3 flex items-center justify-center gap-1.5"><i class="fa-solid fa-download"></i> Export</button>
                         </div>
                     </div>
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
-                            <th @click="sortWaterBy('soldDate')" class="p-4 font-bold cursor-pointer hover:text-slate-700">Date <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
-                            <th @click="sortWaterBy('quantity')" class="p-4 font-bold cursor-pointer hover:text-slate-700">Quantity (Cans) <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
-                            <th @click="sortWaterBy('cashAmount')" class="p-4 font-bold text-cyan-700 cursor-pointer hover:text-cyan-900">Cash Received <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
-                            <th @click="sortWaterBy('gpayAmount')" class="p-4 font-bold text-indigo-700 cursor-pointer hover:text-indigo-900">GPay Received <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
-                            <th @click="sortWaterBy('totalValue')" class="p-4 font-bold text-emerald-700 cursor-pointer hover:text-emerald-900">Total Value <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
-                            <th class="p-4 font-bold text-right">Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 text-sm">
-                        <tr v-for="ws in filteredWaterSales" :key="ws.id" class="hover:bg-slate-50/80 transition-colors">
-                            <td class="p-4 font-bold text-slate-800">{{ ws.soldDate }}</td>
-                            <td class="p-4 font-semibold text-slate-600">{{ ws.quantity }} Cans</td>
-                            <td class="p-4 font-medium text-cyan-700">₹{{ ws.cashAmount || 0 }}</td>
-                            <td class="p-4 font-medium text-indigo-700">₹{{ ws.gpayAmount || 0 }}</td>
-                            <td class="p-4 font-bold text-emerald-600">₹{{ ((ws.cashAmount || 0) + (ws.gpayAmount || 0)).toFixed(2) }}</td>
-                            <td class="p-4 text-right space-x-2">
-                                <button @click="editItem('water', ws)" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition"><i class="fa-solid fa-pen text-xs"></i></button>
-                                <button @click="deleteItem('/api/water-sales/' + ws.id, loadWaterSales)" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition"><i class="fa-solid fa-trash text-xs"></i></button>
-                            </td>
-                        </tr>
-                        <tr v-if="!filteredWaterSales.length"><td colspan="6" class="p-8 text-center text-slate-500">No water sales recorded yet.</td></tr>
-                        </tbody>
-                    </table>
+                    <div class="overflow-x-auto rounded-lg border border-slate-200">
+                        <table class="w-full text-left border-collapse min-w-[600px]">
+                            <thead>
+                            <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                <th @click="sortWaterBy('soldDate')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-slate-700">Date <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
+                                <th @click="sortWaterBy('quantity')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-slate-700">Quantity (Cans) <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
+                                <th @click="sortWaterBy('cashAmount')" class="p-3 md:p-4 font-bold text-cyan-700 cursor-pointer hover:text-cyan-900">Cash Received <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
+                                <th @click="sortWaterBy('gpayAmount')" class="p-3 md:p-4 font-bold text-indigo-700 cursor-pointer hover:text-indigo-900">GPay Received <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
+                                <th @click="sortWaterBy('totalValue')" class="p-3 md:p-4 font-bold text-emerald-700 cursor-pointer hover:text-emerald-900">Total Value <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
+                                <th class="p-3 md:p-4 font-bold text-right">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm">
+                            <tr v-for="ws in filteredWaterSales" :key="ws.id" class="hover:bg-slate-50/80 transition-colors">
+                                <td class="p-3 md:p-4 font-bold text-slate-800">{{ ws.soldDate }}</td>
+                                <td class="p-3 md:p-4 font-semibold text-slate-600">{{ ws.quantity }} Cans</td>
+                                <td class="p-3 md:p-4 font-medium text-cyan-700">₹{{ ws.cashAmount?.toLocaleString('en-IN') || 0 }}</td>
+                                <td class="p-3 md:p-4 font-medium text-indigo-700">₹{{ ws.gpayAmount?.toLocaleString('en-IN') || 0 }}</td>
+                                <td class="p-3 md:p-4 font-bold text-emerald-600">₹{{ ((ws.cashAmount || 0) + (ws.gpayAmount || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</td>
+                                <td class="p-3 md:p-4 text-right space-x-1 md:space-x-2 whitespace-nowrap">
+                                    <button @click="editItem('water', ws)" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button @click="deleteItem('/api/water-sales/' + ws.id, loadWaterSales)" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition"><i class="fa-solid fa-trash text-xs"></i></button>
+                                </td>
+                            </tr>
+                            <tr v-if="!filteredWaterSales.length"><td colspan="6" class="p-8 text-center text-slate-500">No water sales recorded yet.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
             <!-- MATERIAL SALES TAB -->
             <div v-if="currentTab === 'material'" class="space-y-6">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-amber-500">
+                <div class="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-amber-500">
                     <h3 class="text-lg font-bold mb-5 text-slate-800">{{ materialForm.id ? 'Edit' : 'Record' }} Material Sale</h3>
                     <form @submit.prevent="saveMaterialSale" class="space-y-5">
-                        <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
                             <div>
                                 <label class="form-label">Sale Date</label>
                                 <input v-model="materialForm.soldDate" type="date" required class="input-field">
                             </div>
-                            <div class="md:col-span-2">
+                            <div class="sm:col-span-2 md:col-span-2 lg:col-span-2">
                                 <label class="form-label">Product / Item Name</label>
                                 <input v-model="materialForm.itemName" list="product-list" required placeholder="Select or type product..." class="input-field">
                                 <datalist id="product-list">
@@ -514,72 +530,74 @@
                                 <label class="form-label">GPay (₹)</label>
                                 <input v-model.number="materialForm.gpayAmount" type="number" step="0.01" placeholder="0.00" class="input-field">
                             </div>
-                            <div class="md:col-span-5">
+                            <div class="sm:col-span-2 md:col-span-4 lg:col-span-5">
                                 <label class="form-label">Customer / Remarks</label>
                                 <input v-model="materialForm.remarks" placeholder="Customer Name or Invoice Ref..." class="input-field">
                             </div>
-                            <div class="md:col-span-2 flex items-end gap-2 pb-[2px]">
+                            <div class="sm:col-span-2 md:col-span-4 lg:col-span-2 flex flex-col sm:flex-row items-end gap-2 pb-[2px]">
                                 <button type="submit" class="btn-primary w-full h-[46px] from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700">{{ materialForm.id ? 'Update' : 'Save Material Sale' }}</button>
-                                <button type="button" v-if="materialForm.id" @click="clearForms" class="btn-secondary h-[46px] px-4"><i class="fa-solid fa-xmark"></i></button>
+                                <button type="button" v-if="materialForm.id" @click="clearForms" class="btn-secondary w-full sm:w-auto h-[46px] px-4"><i class="fa-solid fa-xmark"></i></button>
                             </div>
                         </div>
                     </form>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden p-5">
-                    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-5">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-5">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5">
                         <h4 class="font-bold text-slate-800 text-lg">Material Sales History</h4>
-                        <div class="flex items-center gap-3 w-full md:w-auto">
-                            <div class="relative flex-1 md:w-64">
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+                            <div class="relative flex-1 sm:w-64">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
                                 <input v-model="searchMaterial" placeholder="Search item or customer..." class="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
                             </div>
-                            <button @click="exportToCSV(filteredMaterialSales, 'Material_Sales.csv')" class="btn-secondary text-xs py-2 px-3 flex items-center gap-1.5"><i class="fa-solid fa-download"></i> Export</button>
+                            <button @click="exportToCSV(filteredMaterialSales, 'Material_Sales.csv')" class="btn-secondary text-xs py-2 px-3 flex items-center justify-center gap-1.5"><i class="fa-solid fa-download"></i> Export</button>
                         </div>
                     </div>
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
-                            <th @click="sortMaterialBy('soldDate')" class="p-4 font-bold cursor-pointer hover:text-slate-700">Date <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
-                            <th @click="sortMaterialBy('itemName')" class="p-4 font-bold cursor-pointer hover:text-slate-700">Item & Details <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
-                            <th @click="sortMaterialBy('quantity')" class="p-4 font-bold cursor-pointer hover:text-slate-700">Quantity <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
-                            <th class="p-4 font-bold text-slate-700">Unit Price</th>
-                            <th class="p-4 font-bold text-slate-700">Payment Split</th>
-                            <th @click="sortMaterialBy('totalValue')" class="p-4 font-bold text-emerald-700 cursor-pointer hover:text-emerald-900">Total Value <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
-                            <th class="p-4 font-bold text-right">Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 text-sm">
-                        <tr v-for="ms in filteredMaterialSales" :key="ms.id" class="hover:bg-slate-50/80 transition-colors">
-                            <td class="p-4 font-bold text-slate-800">{{ ms.soldDate }}</td>
-                            <td class="p-4">
-                                <div class="font-bold text-slate-700">{{ ms.itemName }}</div>
-                                <div class="text-xs text-slate-400 mt-0.5">{{ ms.remarks || 'No remarks' }}</div>
-                            </td>
-                            <td class="p-4 font-semibold text-slate-600">{{ ms.quantity }}</td>
-                            <td class="p-4 font-semibold text-slate-600">₹{{ ms.unitPrice || 0 }}</td>
-                            <td class="p-4 text-xs">
-                                <div class="text-slate-600">Cash: <span class="font-bold">₹{{ ms.cashAmount || 0 }}</span></div>
-                                <div class="text-indigo-600">GPay: <span class="font-bold">₹{{ ms.gpayAmount || 0 }}</span></div>
-                            </td>
-                            <td class="p-4 font-bold text-emerald-600 text-base">₹{{ ((ms.cashAmount || 0) + (ms.gpayAmount || 0)).toFixed(2) }}</td>
-                            <td class="p-4 text-right space-x-2">
-                                <button @click="editItem('material', ms)" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition"><i class="fa-solid fa-pen text-xs"></i></button>
-                                <button @click="deleteItem('/api/material-sales/' + ms.id, loadMaterialSales)" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition"><i class="fa-solid fa-trash text-xs"></i></button>
-                            </td>
-                        </tr>
-                        <tr v-if="!filteredMaterialSales.length"><td colspan="7" class="p-8 text-center text-slate-500">No material sales recorded yet.</td></tr>
-                        </tbody>
-                    </table>
+                    <div class="overflow-x-auto rounded-lg border border-slate-200">
+                        <table class="w-full text-left border-collapse min-w-[800px]">
+                            <thead>
+                            <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                <th @click="sortMaterialBy('soldDate')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-slate-700">Date <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
+                                <th @click="sortMaterialBy('itemName')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-slate-700">Item & Details <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
+                                <th @click="sortMaterialBy('quantity')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-slate-700">Quantity <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
+                                <th class="p-3 md:p-4 font-bold text-slate-700">Unit Price</th>
+                                <th class="p-3 md:p-4 font-bold text-slate-700">Payment Split</th>
+                                <th @click="sortMaterialBy('totalValue')" class="p-3 md:p-4 font-bold text-emerald-700 cursor-pointer hover:text-emerald-900">Total Value <i class="fa-solid fa-sort ml-1 text-slate-400"></i></th>
+                                <th class="p-3 md:p-4 font-bold text-right">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm">
+                            <tr v-for="ms in filteredMaterialSales" :key="ms.id" class="hover:bg-slate-50/80 transition-colors">
+                                <td class="p-3 md:p-4 font-bold text-slate-800">{{ ms.soldDate }}</td>
+                                <td class="p-3 md:p-4">
+                                    <div class="font-bold text-slate-700">{{ ms.itemName }}</div>
+                                    <div class="text-xs text-slate-400 mt-0.5">{{ ms.remarks || 'No remarks' }}</div>
+                                </td>
+                                <td class="p-3 md:p-4 font-semibold text-slate-600">{{ ms.quantity }}</td>
+                                <td class="p-3 md:p-4 font-semibold text-slate-600">₹{{ ms.unitPrice?.toLocaleString('en-IN', { minimumFractionDigits: 2 }) || 0 }}</td>
+                                <td class="p-3 md:p-4 text-xs">
+                                    <div class="text-slate-600">Cash: <span class="font-bold">₹{{ ms.cashAmount?.toLocaleString('en-IN') || 0 }}</span></div>
+                                    <div class="text-indigo-600">GPay: <span class="font-bold">₹{{ ms.gpayAmount?.toLocaleString('en-IN') || 0 }}</span></div>
+                                </td>
+                                <td class="p-3 md:p-4 font-bold text-emerald-600 text-base">₹{{ ((ms.cashAmount || 0) + (ms.gpayAmount || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</td>
+                                <td class="p-3 md:p-4 text-right space-x-1 md:space-x-2 whitespace-nowrap">
+                                    <button @click="editItem('material', ms)" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button @click="deleteItem('/api/material-sales/' + ms.id, loadMaterialSales)" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition"><i class="fa-solid fa-trash text-xs"></i></button>
+                                </td>
+                            </tr>
+                            <tr v-if="!filteredMaterialSales.length"><td colspan="7" class="p-8 text-center text-slate-500">No material sales recorded yet.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
             <!-- PRODUCTS TAB -->
             <div v-if="currentTab === 'products'" class="space-y-6">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-indigo-500">
+                <div class="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-indigo-500">
                     <h3 class="text-lg font-bold mb-5 text-slate-800">{{ productForm.id ? 'Edit' : 'Add New' }} Inventory Product</h3>
-                    <form @submit.prevent="saveProduct" class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
-                        <div class="md:col-span-2">
+                    <form @submit.prevent="saveProduct" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-4 items-end">
+                        <div class="sm:col-span-2 md:col-span-2">
                             <label class="form-label">Item Name</label>
                             <input v-model="productForm.itemName" required class="input-field">
                         </div>
@@ -591,40 +609,40 @@
                             <label class="form-label">Price (₹)</label>
                             <input v-model.number="productForm.sellingPrice" type="number" step="0.01" class="input-field">
                         </div>
-                        <div class="md:col-span-2 flex gap-2 pb-[2px]">
+                        <div class="sm:col-span-2 md:col-span-2 flex gap-2 pb-[2px]">
                             <button type="submit" class="btn-primary flex-1 h-[46px]">{{ productForm.id ? 'Update' : 'Add Product' }}</button>
                             <button type="button" v-if="productForm.id" @click="clearForms" class="btn-secondary h-[46px] px-4"><i class="fa-solid fa-xmark"></i></button>
                         </div>
-                        <div class="md:col-span-6 mt-1">
+                        <div class="sm:col-span-2 md:col-span-6 mt-1">
                             <label class="form-label">Description</label>
                             <input v-model="productForm.description" placeholder="Optional details..." class="input-field bg-transparent border-slate-200">
                         </div>
                     </form>
                 </div>
 
-                <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-4 rounded-xl border border-slate-200">
                     <h4 class="font-bold text-slate-800 text-md">Inventory Catalog</h4>
-                    <div class="relative w-64">
+                    <div class="relative w-full sm:w-64">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
                         <input v-model="searchProduct" placeholder="Search products..." class="w-full pl-9 pr-4 py-1.5 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                     <div v-for="prod in filteredProducts" :key="prod.id" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative group hover:-translate-y-1 transition-transform">
-                        <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                            <button @click="editItem('product', prod)" class="text-blue-500 hover:text-blue-700 bg-white shadow-sm p-1.5 rounded-md"><i class="fa-solid fa-pen text-xs"></i></button>
-                            <button @click="deleteItem('/api/products/' + prod.id, loadProducts)" class="text-rose-500 hover:text-rose-700 bg-white shadow-sm p-1.5 rounded-md"><i class="fa-solid fa-trash text-xs"></i></button>
+                        <div class="absolute top-4 right-4 md:opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                            <button @click="editItem('product', prod)" class="text-blue-500 hover:text-blue-700 bg-white shadow-sm border border-slate-100 p-1.5 rounded-md"><i class="fa-solid fa-pen text-xs"></i></button>
+                            <button @click="deleteItem('/api/products/' + prod.id, loadProducts)" class="text-rose-500 hover:text-rose-700 bg-white shadow-sm border border-slate-100 p-1.5 rounded-md"><i class="fa-solid fa-trash text-xs"></i></button>
                         </div>
                         <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mb-3"><i class="fa-solid fa-box"></i></div>
-                        <h4 class="font-bold text-slate-800 text-lg">{{ prod.itemName }}</h4>
-                        <p class="text-xs text-slate-400 mb-3 h-4">{{ prod.description || 'No description' }}</p>
+                        <h4 class="font-bold text-slate-800 text-lg pr-12">{{ prod.itemName }}</h4>
+                        <p class="text-xs text-slate-400 mb-3 h-8 line-clamp-2">{{ prod.description || 'No description' }}</p>
                         <div class="flex justify-between items-center border-t border-slate-100 pt-3">
                             <span class="text-sm text-slate-500">Stock: <strong class="text-slate-800">{{ prod.quantity }}</strong></span>
-                            <span class="text-sm font-bold text-emerald-600">₹{{ prod.sellingPrice || 0 }}</span>
+                            <span class="text-sm font-bold text-emerald-600">₹{{ prod.sellingPrice?.toLocaleString('en-IN') || 0 }}</span>
                         </div>
                     </div>
-                    <div v-if="!filteredProducts.length" class="col-span-3 p-8 text-center text-slate-500 bg-white rounded-2xl border border-slate-200">No matching products found.</div>
+                    <div v-if="!filteredProducts.length" class="col-span-1 sm:col-span-2 md:col-span-3 xl:col-span-4 p-8 text-center text-slate-500 bg-white rounded-2xl border border-slate-200">No matching products found.</div>
                 </div>
             </div>
 
@@ -638,6 +656,8 @@
     createApp({
         setup() {
             const currentTab = ref('dashboard');
+            const isSidebarOpen = ref(false);
+
             const tabs = [
                 { id: 'dashboard', name: 'Dashboard', icon: 'fa-solid fa-chart-pie', desc: 'Real-time financial overview & analytics' },
                 { id: 'cash-flow', name: 'Cash Flow', icon: 'fa-solid fa-money-bill-trend-up', desc: 'Financial trends & analysis' },
@@ -1040,6 +1060,7 @@
                     },
                     options: {
                         responsive: true,
+                        maintainAspectRatio: false,
                         interaction: { intersect: false, mode: 'index' },
                         plugins: { legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 8 } } },
                         scales: {
@@ -1123,7 +1144,6 @@
             };
             const saveProduct = () => postData('/api/products', productForm.value, () => { clearForms(); loadProducts(); });
 
-            // Fixed Water Sale Save with mapped totalCansSold
             const saveWaterSale = () => {
                 const payload = {
                     ...waterForm.value,
@@ -1135,7 +1155,6 @@
                 postData('/api/water-sales', payload, () => { clearForms(); loadWaterSales(); });
             };
 
-            // Fixed Material Sale Save with unitPrice inclusion
             const saveMaterialSale = () => {
                 const payload = {
                     ...materialForm.value,
@@ -1164,6 +1183,7 @@
 
             return {
                 currentTab, tabs, currentTabTitle, currentTabIcon, currentTabDescription,
+                isSidebarOpen,
                 summary, dailySales, products, waterSales, materialSales,
                 sortedDailySales, sortedWaterSales, sortedMaterialSales,
                 filteredDailySales, filteredWaterSales, filteredMaterialSales, filteredProducts,
