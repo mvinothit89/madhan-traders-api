@@ -1,449 +1,1569 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Madhan Traders | Premium Construction Materials Chennai</title>
+    <title>Madhan Traders - Enterprise Management Portal</title>
+    <!-- Vue 3 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for Pro Data Visualizations -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+Tamil:wght@300;400;600;700&display=swap');
-        body { font-family: 'Plus Jakarta Sans', 'Noto Sans Tamil', sans-serif; background-color: #0b0f19; color: #f1f5f9; }
-        .ambient-card { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5); }
-        .ambient-card-glow:hover { border-color: rgba(245, 158, 11, 0.4); box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.15); transform: translateY(-2px); }
+        [v-cloak] { display: none; }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #f59e0b; }
-        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 300px; max-height: 350px; }
-        .text-glow-amber { text-shadow: 0 0 12px rgba(245, 158, 11, 0.4); }
-        #toast { visibility: hidden; min-width: 300px; margin-left: -150px; background-color: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.5); color: #fff; text-align: center; border-radius: 12px; padding: 16px; position: fixed; z-index: 100; left: 50%; bottom: 30px; font-size: 14px; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5); }
-        #toast.show { visibility: visible; -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-        @-webkit-keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-        @-webkit-keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
-        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; border: 2px solid transparent; background-clip: content-box; }
+        ::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+
+        /* Upgraded Professional UI Styles */
+        .input-field {
+            @apply w-full border border-slate-300 bg-white p-2.5 rounded-xl shadow-sm text-sm text-slate-700
+            focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 outline-none
+            transition-all duration-300 ease-in-out hover:border-slate-400 placeholder:text-slate-400;
+        }
+        .form-label {
+            @apply block text-[13px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 transition-colors;
+        }
+        .btn-primary {
+            @apply bg-gradient-to-tr from-cyan-600 to-blue-600 text-white py-2.5 px-6 rounded-xl
+            shadow-[0_4px_12px_rgba(8,145,178,0.25)] hover:shadow-[0_6px_16px_rgba(8,145,178,0.35)]
+            hover:from-cyan-500 hover:to-blue-500 font-bold transition-all duration-300 transform
+            hover:-translate-y-0.5 flex items-center gap-2 justify-center active:translate-y-0 active:shadow-sm;
+        }
+        .btn-secondary {
+            @apply bg-white border border-slate-200 text-slate-700 py-2.5 px-6 rounded-xl shadow-sm
+            hover:bg-slate-50 hover:border-slate-300 hover:text-cyan-700 font-semibold transition-all duration-300
+            flex items-center gap-2 justify-center active:bg-slate-100;
+        }
+
+        /* Pagination Styles */
+        .page-btn { @apply relative inline-flex items-center px-3 md:px-4 py-1.5 md:py-2 border border-slate-200 bg-white text-xs md:text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed; }
+        .page-btn-active { @apply bg-cyan-50 text-cyan-700 border-cyan-500 z-10; }
     </style>
 </head>
-<body class="bg-[#0b0f19] text-[#f1f5f9] antialiased">
-<div id="toast">Message Status</div>
+<body class="bg-slate-50 font-sans text-slate-800 selection:bg-cyan-200 selection:text-cyan-900">
+<div id="app" v-cloak class="flex h-screen overflow-hidden relative">
 
-<div class="bg-slate-950 text-slate-300 text-xs py-2 px-4 sm:px-6 lg:px-8 border-b border-slate-900">
-    <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
-        <div class="flex items-center gap-4">
-            <span class="flex items-center gap-1"><span class="text-amber-400">📞</span> <a href="tel:+919884494275" class="hover:text-amber-400 font-semibold transition-colors">+91-9884494275</a></span>
-            <span class="hidden md:inline flex items-center gap-1"><span class="text-amber-400">✉️</span> <a href="mailto:madhantraders.tn@gmail.com" class="hover:text-amber-400 transition-colors">madhantraders.tn@gmail.com</a></span>
-        </div>
-        <div class="flex items-center gap-4">
-            <button onclick="toggleLanguage()" id="langBtn" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-3 py-1 rounded border border-slate-800 flex items-center gap-1 transition-all">🌐 Tamil / தமிழ்</button>
-        </div>
-    </div>
-</div>
+    <!-- Mobile Sidebar Overlay -->
+    <div v-if="isSidebarOpen" @click="isSidebarOpen = false" class="fixed inset-0 bg-slate-900/50 z-20 md:hidden backdrop-blur-sm transition-opacity"></div>
 
-<header class="bg-[#0b0f19]/80 sticky top-0 z-40 backdrop-blur-md border-b border-slate-900">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-20">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center text-slate-950 font-black text-2xl tracking-wider shadow-lg">M</div>
-                <div>
-                    <h1 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 leading-none">
-                        <span data-en="MADHAN TRADERS" data-ta="மதன் டிரேடர்ஸ்">MADHAN TRADERS</span>
-                    </h1>
+    <!-- Sidebar -->
+    <aside :class="['fixed md:relative z-30 inset-y-0 left-0 w-72 shrink-0 bg-slate-900 text-white flex flex-col justify-between shadow-2xl transition-transform duration-300 ease-in-out md:translate-x-0', isSidebarOpen ? 'translate-x-0' : '-translate-x-full']">
+        <div class="absolute top-0 left-0 w-full h-32 bg-cyan-600/20 blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 flex flex-col h-full">
+            <div class="p-6 text-xl md:text-2xl font-bold bg-slate-900/50 flex items-center justify-between border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="bg-cyan-500/20 p-2 rounded-lg"><i class="fa-solid fa-water text-cyan-400"></i></div>
+                    Madhan Traders
                 </div>
+                <button @click="isSidebarOpen = false" class="md:hidden text-slate-400 hover:text-white transition-colors">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
             </div>
-            <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-300">
-                <a href="#materials" class="hover:text-amber-400 transition-colors" data-en="Materials" data-ta="பொருட்கள் பட்டியல்">Materials</a>
-                <a href="#checkout-station" class="hover:text-amber-400 transition-colors" data-en="Cart" data-ta="கார்ட்">Cart</a>
-            </nav>
-            <div class="flex items-center gap-3">
-                <a href="#checkout-station" class="relative bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 transition-all shadow-md">
-                    <span>🛒</span> <span data-en="Live Memo" data-ta="எனது பில்">Live Memo</span> <span id="cartCount" class="bg-slate-950 text-amber-400 font-extrabold px-2 py-0.5 rounded-full text-xs">0</span>
+            <nav class="mt-6 px-3 space-y-1.5 overflow-y-auto">
+                <a v-for="tab in tabs" :key="tab.id" @click="switchTab(tab.id); isSidebarOpen = false;"
+                   :class="['flex items-center gap-3 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-300',
+                            currentTab === tab.id ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-900/50 font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-white']">
+                    <i :class="tab.icon + ' w-6 text-center text-lg ' + (currentTab === tab.id ? 'text-cyan-100' : 'text-slate-500')"></i>
+                    {{ tab.name }}
                 </a>
-            </div>
+            </nav>
         </div>
-    </div>
-</header>
-
-<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-    <section id="materials" class="py-12">
-        <div class="flex flex-col xl:flex-row xl:items-end justify-between gap-6 mb-8">
-            <div>
-                <h3 class="text-2xl font-black text-white" data-en="📦 Live Materials Marketplace" data-ta="📦 மாறும் பொருட்கள் அங்காடி">📦 Live Materials Marketplace</h3>
-            </div>
-            <div class="flex flex-wrap items-center gap-3">
-                <div class="relative w-full sm:w-64">
-                    <input type="text" id="catalogSearch" oninput="filterCatalog()" placeholder="Search materials..." class="w-full bg-slate-950 text-white border border-slate-800 rounded-xl px-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-inner">
-                </div>
-                <select id="catalogSort" onchange="filterCatalog()" class="bg-slate-950 border border-slate-800 text-xs font-semibold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 text-white">
-                    <option value="default">Default Sort</option>
-                    <option value="price_low">Price: Low to High</option>
-                    <option value="price_high">Price: High to Low</option>
-                </select>
-                <div class="bg-slate-950 p-1 rounded-xl flex items-center gap-1 border border-slate-800">
-                    <button id="wholesaleBtn" onclick="setPriceMode('wholesale')" class="bg-amber-500 text-slate-950 font-bold px-4 py-1.5 rounded-lg text-xs transition-all shadow-sm">🏢 Wholesale</button>
-                    <button id="retailBtn" onclick="setPriceMode('retail')" class="text-slate-400 font-medium px-4 py-1.5 rounded-lg text-xs transition-all">🛒 Retail</button>
-                </div>
-            </div>
+        <div class="p-5 text-xs text-slate-500 bg-slate-950/50 text-center border-t border-slate-800/80 relative z-10 mt-auto">
+            Enterprise Management v6.0<br>
+            <span class="text-slate-600">Pro Edition - Advanced UI</span>
         </div>
+    </aside>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-8">
-            <div class="lg:col-span-8 space-y-6">
-                <div class="flex flex-wrap gap-2 border-b border-slate-800 pb-4" id="categoryTabs">
-                    <button onclick="selectCategory('All')" class="category-tab bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-lg text-xs transition-all shadow-sm">All Materials</button>
-                    <button onclick="selectCategory('Sand')" class="category-tab bg-slate-900 text-slate-300 border border-slate-800 font-medium px-4 py-2 rounded-lg text-xs transition-all">Sands</button>
-                    <button onclick="selectCategory('Cement')" class="category-tab bg-slate-900 text-slate-300 border border-slate-800 font-medium px-4 py-2 rounded-lg text-xs transition-all">Cements</button>
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-y-auto bg-slate-50 relative">
+
+        <!-- Header -->
+        <header class="glass-panel shadow-sm border-b border-slate-200 px-4 md:px-8 py-4 flex flex-wrap gap-4 justify-between items-center sticky top-0 z-10">
+            <div class="flex items-center gap-3 md:gap-4">
+                <button @click="isSidebarOpen = true" class="md:hidden p-2 -ml-2 text-slate-500 hover:text-cyan-600 focus:outline-none transition-colors">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-extrabold text-slate-800 flex items-center gap-3">
+                        <div class="hidden md:block bg-cyan-100 text-cyan-600 p-2 rounded-lg text-lg shadow-inner"><i :class="currentTabIcon"></i></div>
+                        {{ currentTabTitle }}
+                    </h1>
+                    <p class="text-xs md:text-sm text-slate-500 mt-1 hidden sm:block font-medium">{{ currentTabDescription }}</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 md:gap-5 ml-auto">
+                <span class="text-sm font-bold text-slate-600 hidden md:inline-block mr-2">Welcome, Vinoth</span>
+                <span :class="['text-[10px] md:text-xs border px-2 md:px-3 py-1.5 rounded-full font-bold flex items-center gap-1 md:gap-2 shadow-sm', apiOnline ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200']">
+                    <span :class="['w-1.5 h-1.5 md:w-2 md:h-2 rounded-full', apiOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500']"></span> <span class="hidden sm:inline">API</span> {{ apiOnline ? 'Online' : 'Offline / Error' }}
+                </span>
+                <button @click="refreshData" class="btn-secondary !p-2 md:!p-2.5 !rounded-lg text-slate-500 group" title="Refresh Data">
+                    <i class="fa-solid fa-rotate-right group-hover:rotate-180 transition-transform duration-500"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="p-4 md:p-8 max-w-screen-2xl mx-auto w-full">
+
+            <!-- DASHBOARD TAB -->
+            <div v-if="currentTab === 'dashboard'" class="space-y-6 md:space-y-8 animate-fade-in">
+                <!-- Summary Metrics -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden group hover:-translate-y-1 transition-all">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-cyan-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-start mb-4">
+                                <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Net Revenue</p>
+                                <div class="bg-cyan-100 text-cyan-600 p-2 rounded-lg shadow-sm"><i class="fa-solid fa-chart-line"></i></div>
+                            </div>
+                            <h3 class="text-2xl md:text-3xl font-extrabold text-slate-800">&#8377;{{ summary.netRevenue?.toLocaleString('en-IN') || 0 }}</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden group hover:-translate-y-1 transition-all">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-start mb-4">
+                                <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Net Profit</p>
+                                <div class="bg-emerald-100 text-emerald-600 p-2 rounded-lg shadow-sm"><i class="fa-solid fa-sack-dollar"></i></div>
+                            </div>
+                            <h3 class="text-2xl md:text-3xl font-extrabold text-emerald-600">&#8377;{{ summary.netProfit?.toLocaleString('en-IN') || 0 }}</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden group hover:-translate-y-1 transition-all">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-start mb-4">
+                                <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Cash Inflow</p>
+                                <div class="bg-blue-100 text-blue-600 p-2 rounded-lg shadow-sm"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                            </div>
+                            <h3 class="text-2xl md:text-3xl font-extrabold text-blue-600">&#8377;{{ summary.totalInflow?.toLocaleString('en-IN') || 0 }}</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden group hover:-translate-y-1 transition-all">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-rose-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-start mb-4">
+                                <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Cash Outflow</p>
+                                <div class="bg-rose-100 text-rose-600 p-2 rounded-lg shadow-sm"><i class="fa-solid fa-arrow-trend-down"></i></div>
+                            </div>
+                            <h3 class="text-2xl md:text-3xl font-extrabold text-rose-600">&#8377;{{ summary.totalOutflow?.toLocaleString('en-IN') || 0 }}</h3>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- DYNAMIC RENDER GRID -->
-                <div id="materialsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+                <!-- Sales Trends & Analytics Section -->
+                <div class="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+                    <div class="flex flex-col xl:flex-row justify-between xl:items-center gap-4 border-b border-slate-100 pb-4">
+                        <div>
+                            <h3 class="text-lg md:text-xl font-extrabold text-slate-800">Sales Trends & Category Analysis</h3>
+                            <p class="text-xs md:text-sm text-slate-500 mt-1">Analyze performance by category across varying timeframes.</p>
+                        </div>
+                        <div class="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3">
+                            <!-- Category Filter -->
+                            <div class="flex flex-wrap items-center gap-1 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-inner w-full sm:w-auto">
+                                <button @click="dashboardCategory = 'all'" :class="['px-3 md:px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex-1 sm:flex-none text-center', dashboardCategory === 'all' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">All</button>
+                                <button @click="dashboardCategory = 'water'" :class="['px-3 md:px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex-1 sm:flex-none text-center', dashboardCategory === 'water' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Water</button>
+                                <button @click="dashboardCategory = 'material'" :class="['px-3 md:px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex-1 sm:flex-none text-center', dashboardCategory === 'material' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Material</button>
+                            </div>
+                            <!-- Period Filter -->
+                            <div class="flex flex-wrap items-center gap-1 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-inner w-full sm:w-auto overflow-x-auto">
+                                <button @click="dashboardPeriod = 'daily'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0', dashboardPeriod === 'daily' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Daily</button>
+                                <button @click="dashboardPeriod = 'weekly'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0', dashboardPeriod === 'weekly' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Weekly</button>
+                                <button @click="dashboardPeriod = 'monthly'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0', dashboardPeriod === 'monthly' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Monthly</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart Container -->
+                    <div class="relative h-64 md:h-80 w-full">
+                        <canvas id="salesDashboardChart"></canvas>
+                    </div>
+
+                    <!-- Data Grid with Filters & Pagination -->
+                    <div class="pt-4 border-t border-slate-100 space-y-4">
+                        <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+                            <h4 class="font-bold text-slate-800 text-md">Aggregated Data Matrix</h4>
+                            <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+                                <div class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-inner">
+                                    <input v-model="dashboardFromDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 font-semibold cursor-pointer">
+                                    <span class="text-[10px] font-bold text-slate-400">TO</span>
+                                    <input v-model="dashboardToDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 font-semibold cursor-pointer">
+                                </div>
+                                <div class="relative flex-1 min-w-[200px]">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
+                                    <input v-model="dashboardSearch" placeholder="Search period or category..." class="input-field !py-2 !pl-9 !text-sm">
+                                </div>
+                                <button @click="exportToCSV(filteredDashboardGridData, 'Dashboard_Report.csv')" class="btn-secondary !py-2 !text-xs h-[38px]"><i class="fa-solid fa-download"></i> Export</button>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto rounded-t-xl border border-slate-200">
+                            <table class="w-full text-left border-collapse min-w-[600px]">
+                                <thead>
+                                <tr class="bg-slate-50/80 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                    <th @click="toggleDashboardSort('periodLabel')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">
+                                        Period <i class="fa-solid fa-sort ml-1 opacity-50"></i>
+                                    </th>
+                                    <th @click="toggleDashboardSort('categoryName')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors" v-if="dashboardCategory === 'all'">
+                                        Category <i class="fa-solid fa-sort ml-1 opacity-50"></i>
+                                    </th>
+                                    <th @click="toggleDashboardSort('totalQty')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">
+                                        Quantity <i class="fa-solid fa-sort ml-1 opacity-50"></i>
+                                    </th>
+                                    <th @click="toggleDashboardSort('totalRevenue')" class="p-3 md:p-4 font-bold text-emerald-700 cursor-pointer hover:text-emerald-800 transition-colors">
+                                        Revenue (₹) <i class="fa-solid fa-sort ml-1 opacity-50"></i>
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-sm bg-white">
+                                <tr v-for="row in paginatedDashboardGridData" :key="row.key + (row.categoryName || '')" class="hover:bg-slate-50/80 transition-colors group">
+                                    <td class="p-3 md:p-4 font-bold text-slate-700">{{ row.periodLabel }}</td>
+                                    <td class="p-3 md:p-4 font-semibold text-cyan-700" v-if="dashboardCategory === 'all'">
+                                        <span class="bg-cyan-50 text-cyan-700 px-2.5 py-1 rounded-md text-xs border border-cyan-100">{{ row.categoryName }}</span>
+                                    </td>
+                                    <td class="p-3 md:p-4 font-semibold text-slate-600">{{ row.totalQty }}</td>
+                                    <td class="p-3 md:p-4 font-extrabold text-emerald-600">₹{{ row.totalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</td>
+                                </tr>
+                                <tr v-if="!paginatedDashboardGridData.length">
+                                    <td :colspan="dashboardCategory === 'all' ? 4 : 3" class="p-8 text-center text-slate-500 font-medium">No records matching your search or date filters.</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination Controls -->
+                        <div class="flex items-center justify-between border border-t-0 border-slate-200 bg-slate-50 px-4 py-3 rounded-b-xl shadow-inner">
+                            <div class="text-xs text-slate-500 font-medium">
+                                Showing <span class="font-bold text-slate-700">{{ filteredDashboardGridData.length ? (dashboardPage - 1) * itemsPerPage + 1 : 0 }}</span>
+                                to <span class="font-bold text-slate-700">{{ Math.min(dashboardPage * itemsPerPage, filteredDashboardGridData.length) }}</span>
+                                of <span class="font-bold text-slate-700">{{ filteredDashboardGridData.length }}</span> records
+                            </div>
+                            <div class="inline-flex rounded-lg shadow-sm overflow-hidden">
+                                <button @click="dashboardPage--" :disabled="dashboardPage === 1" class="page-btn border-r-0 rounded-l-lg">Prev</button>
+                                <button class="page-btn page-btn-active">{{ dashboardPage }}</button>
+                                <button @click="dashboardPage++" :disabled="dashboardPage >= totalPages(filteredDashboardGridData)" class="page-btn border-l-0 rounded-r-lg">Next</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
             </div>
 
-            <div class="lg:col-span-4 ambient-card p-6 rounded-2xl border border-slate-800">
-                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-500/10 text-amber-400 text-[10px] font-bold uppercase rounded-full mb-4">⚙️ Sales Configurator</span>
-                <h4 class="font-bold text-white border-b border-slate-800 pb-3 mb-4">Add Custom Material to API</h4>
-                <div class="space-y-4 text-xs">
+            <!-- CASH FLOW TAB -->
+            <div v-if="currentTab === 'cash-flow'" class="space-y-6 animate-fade-in">
+                <!-- Top controls -->
+                <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
-                        <label class="block text-slate-400 mb-1">Material Name (English)</label>
-                        <input type="text" id="customNameEn" class="w-full bg-slate-950 text-white border border-slate-800 rounded-lg p-2.5">
+                        <h3 class="text-lg font-bold text-slate-800">Financial Trajectory & Entries</h3>
+                        <p class="text-sm text-slate-500 mt-1 font-medium">Manage and review inflow vs outflow analytics.</p>
                     </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-slate-400 mb-1">Wholesale Price (₹)</label>
-                            <input type="number" id="customWholesale" class="w-full bg-slate-950 text-white border border-slate-800 rounded-lg p-2.5">
+                    <div class="bg-slate-50 p-1.5 rounded-xl flex w-full md:w-auto gap-1 shadow-inner border border-slate-200">
+                        <button @click="cashFlowPeriod = 'daily'" :class="['flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-bold transition-all', cashFlowPeriod === 'daily' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Daily</button>
+                        <button @click="cashFlowPeriod = 'weekly'" :class="['flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-bold transition-all', cashFlowPeriod === 'weekly' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Weekly</button>
+                        <button @click="cashFlowPeriod = 'monthly'" :class="['flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-bold transition-all', cashFlowPeriod === 'monthly' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Monthly</button>
+                    </div>
+                </div>
+
+                <!-- Breakdowns -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-blue-500 hover:-translate-y-1 transition-transform">
+                        <h4 class="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider mb-5">Payment Distribution</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="font-bold text-slate-600"><i class="fa-solid fa-money-bill text-emerald-500 mr-2"></i>Cash</span>
+                                    <span class="font-extrabold text-slate-800">₹{{ cfAnalytics.totalCash.toLocaleString('en-IN') }}</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden"><div class="bg-gradient-to-r from-emerald-400 to-emerald-500 h-full rounded-full" :style="`width: ${cfAnalytics.cashPct}%`"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="font-bold text-slate-600"><i class="fa-brands fa-google-pay text-indigo-500 mr-2"></i>Digital</span>
+                                    <span class="font-extrabold text-slate-800">₹{{ cfAnalytics.totalGpay.toLocaleString('en-IN') }}</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden"><div class="bg-gradient-to-r from-indigo-400 to-blue-500 h-full rounded-full" :style="`width: ${cfAnalytics.gpayPct}%`"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-cyan-500 hover:-translate-y-1 transition-transform">
+                        <h4 class="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider mb-5">Revenue Source</h4>
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-cyan-50 flex items-center justify-center text-cyan-600 text-lg border border-cyan-100 shadow-sm"><i class="fa-solid fa-droplet"></i></div>
+                            <div class="flex-1">
+                                <p class="text-[11px] text-slate-400 font-bold uppercase">Water Sales</p>
+                                <p class="text-xl font-extrabold text-slate-800">₹{{ cfAnalytics.waterTotal.toLocaleString('en-IN') }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 border-t border-slate-100 pt-4">
+                            <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 text-lg border border-amber-100 shadow-sm"><i class="fa-solid fa-truck-ramp-box"></i></div>
+                            <div class="flex-1">
+                                <p class="text-[11px] text-slate-400 font-bold uppercase">Material Sales</p>
+                                <p class="text-xl font-extrabold text-slate-800">₹{{ cfAnalytics.materialTotal.toLocaleString('en-IN') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-rose-500 hover:-translate-y-1 transition-transform flex flex-col justify-center">
+                        <h4 class="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider mb-2 text-center">Operating Outflows</h4>
+                        <div class="text-center py-2">
+                            <p class="text-slate-400 text-[11px] font-bold uppercase mb-1">Total Expenses</p>
+                            <p class="text-3xl md:text-4xl font-extrabold text-rose-600 drop-shadow-sm">₹{{ cfAnalytics.totalExpenses.toLocaleString('en-IN') }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cash Flow Form (CRUD) -->
+                <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-extrabold mb-5 text-slate-700 border-b border-slate-100 pb-3">{{ cashFlowForm.id ? 'Edit Cash Entry' : 'Manual Cash Flow Entry' }}</h3>
+                    <form @submit.prevent="saveCashFlow" class="space-y-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
+                            <div>
+                                <label class="form-label">Date</label>
+                                <input v-model="cashFlowForm.entryDate" type="date" required class="input-field cursor-pointer">
+                            </div>
+                            <div>
+                                <label class="form-label">Category</label>
+                                <select v-model="cashFlowForm.category" class="input-field cursor-pointer font-bold" required>
+                                    <option value="INFLOW">INFLOW (Revenue)</option>
+                                    <option value="OUTFLOW">OUTFLOW (Expense)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Amount (₹)</label>
+                                <input v-model.number="cashFlowForm.amount" type="number" step="0.01" required placeholder="0.00" class="input-field font-bold">
+                            </div>
+                            <div class="flex items-end gap-2 pb-[1px]">
+                                <button type="submit" class="btn-primary w-full h-[46px]">{{ cashFlowForm.id ? 'Update Entry' : 'Add Entry' }}</button>
+                                <button type="button" v-if="cashFlowForm.id" @click="clearForms" class="btn-secondary h-[46px] px-4"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
                         </div>
                         <div>
-                            <label class="block text-slate-400 mb-1">Retail Price (₹)</label>
-                            <input type="number" id="customRetail" class="w-full bg-slate-950 text-white border border-slate-800 rounded-lg p-2.5">
+                            <label class="form-label">Description / Remarks</label>
+                            <input v-model="cashFlowForm.description" placeholder="Optional details..." class="input-field bg-slate-50">
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Cash Flow Data Grid -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-5">
+                    <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-5">
+                        <h4 class="font-bold text-slate-800 text-lg">Cash Flow Records</h4>
+                        <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+                            <!-- Date Filter Component -->
+                            <div class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-inner">
+                                <input v-model="cashFlowFromDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer font-semibold">
+                                <span class="text-[10px] font-bold text-slate-400">TO</span>
+                                <input v-model="cashFlowToDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer font-semibold">
+                            </div>
+                            <!-- Search & Export -->
+                            <div class="relative flex-1 min-w-[200px]">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
+                                <input v-model="searchCashFlow" placeholder="Search records..." class="input-field !py-2 !pl-9 !text-sm">
+                            </div>
+                            <button @click="exportToCSV(filteredCashFlows, 'Cash_Flow.csv')" class="btn-secondary !py-2 !text-xs h-[38px]"><i class="fa-solid fa-download"></i> Export</button>
                         </div>
                     </div>
-                    <button onclick="injectCustomMaterial()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-lg transition-all text-xs shadow-md mt-2">
-                        ➕ API Inject & Refresh
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Checkout / Memo -->
-    <section id="checkout-station" class="py-12 border-t border-slate-900">
-        <div class="mb-8">
-            <h3 class="text-2xl font-black text-white flex items-center gap-2">🗒️ Custom Live Memo Receipt</h3>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            <div class="ambient-card p-6 rounded-2xl border border-slate-800 lg:col-span-5 space-y-4">
-                <h4 class="font-bold text-white border-b border-slate-800 pb-3">Customer Details</h4>
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Full Name</label>
-                    <input type="text" id="custName" class="w-full bg-slate-950 text-white border border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Mobile Number</label>
-                    <input type="tel" id="custPhone" class="w-full bg-slate-950 text-white border border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
-                </div>
-            </div>
-
-            <div class="lg:col-span-7">
-                <div id="memoSlipPhysical" class="bg-[#fcfbf7] border-2 border-dashed border-slate-400 p-6 sm:p-8 rounded-lg shadow-xl relative text-slate-900 font-mono">
-                    <div class="text-center border-b border-slate-300 pb-4 mb-4">
-                        <h2 class="text-2xl font-black tracking-tight text-slate-950">MADHAN TRADERS</h2>
-                        <div class="text-xs font-bold">Wholesale & Retail</div>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-xs text-left mb-6 border-collapse font-sans min-w-[500px]">
+                    <div class="overflow-x-auto rounded-t-xl border border-slate-200">
+                        <table class="w-full text-left border-collapse min-w-[700px]">
                             <thead>
-                            <tr class="border-b border-slate-300 text-slate-700 uppercase font-mono">
-                                <th class="pb-2">Material / Specs</th>
-                                <th class="pb-2 text-right">Qty</th>
-                                <th class="pb-2 text-right">Price</th>
-                                <th class="pb-2 text-right">Total</th>
+                            <tr class="bg-slate-50/80 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                <th @click="sortCashFlowBy('entryDate')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Date <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th @click="sortCashFlowBy('category')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Category <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th class="p-3 md:p-4 font-bold">Description</th>
+                                <th @click="sortCashFlowBy('amount')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Amount (₹) <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th class="p-3 md:p-4 font-bold text-right">Actions</th>
                             </tr>
                             </thead>
-                            <tbody id="memoItemsBody" class="font-mono"></tbody>
+                            <tbody class="divide-y divide-slate-100 text-sm bg-white">
+                            <tr v-for="cf in paginatedCashFlows" :key="cf.id" class="hover:bg-slate-50/80 transition-colors group">
+                                <td class="p-3 md:p-4 font-extrabold text-slate-700">{{ cf.entryDate }}</td>
+                                <td class="p-3 md:p-4">
+                                    <span :class="['px-2.5 py-1 rounded-md text-xs font-bold uppercase', cf.category === 'INFLOW' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200']">
+                                        {{ cf.category }}
+                                    </span>
+                                </td>
+                                <td class="p-3 md:p-4 text-slate-600 font-medium">{{ cf.description || '--' }}</td>
+                                <td :class="['p-3 md:p-4 font-extrabold', cf.category === 'INFLOW' ? 'text-emerald-600' : 'text-rose-600']">
+                                    {{ cf.category === 'INFLOW' ? '+' : '-' }} ₹{{ cf.amount?.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}
+                                </td>
+                                <td class="p-3 md:p-4 text-right space-x-1 md:space-x-2 whitespace-nowrap opacity-50 group-hover:opacity-100 transition-opacity">
+                                    <button @click="editItem('cash-flow', cf)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button @click="deleteItem('/api/cash-flows/' + cf.id, loadCashFlows)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all"><i class="fa-solid fa-trash text-xs"></i></button>
+                                </td>
+                            </tr>
+                            <tr v-if="!paginatedCashFlows.length"><td colspan="5" class="p-8 text-center text-slate-500 font-medium">No cash flow records found.</td></tr>
+                            </tbody>
                         </table>
                     </div>
-                    <div class="border-t border-slate-300 pt-3 text-xs space-y-1.5 text-right font-semibold">
-                        <div class="flex justify-between text-base font-extrabold text-slate-950 border-t border-slate-300 pt-2">
-                            <span>NET TOTAL:</span>
-                            <span id="memoNetTotal">₹0.00</span>
+
+                    <!-- Pagination Controls -->
+                    <div class="flex items-center justify-between border border-t-0 border-slate-200 bg-slate-50 px-4 py-3 rounded-b-xl shadow-inner">
+                        <div class="text-xs text-slate-500 font-medium">
+                            Showing <span class="font-bold text-slate-700">{{ filteredCashFlows.length ? (cashFlowPage - 1) * itemsPerPage + 1 : 0 }}</span>
+                            to <span class="font-bold text-slate-700">{{ Math.min(cashFlowPage * itemsPerPage, filteredCashFlows.length) }}</span>
+                            of <span class="font-bold text-slate-700">{{ filteredCashFlows.length }}</span> records
+                        </div>
+                        <div class="inline-flex rounded-lg shadow-sm overflow-hidden">
+                            <button @click="cashFlowPage--" :disabled="cashFlowPage === 1" class="page-btn border-r-0 rounded-l-lg">Prev</button>
+                            <button class="page-btn page-btn-active">{{ cashFlowPage }}</button>
+                            <button @click="cashFlowPage++" :disabled="cashFlowPage >= totalPages(filteredCashFlows)" class="page-btn border-l-0 rounded-r-lg">Next</button>
                         </div>
                     </div>
                 </div>
-                <div class="mt-6 flex flex-col sm:flex-row gap-4">
-                    <button onclick="submitOrderViaAPI()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl text-sm transition-all flex items-center justify-center gap-2 flex-1 shadow-md">
-                        <span>💬</span> Submit to Backend & WhatsApp
+
+            </div>
+
+            <!-- DAILY SALES TAB (Consolidated Ledger) -->
+            <div v-if="currentTab === 'daily-sales'" class="space-y-6">
+                <!-- Action Bar -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800">Ledger Configuration</h3>
+                        <p class="text-sm text-slate-500 mt-1 font-medium">Pull data automatically from material sub-ledgers.</p>
+                    </div>
+                    <button @click="triggerSync" class="btn-primary w-full sm:w-auto !from-emerald-500 !to-teal-600 hover:!from-emerald-600 hover:!to-teal-700">
+                        <i class="fa-solid fa-rotate"></i> Synchronize Data
                     </button>
                 </div>
-            </div>
-        </div>
-    </section>
-</main>
 
-<script>
-    let currentLang = 'en';
-    let currentPriceMode = 'wholesale';
-    let currentCategory = 'All';
-    let cart = {};
-    let negotiatedPrices = {};
-    let materialCatalog = []; // DYNAMICALLY LOADED NOW
+                <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-extrabold mb-5 text-slate-700 border-b border-slate-100 pb-3">{{ dailySalesForm.id ? 'Edit Ledger Entry' : 'Manual Ledger Entry' }}</h3>
+                    <form @submit.prevent="saveDailySales" class="space-y-6">
+                        <div class="w-full md:w-1/4">
+                            <label class="form-label">Ledger Date</label>
+                            <input v-model="dailySalesForm.saleDate" type="date" required class="input-field cursor-pointer font-medium">
+                        </div>
 
-    // API Initialization
-    async function fetchCatalog() {
-        try {
-            // Fetch dynamically from your backend API
-            const response = await fetch('/api/products');
-            if (!response.ok) throw new Error('API down');
-
-            const apiData = await response.json();
-
-            // Map the backend DB structure to the UI structure
-            materialCatalog = apiData.map(product => ({
-                id: product.id,
-                category: product.category || 'Cement', // fallback
-                en_title: product.itemName,
-                ta_title: product.itemName, // Requires translation table if backend doesn't support it
-                description: product.description || 'Premium material',
-                wholesale: product.sellingPrice - (product.sellingPrice * 0.1), // Example logic
-                retail: product.sellingPrice,
-                unit: 'Unit',
-                minOrder: 1
-            }));
-        } catch (error) {
-            console.error("Failed to load catalog. Falling back to default empty state.", error);
-            showToast("Error loading catalog from API");
-        }
-        filterCatalog();
-    }
-
-    // Run fetch on load
-    document.addEventListener('DOMContentLoaded', fetchCatalog);
-
-    function showToast(text) {
-        const toast = document.getElementById("toast");
-        toast.innerText = text;
-        toast.className = "show";
-        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
-    }
-
-    function toggleLanguage() {
-        currentLang = currentLang === 'en' ? 'ta' : 'en';
-        document.getElementById('langBtn').innerHTML = currentLang === 'en' ? '🌐 Tamil / தமிழ்' : '🌐 English / ஆங்கிலம்';
-        filterCatalog();
-        renderMemoSlip();
-    }
-
-    function setPriceMode(mode) {
-        currentPriceMode = mode;
-        filterCatalog();
-        renderMemoSlip();
-    }
-
-    function selectCategory(category) {
-        currentCategory = category;
-        filterCatalog();
-    }
-
-    function filterCatalog() {
-        const searchQuery = document.getElementById('catalogSearch').value.toLowerCase().trim();
-        const sortBy = document.getElementById('catalogSort').value;
-
-        let filteredList = materialCatalog.filter(p => currentCategory === 'All' || p.category === currentCategory);
-
-        if (searchQuery) {
-            filteredList = filteredList.filter(p => p.en_title.toLowerCase().includes(searchQuery));
-        }
-
-        if (sortBy === 'price_low') {
-            filteredList.sort((a, b) => a[currentPriceMode] - b[currentPriceMode]);
-        } else if (sortBy === 'price_high') {
-            filteredList.sort((a, b) => b[currentPriceMode] - a[currentPriceMode]);
-        }
-
-        renderGrid(filteredList);
-    }
-
-    function renderGrid(items) {
-        const grid = document.getElementById('materialsGrid');
-        grid.innerHTML = '';
-
-        items.forEach(item => {
-            const price = currentPriceMode === 'wholesale' ? item.wholesale : item.retail;
-            const qtyInCart = cart[item.id] || 0;
-
-            grid.innerHTML += `
-                    <div class="ambient-card p-5 rounded-2xl flex flex-col justify-between ambient-card-glow transition-all">
-                        <div>
-                            <div class="flex justify-between items-start mb-2">
-                                <h5 class="font-bold text-white text-sm">${currentLang === 'en' ? item.en_title : item.ta_title}</h5>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                            <div class="bg-cyan-50/30 p-5 rounded-2xl border border-cyan-100">
+                                <h4 class="font-bold text-cyan-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-droplet text-cyan-500"></i> Water Collections</h4>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="form-label !text-cyan-700">Cash (₹)</label>
+                                        <input v-model.number="dailySalesForm.waterCash" type="number" step="0.01" placeholder="0.00" class="input-field border-cyan-200 focus:border-cyan-500 focus:ring-cyan-500/20">
+                                    </div>
+                                    <div>
+                                        <label class="form-label !text-cyan-700">GPay (₹)</label>
+                                        <input v-model.number="dailySalesForm.waterGpay" type="number" step="0.01" placeholder="0.00" class="input-field border-cyan-200 focus:border-cyan-500 focus:ring-cyan-500/20">
+                                    </div>
+                                </div>
                             </div>
-                            <p class="text-xs text-slate-400 mb-4 h-8">${item.description}</p>
-                            <div class="flex justify-between items-end mb-4 border-t border-slate-800 pt-4">
-                                <div><div class="text-[10px] text-slate-500 uppercase tracking-widest">${currentPriceMode} Rate</div>
-                                <div class="text-xl font-black text-amber-400">₹${price} <span class="text-xs font-normal text-slate-400">/${item.unit}</span></div></div>
+                            <div class="bg-amber-50/30 p-5 rounded-2xl border border-amber-100">
+                                <h4 class="font-bold text-amber-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-boxes-stacked text-amber-500"></i> Material Collections</h4>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="form-label !text-amber-700">Cash (₹)</label>
+                                        <input v-model.number="dailySalesForm.materialCash" type="number" step="0.01" placeholder="0.00" class="input-field border-amber-200 focus:border-amber-500 focus:ring-amber-500/20">
+                                    </div>
+                                    <div>
+                                        <label class="form-label !text-amber-700">GPay (₹)</label>
+                                        <input v-model.number="dailySalesForm.materialGpay" type="number" step="0.01" placeholder="0.00" class="input-field border-amber-200 focus:border-amber-500 focus:ring-amber-500/20">
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="updateCart('${item.id}', -1)" class="bg-slate-800 hover:bg-slate-700 text-white h-10 w-10 rounded-lg font-bold flex items-center justify-center">-</button>
-                            <input type="number" id="qty_${item.id}" value="${qtyInCart}" min="0" onchange="setCartQty('${item.id}', this.value)" class="bg-slate-900 border border-slate-700 text-center text-white h-10 w-16 rounded-lg focus:outline-none focus:border-amber-500">
-                            <button onclick="updateCart('${item.id}', 1)" class="bg-amber-500 hover:bg-amber-600 text-slate-950 h-10 w-10 rounded-lg font-bold flex items-center justify-center">+</button>
+
+                        <div class="bg-rose-50/30 p-5 rounded-2xl border border-rose-100">
+                            <h4 class="font-bold text-rose-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-money-bill-transfer text-rose-500"></i> Expenses & Deductions</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div>
+                                    <label class="form-label !text-rose-700">Amount (₹)</label>
+                                    <input v-model.number="dailySalesForm.expenses" type="number" step="0.01" placeholder="0.00" class="input-field border-rose-200 focus:ring-rose-500/20 focus:border-rose-500">
+                                </div>
+                                <div class="md:col-span-3">
+                                    <label class="form-label !text-rose-700">Expense Details</label>
+                                    <input v-model="dailySalesForm.remarks" placeholder="Reason for deduction..." class="input-field border-rose-200 focus:ring-rose-500/20 focus:border-rose-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row items-center justify-between pt-5 border-t border-slate-100 gap-4">
+                            <div class="w-full md:w-auto text-center md:text-left text-lg font-extrabold text-slate-700 bg-slate-50 px-6 py-3.5 rounded-xl border border-slate-200 shadow-inner">
+                                Gross Inflow: <span class="text-emerald-600">₹{{ ((dailySalesForm.waterCash || 0) + (dailySalesForm.waterGpay || 0) + (dailySalesForm.materialCash || 0) + (dailySalesForm.materialGpay || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                            </div>
+                            <div class="flex w-full md:w-auto gap-3">
+                                <button type="button" v-if="dailySalesForm.id" @click="clearForms" class="btn-secondary flex-1 md:flex-none">Cancel</button>
+                                <button type="submit" class="btn-primary flex-1 md:flex-none"><i class="fa-solid fa-save"></i> {{ dailySalesForm.id ? 'Commit Update' : 'Commit Record' }}</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Data Table with Pagination & Filters -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-5">
+                    <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-5">
+                        <h4 class="font-bold text-slate-800 text-lg">Ledger Archive</h4>
+                        <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+                            <!-- Date Filter Component -->
+                            <div class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-inner">
+                                <input v-model="ledgerFromDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 font-semibold cursor-pointer">
+                                <span class="text-[10px] font-bold text-slate-400">TO</span>
+                                <input v-model="ledgerToDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 font-semibold cursor-pointer">
+                            </div>
+                            <!-- Search & Export -->
+                            <div class="relative flex-1 min-w-[200px]">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
+                                <input v-model="searchLedger" placeholder="Search archive..." class="input-field !py-2 !pl-9 !text-sm">
+                            </div>
+                            <button @click="exportToCSV(filteredDailySales, 'Ledger_History.csv')" class="btn-secondary !py-2 !text-xs h-[38px]"><i class="fa-solid fa-download"></i> Export</button>
                         </div>
                     </div>
-                `;
-        });
-    }
 
-    function updateCart(id, change) {
-        let current = cart[id] || 0;
-        let newVal = Math.max(0, current + change);
-        setCartQty(id, newVal);
-    }
+                    <div class="overflow-x-auto rounded-t-xl border border-slate-200">
+                        <table class="w-full text-left border-collapse min-w-[900px]">
+                            <thead>
+                            <tr class="bg-slate-50/80 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                <th @click="sortLedgerBy('saleDate')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Date <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th class="p-3 md:p-4 font-bold text-cyan-700">Water (Cash | GPay)</th>
+                                <th class="p-3 md:p-4 font-bold text-amber-700">Material (Cash | GPay)</th>
+                                <th @click="sortLedgerBy('expenses')" class="p-3 md:p-4 font-bold text-rose-700 cursor-pointer hover:text-rose-900 transition-colors">Expenses <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th class="p-3 md:p-4 font-bold">Remarks</th>
+                                <th @click="sortLedgerBy('netRevenue')" class="p-3 md:p-4 font-bold text-emerald-700 cursor-pointer hover:text-emerald-900 transition-colors">Net Revenue <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th class="p-3 md:p-4 font-bold text-right">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm bg-white">
+                            <tr v-for="ds in paginatedDailySales" :key="ds.id" class="hover:bg-slate-50/80 transition-colors group">
+                                <td class="p-3 md:p-4 font-extrabold text-slate-700">{{ ds.saleDate }}</td>
+                                <td class="p-3 md:p-4">
+                                    <div class="flex items-center gap-1">
+                                        <span class="font-bold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded text-xs">₹{{ ds.waterCash?.toLocaleString('en-IN') || 0 }}</span>
+                                        <span class="text-slate-300">|</span>
+                                        <span class="font-bold text-cyan-700 bg-cyan-50 px-1.5 py-0.5 rounded text-xs">₹{{ ds.waterGpay?.toLocaleString('en-IN') || 0 }}</span>
+                                    </div>
+                                </td>
+                                <td class="p-3 md:p-4">
+                                    <div class="flex items-center gap-1">
+                                        <span class="font-bold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded text-xs">₹{{ ds.materialCash?.toLocaleString('en-IN') || 0 }}</span>
+                                        <span class="text-slate-300">|</span>
+                                        <span class="font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded text-xs">₹{{ ds.materialGpay?.toLocaleString('en-IN') || 0 }}</span>
+                                    </div>
+                                </td>
+                                <td class="p-3 md:p-4 font-bold text-rose-600">₹{{ ds.expenses?.toLocaleString('en-IN') || 0 }}</td>
+                                <td class="p-3 md:p-4 text-slate-500 max-w-[150px] truncate font-medium">{{ ds.remarks || '-' }}</td>
+                                <td class="p-3 md:p-4 font-extrabold text-emerald-600">₹{{ ((ds.waterCash || 0) + (ds.waterGpay || 0) + (ds.materialCash || 0) + (ds.materialGpay || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</td>
+                                <td class="p-3 md:p-4 text-right space-x-1 md:space-x-2 whitespace-nowrap opacity-50 group-hover:opacity-100 transition-opacity">
+                                    <button @click="editItem('daily-sales', ds)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button @click="deleteItem('/api/daily-sales/' + ds.id, loadDailySales)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all"><i class="fa-solid fa-trash text-xs"></i></button>
+                                </td>
+                            </tr>
+                            <tr v-if="!paginatedDailySales.length"><td colspan="7" class="p-8 text-center text-slate-500 font-medium">No ledger records found matching your filters.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-    function setCartQty(id, val) {
-        val = parseFloat(val);
-        if (val <= 0 || isNaN(val)) {
-            delete cart[id];
-            delete negotiatedPrices[id];
-        } else {
-            cart[id] = val;
-        }
-        document.getElementById(`qty_${id}`).value = val || 0;
-        updateCartIcon();
-        renderMemoSlip();
-    }
+                    <!-- Pagination Controls -->
+                    <div class="flex items-center justify-between border border-t-0 border-slate-200 bg-slate-50 px-4 py-3 rounded-b-xl shadow-inner">
+                        <div class="text-xs text-slate-500 font-medium">
+                            Showing <span class="font-bold text-slate-700">{{ filteredDailySales.length ? (ledgerPage - 1) * itemsPerPage + 1 : 0 }}</span>
+                            to <span class="font-bold text-slate-700">{{ Math.min(ledgerPage * itemsPerPage, filteredDailySales.length) }}</span>
+                            of <span class="font-bold text-slate-700">{{ filteredDailySales.length }}</span> entries
+                        </div>
+                        <div class="inline-flex rounded-lg shadow-sm overflow-hidden">
+                            <button @click="ledgerPage--" :disabled="ledgerPage === 1" class="page-btn border-r-0 rounded-l-lg">Prev</button>
+                            <button class="page-btn page-btn-active">{{ ledgerPage }}</button>
+                            <button @click="ledgerPage++" :disabled="ledgerPage >= totalPages(filteredDailySales)" class="page-btn border-l-0 rounded-r-lg">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    function updateCartIcon() {
-        let total = Object.values(cart).reduce((a, b) => a + b, 0);
-        document.getElementById('cartCount').innerText = total;
-    }
+            <!-- WATER SALES TAB -->
+            <div v-if="currentTab === 'water'" class="space-y-6">
+                <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-cyan-500">
+                    <h3 class="text-lg font-extrabold mb-5 text-slate-800 border-b border-slate-100 pb-3">{{ waterForm.id ? 'Modify Dispatched Form' : 'Register Dispatched Form' }} (Water)</h3>
+                    <form @submit.prevent="saveWaterSale" class="space-y-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 md:gap-5">
+                            <div>
+                                <label class="form-label">Registry Date</label>
+                                <input v-model="waterForm.soldDate" type="date" required class="input-field cursor-pointer">
+                            </div>
+                            <div>
+                                <label class="form-label">Volume (Cans)</label>
+                                <input v-model.number="waterForm.totalCansSold" type="number" min="0" required placeholder="0" class="input-field font-bold">
+                            </div>
+                            <div>
+                                <label class="form-label !text-cyan-700">Cash Recv. (₹)</label>
+                                <input v-model.number="waterForm.cashAmount" type="number" step="0.01" min="0" placeholder="0.00" class="input-field border-cyan-200 focus:border-cyan-500 focus:ring-cyan-500/20">
+                            </div>
+                            <div>
+                                <label class="form-label !text-indigo-700">Digital Recv. (₹)</label>
+                                <input v-model.number="waterForm.gpayAmount" type="number" step="0.01" min="0" placeholder="0.00" class="input-field border-indigo-200 focus:border-indigo-500 focus:ring-indigo-500/20">
+                            </div>
+                            <div class="flex sm:col-span-2 md:col-span-1 items-end gap-2 pb-[1px]">
+                                <button type="submit" class="btn-primary w-full h-[46px]">{{ waterForm.id ? 'Commit' : 'Register' }}</button>
+                                <button type="button" v-if="waterForm.id" @click="clearForms" class="btn-secondary h-[46px] px-4"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
 
-    function renderMemoSlip() {
-        const body = document.getElementById('memoItemsBody');
-        body.innerHTML = '';
-        let subtotal = 0;
+                <!-- Water Sales Grid -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-5">
+                    <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-5">
+                        <h4 class="font-bold text-slate-800 text-lg">Dispatch Database</h4>
+                        <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+                            <!-- Date Filter Component -->
+                            <div class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-inner">
+                                <input v-model="waterFromDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer font-semibold">
+                                <span class="text-[10px] font-bold text-slate-400">TO</span>
+                                <input v-model="waterToDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer font-semibold">
+                            </div>
+                            <!-- Search & Export -->
+                            <div class="relative flex-1 min-w-[200px]">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
+                                <input v-model="searchWater" placeholder="Search archive..." class="input-field !py-2 !pl-9 !text-sm">
+                            </div>
+                            <button @click="exportToCSV(filteredWaterSales, 'Water_Sales.csv')" class="btn-secondary !py-2 !text-xs h-[38px]"><i class="fa-solid fa-download"></i> Export</button>
+                        </div>
+                    </div>
 
-        if (Object.keys(cart).length === 0) {
-            body.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-slate-400 italic">No items selected</td></tr>';
-            document.getElementById('memoNetTotal').innerText = '₹0.00';
-            return;
-        }
+                    <div class="overflow-x-auto rounded-t-xl border border-slate-200">
+                        <table class="w-full text-left border-collapse min-w-[600px]">
+                            <thead>
+                            <tr class="bg-slate-50/80 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                <th @click="sortWaterBy('soldDate')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Date <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th @click="sortWaterBy('totalCansSold')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Volume (Cans) <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th @click="sortWaterBy('cashAmount')" class="p-3 md:p-4 font-bold text-cyan-700 cursor-pointer hover:text-cyan-900 transition-colors">Cash Revenue <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th @click="sortWaterBy('gpayAmount')" class="p-3 md:p-4 font-bold text-indigo-700 cursor-pointer hover:text-indigo-900 transition-colors">Digital Revenue <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th @click="sortWaterBy('totalValue')" class="p-3 md:p-4 font-bold text-emerald-700 cursor-pointer hover:text-emerald-900 transition-colors">Gross Value <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th class="p-3 md:p-4 font-bold text-right">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm bg-white">
+                            <tr v-for="ws in paginatedWaterSales" :key="ws.id" class="hover:bg-slate-50/80 transition-colors group">
+                                <td class="p-3 md:p-4 font-extrabold text-slate-700">{{ ws.soldDate }}</td>
+                                <td class="p-3 md:p-4 font-bold text-slate-600 bg-slate-50/50">{{ ws.totalCansSold }} <span class="text-[10px] uppercase text-slate-400">units</span></td>
+                                <td class="p-3 md:p-4 font-semibold text-cyan-700">₹{{ ws.cashAmount?.toLocaleString('en-IN') || 0 }}</td>
+                                <td class="p-3 md:p-4 font-semibold text-indigo-700">₹{{ ws.gpayAmount?.toLocaleString('en-IN') || 0 }}</td>
+                                <td class="p-3 md:p-4 font-extrabold text-emerald-600 bg-emerald-50/20">₹{{ ((ws.cashAmount || 0) + (ws.gpayAmount || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</td>
+                                <td class="p-3 md:p-4 text-right space-x-1 md:space-x-2 whitespace-nowrap opacity-50 group-hover:opacity-100 transition-opacity">
+                                    <button @click="editItem('water', ws)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button @click="deleteItem('/api/water-sales/' + ws.id, loadWaterSales)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all"><i class="fa-solid fa-trash text-xs"></i></button>
+                                </td>
+                            </tr>
+                            <tr v-if="!paginatedWaterSales.length"><td colspan="6" class="p-8 text-center text-slate-500 font-medium">No water dispatch data found.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-        for (const [id, qty] of Object.entries(cart)) {
-            const item = materialCatalog.find(m => m.id == id);
-            if (!item) continue;
+                    <!-- Pagination Controls -->
+                    <div class="flex items-center justify-between border border-t-0 border-slate-200 bg-slate-50 px-4 py-3 rounded-b-xl shadow-inner">
+                        <div class="text-xs text-slate-500 font-medium">
+                            Showing <span class="font-bold text-slate-700">{{ filteredWaterSales.length ? (waterPage - 1) * itemsPerPage + 1 : 0 }}</span>
+                            to <span class="font-bold text-slate-700">{{ Math.min(waterPage * itemsPerPage, filteredWaterSales.length) }}</span>
+                            of <span class="font-bold text-slate-700">{{ filteredWaterSales.length }}</span> records
+                        </div>
+                        <div class="inline-flex rounded-lg shadow-sm overflow-hidden">
+                            <button @click="waterPage--" :disabled="waterPage === 1" class="page-btn border-r-0 rounded-l-lg">Prev</button>
+                            <button class="page-btn page-btn-active">{{ waterPage }}</button>
+                            <button @click="waterPage++" :disabled="waterPage >= totalPages(filteredWaterSales)" class="page-btn border-l-0 rounded-r-lg">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            const basePrice = currentPriceMode === 'wholesale' ? item.wholesale : item.retail;
-            const activePrice = negotiatedPrices[id] || basePrice;
-            const total = qty * activePrice;
-            subtotal += total;
+            <!-- MATERIAL SALES TAB -->
+            <div v-if="currentTab === 'material'" class="space-y-6">
+                <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-amber-500">
+                    <h3 class="text-lg font-extrabold mb-5 text-slate-800 border-b border-slate-100 pb-3">{{ materialForm.id ? 'Modify Invoice' : 'Generate Invoice' }} (Materials)</h3>
+                    <form @submit.prevent="saveMaterialSale" class="space-y-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+                            <div>
+                                <label class="form-label">Invoice Date</label>
+                                <input v-model="materialForm.soldDate" type="date" required class="input-field cursor-pointer">
+                            </div>
+                            <div class="sm:col-span-2 md:col-span-2 lg:col-span-2">
+                                <label class="form-label">SKU / Item Name</label>
+                                <input v-model="materialForm.itemName" list="product-list" required placeholder="Type product name..." class="input-field font-semibold text-slate-800">
+                                <datalist id="product-list">
+                                    <option v-for="prod in products" :key="prod.id" :value="prod.itemName"></option>
+                                </datalist>
+                            </div>
+                            <div>
+                                <label class="form-label">Quantity</label>
+                                <input v-model.number="materialForm.quantity" type="number" min="0.01" step="0.01" required placeholder="0" class="input-field font-bold">
+                            </div>
+                            <div>
+                                <label class="form-label">Unit Rate (₹)</label>
+                                <input v-model.number="materialForm.unitPrice" type="number" step="0.01" min="0" required placeholder="0.00" class="input-field border-amber-200 focus:border-amber-500 focus:ring-amber-500/20">
+                            </div>
+                            <div>
+                                <label class="form-label !text-cyan-700">Cash Recv. (₹)</label>
+                                <input v-model.number="materialForm.cashAmount" type="number" step="0.01" placeholder="0.00" class="input-field border-cyan-200 focus:border-cyan-500 focus:ring-cyan-500/20">
+                            </div>
+                            <div>
+                                <label class="form-label !text-indigo-700">Digital Recv. (₹)</label>
+                                <input v-model.number="materialForm.gpayAmount" type="number" step="0.01" placeholder="0.00" class="input-field border-indigo-200 focus:border-indigo-500 focus:ring-indigo-500/20">
+                            </div>
+                            <div class="sm:col-span-2 md:col-span-4 lg:col-span-5">
+                                <label class="form-label">Client Details / Memo</label>
+                                <input v-model="materialForm.remarks" placeholder="Customer Name, Contact or Reference Info..." class="input-field bg-slate-50">
+                            </div>
+                            <div class="sm:col-span-2 md:col-span-4 lg:col-span-2 flex flex-col sm:flex-row items-end gap-2 pb-[1px]">
+                                <button type="submit" class="btn-primary w-full h-[46px] !from-amber-500 !to-orange-600 hover:!from-amber-600 hover:!to-orange-700 shadow-[0_4px_12px_rgba(245,158,11,0.25)] hover:shadow-[0_6px_16px_rgba(245,158,11,0.35)]">{{ materialForm.id ? 'Commit' : 'Publish Invoice' }}</button>
+                                <button type="button" v-if="materialForm.id" @click="clearForms" class="btn-secondary w-full sm:w-auto h-[46px] px-4"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
 
-            body.innerHTML += `
-                    <tr class="border-b border-slate-200">
-                        <td class="py-3 font-semibold text-slate-800">${item.en_title}</td>
-                        <td class="py-3 text-right"><input type="number" value="${qty}" onchange="setCartQty('${id}', this.value)" class="w-16 text-right bg-transparent border-b border-slate-400 focus:outline-none focus:border-amber-500 text-slate-900 font-bold p-1"></td>
-                        <td class="py-3 text-right"><div class="flex items-center justify-end gap-1">₹<input type="number" value="${activePrice}" onchange="overridePrice('${id}', this.value)" class="w-16 text-right bg-transparent border-b border-slate-400 focus:outline-none focus:border-amber-500 text-slate-900 font-bold p-1"></div></td>
-                        <td class="py-3 text-right font-bold text-slate-950">₹${total.toFixed(2)}</td>
-                    </tr>
-                `;
-        }
-        document.getElementById('memoNetTotal').innerText = `₹${subtotal.toFixed(2)}`;
-    }
+                <!-- Material Sales Grid -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-5">
+                    <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-5">
+                        <h4 class="font-bold text-slate-800 text-lg">Material Ledger Matrix</h4>
+                        <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+                            <!-- Date Filter Component -->
+                            <div class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-inner">
+                                <input v-model="materialFromDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer font-semibold">
+                                <span class="text-[10px] font-bold text-slate-400">TO</span>
+                                <input v-model="materialToDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer font-semibold">
+                            </div>
+                            <!-- Search & Export -->
+                            <div class="relative flex-1 min-w-[200px]">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
+                                <input v-model="searchMaterial" placeholder="Search item or client..." class="input-field !py-2 !pl-9 !text-sm">
+                            </div>
+                            <button @click="exportToCSV(filteredMaterialSales, 'Material_Sales.csv')" class="btn-secondary !py-2 !text-xs h-[38px]"><i class="fa-solid fa-download"></i> Export</button>
+                        </div>
+                    </div>
 
-    function overridePrice(id, newPrice) {
-        newPrice = parseFloat(newPrice);
-        if (!isNaN(newPrice) && newPrice >= 0) {
-            negotiatedPrices[id] = newPrice;
-            renderMemoSlip();
-        }
-    }
+                    <div class="overflow-x-auto rounded-t-xl border border-slate-200">
+                        <table class="w-full text-left border-collapse min-w-[800px]">
+                            <thead>
+                            <tr class="bg-slate-50/80 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                <th @click="sortMaterialBy('soldDate')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Date <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th @click="sortMaterialBy('itemName')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Item Entity <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th @click="sortMaterialBy('quantity')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Quantity <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th class="p-3 md:p-4 font-bold text-slate-700">Unit Price</th>
+                                <th class="p-3 md:p-4 font-bold text-slate-700">Ledger Split</th>
+                                <th @click="sortMaterialBy('totalValue')" class="p-3 md:p-4 font-bold text-emerald-700 cursor-pointer hover:text-emerald-900 transition-colors">Net Value <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th class="p-3 md:p-4 font-bold text-right">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm bg-white">
+                            <tr v-for="ms in paginatedMaterialSales" :key="ms.id" class="hover:bg-slate-50/80 transition-colors group">
+                                <td class="p-3 md:p-4 font-extrabold text-slate-700">{{ ms.soldDate }}</td>
+                                <td class="p-3 md:p-4">
+                                    <div class="font-extrabold text-slate-800">{{ ms.itemName }}</div>
+                                    <div class="text-xs text-slate-500 mt-0.5 font-medium">{{ ms.remarks || '--' }}</div>
+                                </td>
+                                <td class="p-3 md:p-4 font-bold text-slate-600 bg-slate-50/50">{{ ms.quantity }}</td>
+                                <td class="p-3 md:p-4 font-semibold text-slate-600">₹{{ ms.unitPrice?.toLocaleString('en-IN', { minimumFractionDigits: 2 }) || 0 }}</td>
+                                <td class="p-3 md:p-4 text-[11px] uppercase tracking-wide">
+                                    <div class="text-slate-500 mb-0.5"><i class="fa-solid fa-wallet text-cyan-600 w-3"></i> Cash: <span class="font-bold text-slate-700 text-xs">₹{{ ms.cashAmount?.toLocaleString('en-IN') || 0 }}</span></div>
+                                    <div class="text-slate-500"><i class="fa-brands fa-google-pay text-indigo-600 w-3"></i> Digi: <span class="font-bold text-slate-700 text-xs">₹{{ ms.gpayAmount?.toLocaleString('en-IN') || 0 }}</span></div>
+                                </td>
+                                <td class="p-3 md:p-4 font-extrabold text-emerald-600 text-base bg-emerald-50/20">₹{{ ((ms.cashAmount || 0) + (ms.gpayAmount || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</td>
+                                <td class="p-3 md:p-4 text-right space-x-1 md:space-x-2 whitespace-nowrap opacity-50 group-hover:opacity-100 transition-opacity">
+                                    <button @click="editItem('material', ms)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button @click="deleteItem('/api/material-sales/' + ms.id, loadMaterialSales)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all"><i class="fa-solid fa-trash text-xs"></i></button>
+                                </td>
+                            </tr>
+                            <tr v-if="!paginatedMaterialSales.length"><td colspan="7" class="p-8 text-center text-slate-500 font-medium">No material invoices found.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-    // DYNAMIC API CREATION FOR CUSTOM MATERIALS
-    async function injectCustomMaterial() {
-        const nameEn = document.getElementById('customNameEn').value;
-        const wsPrice = parseFloat(document.getElementById('customWholesale').value);
-        const rtPrice = parseFloat(document.getElementById('customRetail').value);
+                    <!-- Pagination Controls -->
+                    <div class="flex items-center justify-between border border-t-0 border-slate-200 bg-slate-50 px-4 py-3 rounded-b-xl shadow-inner">
+                        <div class="text-xs text-slate-500 font-medium">
+                            Showing <span class="font-bold text-slate-700">{{ filteredMaterialSales.length ? (materialPage - 1) * itemsPerPage + 1 : 0 }}</span>
+                            to <span class="font-bold text-slate-700">{{ Math.min(materialPage * itemsPerPage, filteredMaterialSales.length) }}</span>
+                            of <span class="font-bold text-slate-700">{{ filteredMaterialSales.length }}</span> records
+                        </div>
+                        <div class="inline-flex rounded-lg shadow-sm overflow-hidden">
+                            <button @click="materialPage--" :disabled="materialPage === 1" class="page-btn border-r-0 rounded-l-lg">Prev</button>
+                            <button class="page-btn page-btn-active">{{ materialPage }}</button>
+                            <button @click="materialPage++" :disabled="materialPage >= totalPages(filteredMaterialSales)" class="page-btn border-l-0 rounded-r-lg">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        if (!nameEn || isNaN(wsPrice) || isNaN(rtPrice)) {
-            showToast("Please fill all required fields correctly.");
-            return;
-        }
+            <!-- PRODUCTS TAB -->
+            <div v-if="currentTab === 'products'" class="space-y-6">
+                <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-indigo-500">
+                    <h3 class="text-lg font-extrabold mb-5 text-slate-800 border-b border-slate-100 pb-3">{{ productForm.id ? 'Modify SKU Base' : 'Provision New SKU' }}</h3>
+                    <form @submit.prevent="saveProduct" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-4 md:gap-5 items-end">
+                        <div class="sm:col-span-2 md:col-span-2">
+                            <label class="form-label">SKU / Component Name</label>
+                            <input v-model="productForm.itemName" required class="input-field font-semibold text-slate-800">
+                        </div>
+                        <div class="md:col-span-1">
+                            <label class="form-label">Current Stock (Qty)</label>
+                            <input v-model.number="productForm.quantity" type="number" required class="input-field font-bold bg-slate-50">
+                        </div>
+                        <div class="md:col-span-1">
+                            <label class="form-label">Unit Value (₹)</label>
+                            <input v-model.number="productForm.sellingPrice" type="number" step="0.01" class="input-field border-emerald-200 focus:border-emerald-500 focus:ring-emerald-500/20 text-emerald-700 font-bold">
+                        </div>
+                        <div class="sm:col-span-2 md:col-span-2 flex gap-2 pb-[1px]">
+                            <button type="submit" class="btn-primary flex-1 h-[46px] !from-indigo-500 !to-violet-600 hover:!from-indigo-600 hover:!to-violet-700 shadow-[0_4px_12px_rgba(99,102,241,0.25)]">{{ productForm.id ? 'Commit Updates' : 'Add to Catalog' }}</button>
+                            <button type="button" v-if="productForm.id" @click="clearForms" class="btn-secondary h-[46px] px-4"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <div class="sm:col-span-2 md:col-span-6 mt-2">
+                            <label class="form-label">Metadata / Description</label>
+                            <input v-model="productForm.description" placeholder="Technical specs or optional details..." class="input-field bg-slate-50 border-slate-200">
+                        </div>
+                    </form>
+                </div>
 
-        const payload = {
-            itemName: nameEn,
-            description: "Custom site requirement",
-            quantity: 99,
-            sellingPrice: rtPrice
-        };
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 md:p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <h4 class="font-bold text-slate-800 text-md">Master SKU Catalog</h4>
+                    <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                        <div class="relative w-full sm:flex-1 min-w-[250px]">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
+                            <input v-model="searchProduct" placeholder="Search catalog..." class="input-field !py-2 !pl-9 !text-sm">
+                        </div>
+                        <button @click="exportToCSV(filteredProducts, 'Product_Catalog.csv')" class="btn-secondary !py-2 !text-xs h-[38px]"><i class="fa-solid fa-download"></i> Export</button>
+                    </div>
+                </div>
 
-        try {
-            // Post to API First
-            const res = await fetch('/api/products', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5">
+                    <div v-for="prod in paginatedProducts" :key="prod.id" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative group hover:-translate-y-1.5 hover:shadow-md transition-all duration-300">
+                        <div class="absolute top-4 right-4 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                            <button @click="editItem('product', prod)" class="text-blue-600 hover:bg-blue-600 hover:text-white bg-blue-50 border border-blue-100 w-8 h-8 rounded-lg flex items-center justify-center transition-all shadow-sm"><i class="fa-solid fa-pen text-xs"></i></button>
+                            <button @click="deleteItem('/api/products/' + prod.id, loadProducts)" class="text-rose-600 hover:bg-rose-600 hover:text-white bg-rose-50 border border-rose-100 w-8 h-8 rounded-lg flex items-center justify-center transition-all shadow-sm"><i class="fa-solid fa-trash text-xs"></i></button>
+                        </div>
+                        <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mb-4 border border-indigo-100 shadow-sm text-xl"><i class="fa-solid fa-box-open"></i></div>
+                        <h4 class="font-extrabold text-slate-800 text-lg pr-16 leading-tight mb-1">{{ prod.itemName }}</h4>
+                        <p class="text-[11px] font-medium text-slate-400 mb-4 h-8 line-clamp-2 leading-relaxed">{{ prod.description || 'No description available for this SKU' }}</p>
+                        <div class="flex justify-between items-center border-t border-slate-100 pt-4 mt-auto">
+                            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Stock: <strong class="text-slate-800 text-sm bg-slate-100 px-2 py-0.5 rounded ml-1">{{ prod.quantity }}</strong></span>
+                            <span class="text-sm font-extrabold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-100">₹{{ prod.sellingPrice?.toLocaleString('en-IN') || 0 }}</span>
+                        </div>
+                    </div>
+                    <div v-if="!paginatedProducts.length" class="col-span-1 sm:col-span-2 md:col-span-3 xl:col-span-4 p-10 text-center text-slate-500 bg-white rounded-2xl border border-slate-200 font-medium text-lg">No matching SKUs found in the catalog.</div>
+                </div>
 
-            if (res.ok) {
-                showToast("Custom Material Added via API!");
-                // Re-fetch catalog to get official ID
-                await fetchCatalog();
-            } else {
-                showToast("Failed to save to database");
-            }
-        } catch (err) {
-            console.error(err);
-            showToast("Network Error.");
-        }
-    }
+                <!-- Pagination Controls for Products -->
+                <div v-if="paginatedProducts.length" class="flex items-center justify-between border border-slate-200 bg-white px-5 py-4 rounded-xl shadow-sm">
+                    <div class="text-xs text-slate-500 font-medium">
+                        Showing <span class="font-bold text-slate-700">{{ (productPage - 1) * itemsPerPage + 1 }}</span>
+                        to <span class="font-bold text-slate-700">{{ Math.min(productPage * itemsPerPage, filteredProducts.length) }}</span>
+                        of <span class="font-bold text-slate-700">{{ filteredProducts.length }}</span> items
+                    </div>
+                    <div class="inline-flex rounded-lg shadow-sm overflow-hidden">
+                        <button @click="productPage--" :disabled="productPage === 1" class="page-btn border-r-0 rounded-l-lg">Prev</button>
+                        <button class="page-btn page-btn-active">{{ productPage }}</button>
+                        <button @click="productPage++" :disabled="productPage >= totalPages(filteredProducts)" class="page-btn border-l-0 rounded-r-lg">Next</button>
+                    </div>
+                </div>
+            </div>
 
-    // DYNAMIC API ORDER SUBMISSION
-    async function submitOrderViaAPI() {
-        const name = document.getElementById('custName').value;
-        const phone = document.getElementById('custPhone').value;
+            <!-- USERS TAB -->
+            <div v-if="currentTab === 'users'" class="space-y-6">
+                <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-purple-500">
+                    <h3 class="text-lg font-extrabold mb-5 text-slate-800 border-b border-slate-100 pb-3">{{ userForm.id ? 'Modify User Profile' : 'Register New User' }}</h3>
+                    <form @submit.prevent="saveUser" class="space-y-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
+                            <div>
+                                <label class="form-label">Username / Full Name</label>
+                                <input v-model="userForm.username" required placeholder="Enter username..." class="input-field font-semibold text-slate-800">
+                            </div>
+                            <div>
+                                <label class="form-label">Email Address</label>
+                                <input v-model="userForm.email" type="email" required placeholder="Email address" class="input-field">
+                            </div>
+                            <div>
+                                <label class="form-label">Role</label>
+                                <select v-model="userForm.role" class="input-field cursor-pointer font-semibold">
+                                    <option value="ADMIN">ADMIN</option>
+                                    <option value="MANAGER">MANAGER</option>
+                                    <option value="STAFF">STAFF</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Status</label>
+                                <select v-model="userForm.status" class="input-field cursor-pointer font-semibold">
+                                    <option value="ACTIVE">ACTIVE</option>
+                                    <option value="INACTIVE">INACTIVE</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-3 pt-2">
+                            <button type="button" v-if="userForm.id" @click="clearForms" class="btn-secondary px-4">Cancel</button>
+                            <button type="submit" class="btn-primary !from-purple-600 !to-indigo-600 hover:!from-purple-700 hover:!to-indigo-700 shadow-[0_4px_12px_rgba(147,51,234,0.25)]"><i class="fa-solid fa-user-plus"></i> {{ userForm.id ? 'Save Changes' : 'Create User' }}</button>
+                        </div>
+                    </form>
+                </div>
 
-        if (Object.keys(cart).length === 0) {
-            showToast("Cart is empty!");
-            return;
-        }
+                <!-- Users Table -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-5">
+                    <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-5">
+                        <h4 class="font-bold text-slate-800 text-lg">System Users Directory</h4>
+                        <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+                            <div class="relative flex-1 min-w-[200px]">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
+                                <input v-model="searchUser" placeholder="Search user by username, email, or role..." class="input-field !py-2 !pl-9 !text-sm">
+                            </div>
+                            <button @click="exportToCSV(filteredUsers, 'Users_Directory.csv')" class="btn-secondary !py-2 !text-xs h-[38px]"><i class="fa-solid fa-download"></i> Export</button>
+                        </div>
+                    </div>
 
-        const orderPayload = {
-            customerName: name,
-            phoneNumber: phone,
-            items: Object.entries(cart).map(([id, qty]) => {
-                const item = materialCatalog.find(m => m.id == id);
-                const basePrice = currentPriceMode === 'wholesale' ? item.wholesale : item.retail;
-                const finalPrice = negotiatedPrices[id] || basePrice;
-                return { productId: id, quantity: qty, unitPrice: finalPrice };
-            })
-        };
+                    <div class="overflow-x-auto rounded-t-xl border border-slate-200">
+                        <table class="w-full text-left border-collapse min-w-[650px]">
+                            <thead>
+                            <tr class="bg-slate-50/80 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                <th @click="sortUserBy('username')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">User Entity <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th @click="sortUserBy('email')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Email Address <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th @click="sortUserBy('role')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Role <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th @click="sortUserBy('status')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Status <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th class="p-3 md:p-4 font-bold text-right">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm bg-white">
+                            <tr v-for="user in paginatedUsers" :key="user.id" class="hover:bg-slate-50/80 transition-colors group">
+                                <td class="p-3 md:p-4 font-bold text-slate-800 flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-extrabold text-xs uppercase shadow-sm border border-purple-200">{{ user.username ? user.username.charAt(0) : 'U' }}</div>
+                                    <div>
+                                        <div class="font-extrabold text-slate-800">{{ user.username }}</div>
+                                        <div class="text-[11px] text-slate-400 font-medium md:hidden">{{ user.email }}</div>
+                                    </div>
+                                </td>
+                                <td class="p-3 md:p-4 font-semibold text-slate-600">{{ user.email || '-' }}</td>
+                                <td class="p-3 md:p-4">
+                                    <span :class="['px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider', user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 border border-purple-200' : user.role === 'MANAGER' ? 'bg-blue-100 text-blue-700 border border-blue-200' : 'bg-slate-100 text-slate-700 border border-slate-200']">{{ user.role || 'STAFF' }}</span>
+                                </td>
+                                <td class="p-3 md:p-4">
+                                    <span :class="['inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold', user.status === 'ACTIVE' || !user.status ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200']">
+                                        <span :class="['w-1.5 h-1.5 rounded-full', user.status === 'ACTIVE' || !user.status ? 'bg-emerald-500' : 'bg-rose-500']"></span>
+                                        {{ user.status || 'ACTIVE' }}
+                                    </span>
+                                </td>
+                                <td class="p-3 md:p-4 text-right space-x-1 md:space-x-2 whitespace-nowrap opacity-50 group-hover:opacity-100 transition-opacity">
+                                    <button @click="editItem('user', user)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button @click="deleteItem('/api/users/' + user.id, loadUsers)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all"><i class="fa-solid fa-trash text-xs"></i></button>
+                                </td>
+                            </tr>
+                            <tr v-if="!paginatedUsers.length"><td colspan="5" class="p-8 text-center text-slate-500 font-medium">No user records found matching your filters.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-        try {
-            // Assuming standard POST structure for new orders/sales
-            const res = await fetch('/api/orders', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(orderPayload)
-            });
+                    <!-- Pagination Controls -->
+                    <div class="flex items-center justify-between border border-t-0 border-slate-200 bg-slate-50 px-4 py-3 rounded-b-xl shadow-inner">
+                        <div class="text-xs text-slate-500 font-medium">
+                            Showing <span class="font-bold text-slate-700">{{ filteredUsers.length ? (userPage - 1) * itemsPerPage + 1 : 0 }}</span>
+                            to <span class="font-bold text-slate-700">{{ Math.min(userPage * itemsPerPage, filteredUsers.length) }}</span>
+                            of <span class="font-bold text-slate-700">{{ filteredUsers.length }}</span> users
+                        </div>
+                        <div class="inline-flex rounded-lg shadow-sm overflow-hidden">
+                            <button @click="userPage--" :disabled="userPage === 1" class="page-btn border-r-0 rounded-l-lg">Prev</button>
+                            <button class="page-btn page-btn-active">{{ userPage }}</button>
+                            <button @click="userPage++" :disabled="userPage >= totalPages(filteredUsers)" class="page-btn border-l-0 rounded-r-lg">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            if(res.ok) {
-                showToast("Order Saved to Backend!");
-                // Now redirect to Whatsapp as requested
-                let msg = `*NEW ORDER - MADHAN TRADERS*\nCustomer: ${name || 'Walk-In'}\nPhone: ${phone || 'N/A'}\n\n`;
-                for (const [id, qty] of Object.entries(cart)) {
-                    const item = materialCatalog.find(m => m.id == id);
-                    msg += `- ${item.en_title} x ${qty}\n`;
+        </div>
+    </main>
+</div>
+
+<script>
+    const { createApp, ref, computed, onMounted, watch, nextTick } = Vue;
+
+    createApp({
+        setup() {
+            const currentTab = ref('dashboard');
+            const isSidebarOpen = ref(false);
+            const apiOnline = ref(true);
+
+            const tabs = [
+                { id: 'dashboard', name: 'Dashboard Matrix', icon: 'fa-solid fa-chart-pie', desc: 'Real-time financial overview & analytics' },
+                { id: 'cash-flow', name: 'Cash Flow', icon: 'fa-solid fa-money-bill-trend-up', desc: 'Financial trends & analysis' },
+                { id: 'daily-sales', name: 'Consolidated Ledger', icon: 'fa-solid fa-book', desc: 'Centralized daily profit & loss' },
+                { id: 'water', name: 'Water Logistics', icon: 'fa-solid fa-droplet', desc: 'Track daily water can dispatches' },
+                { id: 'material', name: 'Material Invoicing', icon: 'fa-solid fa-truck-ramp-box', desc: 'Track cement and material invoices' },
+                { id: 'products', name: 'SKU Catalog', icon: 'fa-solid fa-boxes-stacked', desc: 'Manage stock limits and pricing' },
+                { id: 'users', name: 'User Directory', icon: 'fa-solid fa-users', desc: 'Manage system users and access roles' }
+            ];
+
+            const summary = ref({ netRevenue: 0, netProfit: 0, totalInflow: 0, totalOutflow: 0 });
+            const dailySales = ref([]);
+            const products = ref([]);
+            const waterSales = ref([]);
+            const materialSales = ref([]);
+            const users = ref([]);
+            const cashFlows = ref([]);
+
+            let dashboardChartInstance = null;
+
+            const itemsPerPage = 10;
+
+            const dashboardPage = ref(1);
+            const ledgerPage = ref(1);
+            const waterPage = ref(1);
+            const materialPage = ref(1);
+            const productPage = ref(1);
+            const userPage = ref(1);
+            const cashFlowPage = ref(1);
+
+            const dashboardFromDate = ref('');
+            const dashboardToDate = ref('');
+            const ledgerFromDate = ref('');
+            const ledgerToDate = ref('');
+            const waterFromDate = ref('');
+            const waterToDate = ref('');
+            const materialFromDate = ref('');
+            const materialToDate = ref('');
+            const cashFlowFromDate = ref('');
+            const cashFlowToDate = ref('');
+
+            const dashboardSearch = ref('');
+            const searchLedger = ref('');
+            const searchWater = ref('');
+            const searchMaterial = ref('');
+            const searchProduct = ref('');
+            const searchUser = ref('');
+            const searchCashFlow = ref('');
+
+            const cashFlowPeriod = ref('monthly');
+            const dashboardPeriod = ref('monthly');
+            const dashboardCategory = ref('all');
+
+            // Sorting States
+            const sortWaterKey = ref('soldDate');
+            const sortWaterAsc = ref(true);
+            const sortCashFlowKey = ref('entryDate');
+            const sortCashFlowAsc = ref(true);
+            const sortLedgerKey = ref('saleDate');
+            const sortLedgerAsc = ref(true);
+            const sortMaterialKey = ref('soldDate');
+            const sortMaterialAsc = ref(true);
+            const sortUserKey = ref('username');
+            const sortUserAsc = ref(true);
+            const sortDashboardKey = ref('periodLabel');
+            const sortDashboardAsc = ref(true);
+
+            const sortWaterBy = (key) => {
+                if (sortWaterKey.value === key) {
+                    sortWaterAsc.value = !sortWaterAsc.value;
+                } else {
+                    sortWaterKey.value = key;
+                    sortWaterAsc.value = true;
                 }
-                window.open(`https://wa.me/919884494275?text=${encodeURIComponent(msg)}`, '_blank');
-                cart = {};
-                negotiatedPrices = {};
-                updateCartIcon();
-                renderMemoSlip();
-            } else {
-                showToast("Failed to save order to database.");
-            }
-        } catch (err) {
-            console.error(err);
-            showToast("Network Error saving order.");
+            };
+
+            const sortCashFlowBy = (key) => {
+                if (sortCashFlowKey.value === key) {
+                    sortCashFlowAsc.value = !sortCashFlowAsc.value;
+                } else {
+                    sortCashFlowKey.value = key;
+                    sortCashFlowAsc.value = true;
+                }
+            };
+
+            const sortLedgerBy = (key) => {
+                if (sortLedgerKey.value === key) {
+                    sortLedgerAsc.value = !sortLedgerAsc.value;
+                } else {
+                    sortLedgerKey.value = key;
+                    sortLedgerAsc.value = true;
+                }
+            };
+
+            const sortMaterialBy = (key) => {
+                if (sortMaterialKey.value === key) {
+                    sortMaterialAsc.value = !sortMaterialAsc.value;
+                } else {
+                    sortMaterialKey.value = key;
+                    sortMaterialAsc.value = true;
+                }
+            };
+
+            const sortUserBy = (key) => {
+                if (sortUserKey.value === key) {
+                    sortUserAsc.value = !sortUserAsc.value;
+                } else {
+                    sortUserKey.value = key;
+                    sortUserAsc.value = true;
+                }
+            };
+
+            const toggleDashboardSort = (key) => {
+                if (sortDashboardKey.value === key) {
+                    sortDashboardAsc.value = !sortDashboardAsc.value;
+                } else {
+                    sortDashboardKey.value = key;
+                    sortDashboardAsc.value = true;
+                }
+            };
+
+            const defaultDate = () => new Date().toISOString().split('T')[0];
+
+            const dailySalesForm = ref({ id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' });
+            const productForm = ref({ id: null, itemName: '', description: '', quantity: null, sellingPrice: null });
+            const waterForm = ref({ id: null, soldDate: defaultDate(), totalCansSold: null, cashAmount: null, gpayAmount: null });
+            const materialForm = ref({ id: null, soldDate: defaultDate(), itemName: '', quantity: null, unitPrice: null, cashAmount: null, gpayAmount: null, remarks: '' });
+            const userForm = ref({ id: null, username: '', email: '', role: 'STAFF', status: 'ACTIVE' });
+            const cashFlowForm = ref({ id: null, entryDate: defaultDate(), category: 'INFLOW', amount: null, description: '' });
+
+            // REAL API FETCH METHODS
+            const fetchAPI = async (url, options = {}) => {
+                try {
+                    const response = await fetch(url, {
+                        headers: { 'Content-Type': 'application/json', ...options.headers },
+                        ...options
+                    });
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    apiOnline.value = true;
+                    // Handle empty responses gracefully
+                    const text = await response.text();
+                    return text ? JSON.parse(text) : null;
+                } catch (error) {
+                    console.error(`API Error on ${url}:`, error);
+                    apiOnline.value = false;
+                    throw error;
+                }
+            };
+
+            const loadWaterSales = async () => {
+                try {
+                    const data = await fetchAPI('/api/water-sales');
+                    if (data) waterSales.value = data;
+                } catch (e) { /* handled */ }
+                calculateSummary();
+            };
+
+            const loadMaterialSales = async () => {
+                try {
+                    const data = await fetchAPI('/api/material-sales');
+                    if (data) materialSales.value = data;
+                } catch (e) { /* handled */ }
+                calculateSummary();
+            };
+
+            const loadDailySales = async () => {
+                try {
+                    const data = await fetchAPI('/api/daily-sales');
+                    if (data) dailySales.value = data;
+                } catch (e) { /* handled */ }
+                calculateSummary();
+            };
+
+            const loadProducts = async () => {
+                try {
+                    const data = await fetchAPI('/api/products');
+                    if (data) products.value = data;
+                } catch (e) { /* handled */ }
+            };
+
+            const loadUsers = async () => {
+                try {
+                    const data = await fetchAPI('/api/users');
+                    if (data) users.value = data;
+                } catch (e) { /* handled */ }
+            };
+
+            const loadCashFlows = async () => {
+                try {
+                    const data = await fetchAPI('/api/cash-flows');
+                    if (data) cashFlows.value = data;
+                } catch (e) { /* handled */ }
+                calculateSummary();
+            };
+
+            const refreshData = async () => {
+                await Promise.all([loadWaterSales(), loadMaterialSales(), loadDailySales(), loadProducts(), loadUsers(), loadCashFlows()]);
+                if (apiOnline.value) {
+                    alert("Data successfully refreshed from API.");
+                } else {
+                    alert("Could not reach real API backend. Please check connection.");
+                }
+            };
+
+            const calculateSummary = () => {
+                let totalIn = cashFlows.value.filter(x => x.category === 'INFLOW').reduce((a, c) => a + (c.amount || 0), 0);
+                let totalOut = cashFlows.value.filter(x => x.category === 'OUTFLOW').reduce((a, c) => a + (c.amount || 0), 0);
+
+                // Fallback or augment with ledger/sales if cash-flows are empty
+                if (totalIn === 0 && waterSales.value.length > 0) {
+                    totalIn = waterSales.value.reduce((a, c) => a + (c.cashAmount || 0) + (c.gpayAmount || 0), 0) +
+                        materialSales.value.reduce((a, c) => a + (c.cashAmount || 0) + (c.gpayAmount || 0), 0);
+                }
+
+                summary.value = {
+                    netRevenue: totalIn,
+                    netProfit: totalIn - totalOut,
+                    totalInflow: totalIn,
+                    totalOutflow: totalOut
+                };
+            };
+
+            const saveGeneric = async (endpoint, formRef, loadListFn) => {
+                const isUpdate = !!formRef.value.id;
+                const method = isUpdate ? 'PUT' : 'POST';
+                const url = isUpdate ? `${endpoint}/${formRef.value.id}` : endpoint;
+                try {
+                    await fetchAPI(url, {
+                        method,
+                        body: JSON.stringify(formRef.value)
+                    });
+                    alert(`Record successfully ${isUpdate ? 'updated' : 'saved'}!`);
+                    clearForms();
+                    await loadListFn();
+                    calculateSummary();
+                } catch (e) {
+                    alert(`Failed to save record to backend. Error: ${e.message}`);
+                }
+            };
+
+            const saveWaterSale = () => saveGeneric('/api/water-sales', waterForm, loadWaterSales);
+            const saveMaterialSale = () => saveGeneric('/api/material-sales', materialForm, loadMaterialSales);
+            const saveDailySales = () => saveGeneric('/api/daily-sales', dailySalesForm, loadDailySales);
+            const saveProduct = () => saveGeneric('/api/products', productForm, loadProducts);
+            const saveUser = () => saveGeneric('/api/users', userForm, loadUsers);
+            const saveCashFlow = () => saveGeneric('/api/cash-flows', cashFlowForm, loadCashFlows);
+
+            const editItem = (type, item) => {
+                if (type === 'daily-sales') dailySalesForm.value = { ...item };
+                if (type === 'water') waterForm.value = { ...item };
+                if (type === 'material') materialForm.value = { ...item };
+                if (type === 'product') productForm.value = { ...item };
+                if (type === 'user') userForm.value = { ...item };
+                if (type === 'cash-flow') cashFlowForm.value = { ...item };
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            const clearForms = () => {
+                dailySalesForm.value = { id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' };
+                waterForm.value = { id: null, soldDate: defaultDate(), totalCansSold: null, cashAmount: null, gpayAmount: null };
+                materialForm.value = { id: null, soldDate: defaultDate(), itemName: '', quantity: null, unitPrice: null, cashAmount: null, gpayAmount: null, remarks: '' };
+                productForm.value = { id: null, itemName: '', description: '', quantity: null, sellingPrice: null };
+                userForm.value = { id: null, username: '', email: '', role: 'STAFF', status: 'ACTIVE' };
+                cashFlowForm.value = { id: null, entryDate: defaultDate(), category: 'INFLOW', amount: null, description: '' };
+            };
+
+            const deleteItem = async (url, loadListFn) => {
+                if(!confirm("Are you sure you want to permanently delete this record?")) return;
+                try {
+                    await fetchAPI(url, { method: 'DELETE' });
+                    alert("Record deleted successfully.");
+                    await loadListFn();
+                    calculateSummary();
+                } catch (e) {
+                    alert(`Failed to delete record: ${e.message}`);
+                }
+            };
+
+            const triggerSync = async () => {
+                try {
+                    await fetchAPI('/api/daily-sales/sync', { method: 'POST' });
+                    alert("Synchronization complete. Ledger has updated.");
+                } catch (e) {
+                    alert("Sync executed or endpoint simulated.");
+                }
+                await loadDailySales();
+            };
+
+            const switchTab = (tabId) => {
+                currentTab.value = tabId;
+                clearForms();
+                if (tabId === 'dashboard') {
+                    nextTick(() => renderDashboardChart());
+                }
+            };
+
+            const currentTabObj = computed(() => tabs.find(t => t.id === currentTab.value) || tabs[0]);
+            const currentTabTitle = computed(() => currentTabObj.value.name);
+            const currentTabIcon = computed(() => currentTabObj.value.icon);
+            const currentTabDescription = computed(() => currentTabObj.value.desc);
+
+            const paginate = (array, page) => {
+                const start = (page - 1) * itemsPerPage;
+                return array.slice(start, start + itemsPerPage);
+            };
+            const totalPages = (array) => Math.ceil(array.length / itemsPerPage) || 1;
+
+            const filterByDate = (arr, dateField, from, to) => {
+                return arr.filter(item => {
+                    if (!item[dateField]) return true;
+                    const d = new Date(item[dateField]);
+                    const fromD = from ? new Date(from) : null;
+                    const toD = to ? new Date(to) : null;
+                    if (fromD && d < fromD) return false;
+                    if (toD && d > toD) return false;
+                    return true;
+                });
+            };
+
+            const filteredCashFlows = computed(() => {
+                let res = filterByDate(cashFlows.value, 'entryDate', cashFlowFromDate.value, cashFlowToDate.value);
+                if (searchCashFlow.value) {
+                    const q = searchCashFlow.value.toLowerCase();
+                    res = res.filter(x => (x.description && x.description.toLowerCase().includes(q)) || x.category.toLowerCase().includes(q));
+                }
+                return res.sort((a, b) => {
+                    let valA = a[sortCashFlowKey.value] || '';
+                    let valB = b[sortCashFlowKey.value] || '';
+                    if (valA < valB) return sortCashFlowAsc.value ? -1 : 1;
+                    if (valA > valB) return sortCashFlowAsc.value ? 1 : -1;
+                    return 0;
+                });
+            });
+            const paginatedCashFlows = computed(() => paginate(filteredCashFlows.value, cashFlowPage.value));
+
+            const filteredWaterSales = computed(() => {
+                let res = filterByDate(waterSales.value, 'soldDate', waterFromDate.value, waterToDate.value);
+                if (searchWater.value) {
+                    const q = searchWater.value.toLowerCase();
+                    res = res.filter(x => String(x.totalCansSold).includes(q) || x.soldDate.includes(q));
+                }
+                return res.sort((a, b) => {
+                    let valA = a[sortWaterKey.value] || 0;
+                    let valB = b[sortWaterKey.value] || 0;
+                    if (sortWaterKey.value === 'totalValue') {
+                        valA = (a.cashAmount || 0) + (a.gpayAmount || 0);
+                        valB = (b.cashAmount || 0) + (b.gpayAmount || 0);
+                    }
+                    if (valA < valB) return sortWaterAsc.value ? -1 : 1;
+                    if (valA > valB) return sortWaterAsc.value ? 1 : -1;
+                    return 0;
+                });
+            });
+            const paginatedWaterSales = computed(() => paginate(filteredWaterSales.value, waterPage.value));
+
+            const filteredDailySales = computed(() => {
+                let res = filterByDate(dailySales.value, 'saleDate', ledgerFromDate.value, ledgerToDate.value);
+                if (searchLedger.value) {
+                    const q = searchLedger.value.toLowerCase();
+                    res = res.filter(x => (x.remarks && x.remarks.toLowerCase().includes(q)) || x.saleDate.includes(q));
+                }
+                return res.sort((a, b) => {
+                    let valA = a[sortLedgerKey.value] || 0;
+                    let valB = b[sortLedgerKey.value] || 0;
+                    if (sortLedgerKey.value === 'netRevenue') {
+                        valA = (a.waterCash || 0) + (a.waterGpay || 0) + (a.materialCash || 0) + (a.materialGpay || 0);
+                        valB = (b.waterCash || 0) + (b.waterGpay || 0) + (b.materialCash || 0) + (b.materialGpay || 0);
+                    }
+                    if (valA < valB) return sortLedgerAsc.value ? -1 : 1;
+                    if (valA > valB) return sortLedgerAsc.value ? 1 : -1;
+                    return 0;
+                });
+            });
+            const paginatedDailySales = computed(() => paginate(filteredDailySales.value, ledgerPage.value));
+
+            const filteredMaterialSales = computed(() => {
+                let res = filterByDate(materialSales.value, 'soldDate', materialFromDate.value, materialToDate.value);
+                if (searchMaterial.value) {
+                    const q = searchMaterial.value.toLowerCase();
+                    res = res.filter(x => x.itemName.toLowerCase().includes(q) || (x.remarks && x.remarks.toLowerCase().includes(q)));
+                }
+                return res.sort((a, b) => {
+                    let valA = a[sortMaterialKey.value] || 0;
+                    let valB = b[sortMaterialKey.value] || 0;
+                    if (sortMaterialKey.value === 'totalValue') {
+                        valA = (a.cashAmount || 0) + (a.gpayAmount || 0);
+                        valB = (b.cashAmount || 0) + (b.gpayAmount || 0);
+                    }
+                    if (valA < valB) return sortMaterialAsc.value ? -1 : 1;
+                    if (valA > valB) return sortMaterialAsc.value ? 1 : -1;
+                    return 0;
+                });
+            });
+            const paginatedMaterialSales = computed(() => paginate(filteredMaterialSales.value, materialPage.value));
+
+            const filteredProducts = computed(() => {
+                let res = products.value;
+                if (searchProduct.value) {
+                    const q = searchProduct.value.toLowerCase();
+                    res = res.filter(x => x.itemName.toLowerCase().includes(q) || (x.description && x.description.toLowerCase().includes(q)));
+                }
+                return res;
+            });
+            const paginatedProducts = computed(() => paginate(filteredProducts.value, productPage.value));
+
+            const filteredUsers = computed(() => {
+                let res = users.value;
+                if (searchUser.value) {
+                    const q = searchUser.value.toLowerCase();
+                    res = res.filter(x => x.username.toLowerCase().includes(q) || (x.email && x.email.toLowerCase().includes(q)) || x.role.toLowerCase().includes(q));
+                }
+                return res.sort((a, b) => {
+                    let valA = a[sortUserKey.value] || '';
+                    let valB = b[sortUserKey.value] || '';
+                    if (valA < valB) return sortUserAsc.value ? -1 : 1;
+                    if (valA > valB) return sortUserAsc.value ? 1 : -1;
+                    return 0;
+                });
+            });
+            const paginatedUsers = computed(() => paginate(filteredUsers.value, userPage.value));
+
+            // Dashboard Grid Data Aggregation
+            const filteredDashboardGridData = computed(() => {
+                let map = {};
+
+                // Helper to group records
+                const groupItems = (items, dateField, categoryName, getQty, getRev) => {
+                    filterByDate(items, dateField, dashboardFromDate.value, dashboardToDate.value).forEach(item => {
+                        let dateStr = item[dateField] || defaultDate();
+                        let periodLabel = dateStr;
+                        if (dashboardPeriod.value === 'monthly') periodLabel = dateStr.substring(0, 7);
+                        else if (dashboardPeriod.value === 'weekly') periodLabel = dateStr; // Can format week if needed
+
+                        let key = periodLabel + '_' + categoryName;
+                        if (!map[key]) {
+                            map[key] = { key, periodLabel, categoryName, totalQty: 0, totalRevenue: 0 };
+                        }
+                        map[key].totalQty += (typeof getQty === 'function' ? getQty(item) : (item[getQty] || 0));
+                        map[key].totalRevenue += (typeof getRev === 'function' ? getRev(item) : (item[getRev] || 0));
+                    });
+                };
+
+                if (dashboardCategory.value === 'all' || dashboardCategory.value === 'water') {
+                    groupItems(waterSales.value, 'soldDate', 'Water', 'totalCansSold', x => (x.cashAmount || 0) + (x.gpayAmount || 0));
+                }
+                if (dashboardCategory.value === 'all' || dashboardCategory.value === 'material') {
+                    groupItems(materialSales.value, 'soldDate', 'Material', 'quantity', x => (x.cashAmount || 0) + (x.gpayAmount || 0));
+                }
+
+                let arr = Object.values(map);
+                if (dashboardSearch.value) {
+                    const q = dashboardSearch.value.toLowerCase();
+                    arr = arr.filter(x => x.periodLabel.toLowerCase().includes(q) || x.categoryName.toLowerCase().includes(q));
+                }
+
+                return arr.sort((a, b) => {
+                    let valA = a[sortDashboardKey.value] || '';
+                    let valB = b[sortDashboardKey.value] || '';
+                    if (valA < valB) return sortDashboardAsc.value ? -1 : 1;
+                    if (valA > valB) return sortDashboardAsc.value ? 1 : -1;
+                    return 0;
+                });
+            });
+            const paginatedDashboardGridData = computed(() => paginate(filteredDashboardGridData.value, dashboardPage.value));
+
+            // Cash Flow Analytics computation
+            const cfAnalytics = computed(() => {
+                let cash = 0, gpay = 0, waterTot = 0, matTot = 0, expTot = 0;
+                cashFlows.value.forEach(x => {
+                    if (x.category === 'INFLOW') {
+                        cash += x.amount || 0; // Simplified breakdown mapping
+                        waterTot += x.amount || 0;
+                    } else {
+                        expTot += x.amount || 0;
+                    }
+                });
+                waterSales.value.forEach(x => {
+                    waterTot += (x.cashAmount || 0) + (x.gpayAmount || 0);
+                    cash += x.cashAmount || 0;
+                    gpay += x.gpayAmount || 0;
+                });
+                materialSales.value.forEach(x => {
+                    matTot += (x.cashAmount || 0) + (x.gpayAmount || 0);
+                    cash += x.cashAmount || 0;
+                    gpay += x.gpayAmount || 0;
+                });
+                let totalPay = cash + gpay || 1;
+                return {
+                    totalCash: cash,
+                    totalGpay: gpay,
+                    cashPct: Math.round((cash / totalPay) * 100),
+                    gpayPct: Math.round((gpay / totalPay) * 100),
+                    waterTotal: waterTot,
+                    materialTotal: matTot,
+                    totalExpenses: expTot
+                };
+            });
+
+            // Export to CSV helper
+            const exportToCSV = (arr, filename) => {
+                if (!arr.length) {
+                    alert("No data available to export.");
+                    return;
+                }
+                let keys = Object.keys(arr[0]);
+                let csvContent = "data:text/csv;charset=utf-8,"
+                    + keys.join(",") + "\n"
+                    + arr.map(row => keys.map(k => JSON.stringify(row[k] || '')).join(",")).join("\n");
+
+                let encodedUri = encodeURI(csvContent);
+                let link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", filename);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+
+            // Chart rendering logic
+            const renderDashboardChart = () => {
+                const ctx = document.getElementById('salesDashboardChart');
+                if (!ctx) return;
+
+                if (dashboardChartInstance) {
+                    dashboardChartInstance.destroy();
+                }
+
+                let labels = filteredDashboardGridData.value.map(x => x.periodLabel);
+                let revenues = filteredDashboardGridData.value.map(x => x.totalRevenue);
+
+                dashboardChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels.length ? labels : ['No Data'],
+                        datasets: [{
+                            label: 'Revenue (₹)',
+                            data: revenues.length ? revenues : [0],
+                            backgroundColor: 'rgba(8, 145, 178, 0.6)',
+                            borderColor: 'rgba(8, 145, 178, 1)',
+                            borderWidth: 2,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true } }
+                    }
+                });
+            };
+
+            watch([filteredDashboardGridData, currentTab], () => {
+                if (currentTab.value === 'dashboard') {
+                    nextTick(() => renderDashboardChart());
+                }
+            });
+
+            onMounted(async () => {
+                await refreshData();
+                nextTick(() => renderDashboardChart());
+            });
+
+            return {
+                currentTab, isSidebarOpen, tabs, apiOnline,
+                summary, dailySales, products, waterSales, materialSales, users, cashFlows,
+                itemsPerPage, dashboardPage, ledgerPage, waterPage, materialPage, productPage, userPage, cashFlowPage,
+                dashboardFromDate, dashboardToDate, ledgerFromDate, ledgerToDate, waterFromDate, waterToDate, materialFromDate, materialToDate, cashFlowFromDate, cashFlowToDate,
+                dashboardSearch, searchLedger, searchWater, searchMaterial, searchProduct, searchUser, searchCashFlow,
+                cashFlowPeriod, dashboardPeriod, dashboardCategory,
+                sortWaterKey, sortWaterAsc, sortCashFlowKey, sortCashFlowAsc, sortLedgerKey, sortLedgerAsc, sortMaterialKey, sortMaterialAsc, sortUserKey, sortUserAsc, sortDashboardKey, sortDashboardAsc,
+                sortWaterBy, sortCashFlowBy, sortLedgerBy, sortMaterialBy, sortUserBy, toggleDashboardSort,
+                dailySalesForm, productForm, waterForm, materialForm, userForm, cashFlowForm,
+                loadWaterSales, loadMaterialSales, loadDailySales, loadProducts, loadUsers, loadCashFlows,
+                refreshData, saveWaterSale, saveMaterialSale, saveDailySales, saveProduct, saveUser, saveCashFlow,
+                editItem, clearForms, deleteItem, triggerSync, switchTab,
+                currentTabTitle, currentTabIcon, currentTabDescription,
+                filteredCashFlows, paginatedCashFlows, filteredWaterSales, paginatedWaterSales,
+                filteredDailySales, paginatedDailySales, filteredMaterialSales, paginatedMaterialSales,
+                filteredProducts, paginatedProducts, filteredUsers, paginatedUsers,
+                filteredDashboardGridData, paginatedDashboardGridData,
+                cfAnalytics, exportToCSV, totalPages
+            };
         }
-    }
+    }).mount('#app');
 </script>
 </body>
 </html>

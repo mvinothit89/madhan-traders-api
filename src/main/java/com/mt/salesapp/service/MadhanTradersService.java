@@ -48,13 +48,13 @@ public class MadhanTradersService {
 
     // --- WATER SALES ---
     public List<WaterSalesEntry> getAllWaterSales() { return waterSalesRepository.findAll(); }
-    public WaterSalesEntry saveWaterSales(WaterSalesEntry entry) { 
+    public WaterSalesEntry saveWaterSales(WaterSalesEntry entry) {
         // Automatically compute total if not provided by UI
         if(entry.getTotalAmount() == null && entry.getCashAmount() != null && entry.getGpayAmount() != null) {
             entry.setTotalAmount(entry.getCashAmount() + entry.getGpayAmount());
         }
         entry.setProfit(entry.getTotalCansSold() * Double.valueOf("20"));
-        return waterSalesRepository.save(entry); 
+        return waterSalesRepository.save(entry);
     }
     public void deleteWaterSales(Long id) { waterSalesRepository.deleteById(id); }
 
@@ -64,12 +64,16 @@ public class MadhanTradersService {
         try{
             if(entry.getTotalAmount() == null && entry.getCashAmount() != null && entry.getGpayAmount() != null) {
                 entry.setTotalAmount(entry.getCashAmount() + entry.getGpayAmount());
+            } else if(entry.getTotalAmount() == null && entry.getGpayAmount() != null) {
+                entry.setTotalAmount(entry.getGpayAmount());
+            } else if(entry.getTotalAmount() == null && entry.getCashAmount() != null) {
+                entry.setTotalAmount(entry.getCashAmount());
             }
             if(entry.getProfit() == null)
                 entry.setProfit(Double.valueOf("0"));
             entry.setUnitPrice(entry.getTotalAmount()/entry.getQuantity());
             return materialSalesRepository.save(entry);
-            }
+        }
         catch (Exception ex ){
             ex.printStackTrace();
             return new MaterialSalesEntry();
@@ -90,14 +94,14 @@ public class MadhanTradersService {
     // --- CUSTOMERS & PAYMENTS ---
     public List<Customer> getAllCustomers() { return customerRepository.findAll(); }
     public Customer saveCustomer(Customer customer) { return customerRepository.save(customer); }
-    
+
     public Payment processPayment(Payment payment) {
         // Adjust outstanding balance for the customer if they exist
         if(payment.getCustomerName() != null) {
-             // Basic implementation: In a real scenario, you'd fetch by ID or Name and update the balance
-             // Customer customer = customerRepository.findByName(...);
-             // customer.setOutstandingBalance(customer.getOutstandingBalance() - payment.getAmount());
+            // Basic implementation: In a real scenario, you'd fetch by ID or Name and update the balance
+            // Customer customer = customerRepository.findByName(...);
+            // customer.setOutstandingBalance(customer.getOutstandingBalance() - payment.getAmount());
         }
-        return paymentRepository.save(payment); 
+        return paymentRepository.save(payment);
     }
 }

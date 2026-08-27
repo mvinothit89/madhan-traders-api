@@ -12,4 +12,7 @@ public interface CashFlowRepository extends JpaRepository<CashFlowEntry, Long> {
     List<CashFlowEntry> findByEntryDateBetween(LocalDate start, LocalDate end);
     @Query("SELECT COALESCE(SUM(c.amount), 0) FROM CashFlowEntry c WHERE c.transactionType = :type")
     Double getSumByType(@Param("type") String type);
+    List<CashFlowEntry> findAllByOrderByEntryDateDesc();
+
+    
 }

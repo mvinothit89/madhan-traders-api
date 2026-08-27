@@ -75,12 +75,12 @@ public class MadhanTradersController {
     }
 
     // --- CASH FLOW API ---
-    @GetMapping("/cash-flow")
+   /* @GetMapping("/cash-flow")
     public ResponseEntity<List<CashFlowEntry>> getCashFlows() {
         return ResponseEntity.ok(service.getAllCashFlows());
     }
 
-    @PostMapping("/cash-flow")
+    @PostMapping("/api/madhan-traders/cash-flow")
     public ResponseEntity<CashFlowEntry> saveCashFlow(@RequestBody CashFlowEntry entry) {
         return ResponseEntity.ok(service.saveCashFlow(entry));
     }
@@ -89,7 +89,7 @@ public class MadhanTradersController {
     public ResponseEntity<Void> deleteCashFlow(@PathVariable Long id) {
         service.deleteCashFlow(id);
         return ResponseEntity.ok().build();
-    }
+    }*/
 
     // --- CASH COLLECTED API ---
     @GetMapping("/cash-collected")
@@ -122,5 +122,49 @@ public class MadhanTradersController {
     @PostMapping("/payments")
     public ResponseEntity<Payment> savePayment(@RequestBody Payment payment) {
         return ResponseEntity.ok(service.processPayment(payment));
+    }
+
+    // --- WATER SALES API (UPDATE) ---
+    @PutMapping("/water-sales/{id}")
+    public ResponseEntity<WaterSalesEntry> updateWaterSales(@PathVariable Long id, @RequestBody WaterSalesEntry entry) {
+        entry.setId(id); // Ensure the ID from the path is set on the object
+        return ResponseEntity.ok(service.saveWaterSales(entry));
+    }
+
+    // --- MATERIAL SALES API (UPDATE) ---
+    @PutMapping("/material-sales/{id}")
+    public ResponseEntity<MaterialSalesEntry> updateMaterialSales(@PathVariable Long id, @RequestBody MaterialSalesEntry entry) {
+        entry.setId(id);
+        return ResponseEntity.ok(service.saveMaterialSales(entry));
+    }
+
+    /*// --- CASH FLOW API (ENABLED & UPDATE) ---
+    @GetMapping("/cash-flow")
+    public ResponseEntity<List<CashFlowEntry>> getCashFlows() {
+        return ResponseEntity.ok(service.getAllCashFlows());
+    }*/
+
+    /*@PostMapping("/cash-flow")
+    public ResponseEntity<CashFlowEntry> saveCashFlow(@RequestBody CashFlowEntry entry) {
+        return ResponseEntity.ok(service.saveCashFlow(entry));
+    }
+
+    @PutMapping("/cash-flow/{id}")
+    public ResponseEntity<CashFlowEntry> updateCashFlow(@PathVariable Long id, @RequestBody CashFlowEntry entry) {
+        entry.setId(id);
+        return ResponseEntity.ok(service.saveCashFlow(entry));
+    }
+
+    @DeleteMapping("/cash-flow/{id}")
+    public ResponseEntity<Void> deleteCashFlow(@PathVariable Long id) {
+        service.deleteCashFlow(id);
+        return ResponseEntity.ok().build();
+    }*/
+
+    // --- CUSTOMERS API (UPDATE) ---
+    @PutMapping("/customers/{id}")
+    public ResponseEntity<Customer> updateCustomer(@PathVariable Long id, @RequestBody Customer customer) {
+        customer.setId(id);
+        return ResponseEntity.ok(service.saveCustomer(customer));
     }
 }
