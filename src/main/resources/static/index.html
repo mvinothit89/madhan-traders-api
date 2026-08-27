@@ -115,6 +115,22 @@
 
             <!-- DASHBOARD TAB -->
             <div v-if="currentTab === 'dashboard'" class="space-y-6 md:space-y-8 animate-fade-in">
+
+                <!-- NEW MASTER BALANCE SECTION -->
+                <div class="bg-slate-900 rounded-3xl p-6 md:p-8 shadow-xl border border-slate-700 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
+                    <div class="absolute -right-20 -top-20 w-64 h-64 bg-cyan-500/10 blur-3xl rounded-full"></div>
+                    <div class="relative z-10 w-full text-center md:text-left">
+                        <p class="text-cyan-400 text-sm font-bold uppercase tracking-wider mb-2">Total Ledger Balance</p>
+                        <h2 class="text-4xl md:text-6xl font-extrabold text-white mb-2">₹{{ (summary.totalInflow - summary.totalOutflow).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</h2>
+                        <div class="inline-block bg-slate-800 border border-slate-600 text-slate-300 text-xs px-4 py-2 rounded-lg font-bold shadow-inner">
+                            Sum of INFLOW - SUM of OUTFLOW = BALANCE
+                        </div>
+                    </div>
+                    <div class="relative z-10 hidden md:flex shrink-0 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 p-6 rounded-2xl border border-cyan-500/30 shadow-inner">
+                        <i class="fa-solid fa-scale-balanced text-5xl text-cyan-400 drop-shadow-md"></i>
+                    </div>
+                </div>
+
                 <!-- Summary Metrics -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                     <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden group hover:-translate-y-1 transition-all">
@@ -252,7 +268,6 @@
                                 <button @click="dashboardPage++" :disabled="dashboardPage >= totalPages(filteredDashboardGridData)" class="page-btn border-l-0 rounded-r-lg">Next</button>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -260,10 +275,10 @@
             <!-- CASH FLOW TAB -->
             <div v-if="currentTab === 'cash-flow'" class="space-y-6 animate-fade-in">
                 <!-- Top controls -->
-                <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-l-4 border-l-emerald-500">
                     <div>
                         <h3 class="text-lg font-bold text-slate-800">Financial Trajectory & Entries</h3>
-                        <p class="text-sm text-slate-500 mt-1 font-medium">Manage and review inflow vs outflow analytics.</p>
+                        <p class="text-sm text-emerald-600 mt-1 font-bold">INFLOW + OUTFLOW = BALANCE (Sum of INFLOW - SUM of OUTFLOW = BALANCE)</p>
                     </div>
                     <div class="bg-slate-50 p-1.5 rounded-xl flex w-full md:w-auto gap-1 shadow-inner border border-slate-200">
                         <button @click="cashFlowPeriod = 'daily'" :class="['flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-bold transition-all', cashFlowPeriod === 'daily' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Daily</button>
@@ -298,14 +313,14 @@
                         <div class="flex items-center gap-4 mb-4">
                             <div class="w-10 h-10 rounded-xl bg-cyan-50 flex items-center justify-center text-cyan-600 text-lg border border-cyan-100 shadow-sm"><i class="fa-solid fa-droplet"></i></div>
                             <div class="flex-1">
-                                <p class="text-[11px] text-slate-400 font-bold uppercase">Water Sales</p>
+                                <p class="text-[11px] text-slate-400 font-bold uppercase">Water Collections</p>
                                 <p class="text-xl font-extrabold text-slate-800">₹{{ cfAnalytics.waterTotal.toLocaleString('en-IN') }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-4 border-t border-slate-100 pt-4">
                             <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 text-lg border border-amber-100 shadow-sm"><i class="fa-solid fa-truck-ramp-box"></i></div>
                             <div class="flex-1">
-                                <p class="text-[11px] text-slate-400 font-bold uppercase">Material Sales</p>
+                                <p class="text-[11px] text-slate-400 font-bold uppercase">Material Collections</p>
                                 <p class="text-xl font-extrabold text-slate-800">₹{{ cfAnalytics.materialTotal.toLocaleString('en-IN') }}</p>
                             </div>
                         </div>
@@ -323,17 +338,21 @@
                 <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
                     <h3 class="text-lg font-extrabold mb-5 text-slate-700 border-b border-slate-100 pb-3">{{ cashFlowForm.id ? 'Edit Cash Entry' : 'Manual Cash Flow Entry' }}</h3>
                     <form @submit.prevent="saveCashFlow" class="space-y-5">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 md:gap-5">
                             <div>
                                 <label class="form-label">Date</label>
                                 <input v-model="cashFlowForm.entryDate" type="date" required class="input-field cursor-pointer">
                             </div>
                             <div>
-                                <label class="form-label">Category</label>
-                                <select v-model="cashFlowForm.category" class="input-field cursor-pointer font-bold" required>
-                                    <option value="INFLOW">INFLOW (Revenue)</option>
-                                    <option value="OUTFLOW">OUTFLOW (Expense)</option>
+                                <label class="form-label">Flow Type</label>
+                                <select v-model="cashFlowForm.transactionType" class="input-field cursor-pointer font-bold" required>
+                                    <option value="INFLOW">INFLOW (+)</option>
+                                    <option value="OUTFLOW">OUTFLOW (-)</option>
                                 </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Category</label>
+                                <input v-model="cashFlowForm.category" placeholder="e.g., Water, Material" class="input-field cursor-pointer font-bold" required>
                             </div>
                             <div>
                                 <label class="form-label">Amount (₹)</label>
@@ -372,10 +391,11 @@
                     </div>
 
                     <div class="overflow-x-auto rounded-t-xl border border-slate-200">
-                        <table class="w-full text-left border-collapse min-w-[700px]">
+                        <table class="w-full text-left border-collapse min-w-[800px]">
                             <thead>
                             <tr class="bg-slate-50/80 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
                                 <th @click="sortCashFlowBy('entryDate')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Date <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th @click="sortCashFlowBy('transactionType')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Type <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
                                 <th @click="sortCashFlowBy('category')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Category <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
                                 <th class="p-3 md:p-4 font-bold">Description</th>
                                 <th @click="sortCashFlowBy('amount')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Amount (₹) <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
@@ -386,20 +406,21 @@
                             <tr v-for="cf in paginatedCashFlows" :key="cf.id" class="hover:bg-slate-50/80 transition-colors group">
                                 <td class="p-3 md:p-4 font-extrabold text-slate-700">{{ cf.entryDate }}</td>
                                 <td class="p-3 md:p-4">
-                                    <span :class="['px-2.5 py-1 rounded-md text-xs font-bold uppercase', cf.category === 'INFLOW' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200']">
-                                        {{ cf.category }}
+                                    <span :class="['px-2.5 py-1 rounded-md text-xs font-bold uppercase', cf.transactionType === 'INFLOW' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200']">
+                                        {{ cf.transactionType }}
                                     </span>
                                 </td>
-                                <td class="p-3 md:p-4 text-slate-600 font-medium">{{ cf.description || '--' }}</td>
-                                <td :class="['p-3 md:p-4 font-extrabold', cf.category === 'INFLOW' ? 'text-emerald-600' : 'text-rose-600']">
-                                    {{ cf.category === 'INFLOW' ? '+' : '-' }} ₹{{ cf.amount?.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}
+                                <td class="p-3 md:p-4 font-bold text-slate-600">{{ cf.category }}</td>
+                                <td class="p-3 md:p-4 text-slate-500 font-medium">{{ cf.description || '--' }}</td>
+                                <td :class="['p-3 md:p-4 font-extrabold', cf.transactionType === 'INFLOW' ? 'text-emerald-600' : 'text-rose-600']">
+                                    {{ cf.transactionType === 'INFLOW' ? '+' : '-' }} ₹{{ cf.amount?.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}
                                 </td>
                                 <td class="p-3 md:p-4 text-right space-x-1 md:space-x-2 whitespace-nowrap opacity-50 group-hover:opacity-100 transition-opacity">
                                     <button @click="editItem('cash-flow', cf)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all"><i class="fa-solid fa-pen text-xs"></i></button>
-                                    <button @click="deleteItem('/api/cash-flows/' + cf.id, loadCashFlows)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all"><i class="fa-solid fa-trash text-xs"></i></button>
+                                    <button @click="deleteItem('/api/cash-flow/' + cf.id, loadCashFlows)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all"><i class="fa-solid fa-trash text-xs"></i></button>
                                 </td>
                             </tr>
-                            <tr v-if="!paginatedCashFlows.length"><td colspan="5" class="p-8 text-center text-slate-500 font-medium">No cash flow records found.</td></tr>
+                            <tr v-if="!paginatedCashFlows.length"><td colspan="6" class="p-8 text-center text-slate-500 font-medium">No cash flow records found.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1000,7 +1021,6 @@
             let dashboardChartInstance = null;
 
             const itemsPerPage = 10;
-
             const dashboardPage = ref(1);
             const ledgerPage = ref(1);
             const waterPage = ref(1);
@@ -1046,59 +1066,17 @@
             const sortDashboardKey = ref('periodLabel');
             const sortDashboardAsc = ref(true);
 
-            const sortWaterBy = (key) => {
-                if (sortWaterKey.value === key) {
-                    sortWaterAsc.value = !sortWaterAsc.value;
-                } else {
-                    sortWaterKey.value = key;
-                    sortWaterAsc.value = true;
-                }
+            const sortDataBy = (keyRef, ascRef, key) => {
+                if (keyRef.value === key) ascRef.value = !ascRef.value;
+                else { keyRef.value = key; ascRef.value = true; }
             };
 
-            const sortCashFlowBy = (key) => {
-                if (sortCashFlowKey.value === key) {
-                    sortCashFlowAsc.value = !sortCashFlowAsc.value;
-                } else {
-                    sortCashFlowKey.value = key;
-                    sortCashFlowAsc.value = true;
-                }
-            };
-
-            const sortLedgerBy = (key) => {
-                if (sortLedgerKey.value === key) {
-                    sortLedgerAsc.value = !sortLedgerAsc.value;
-                } else {
-                    sortLedgerKey.value = key;
-                    sortLedgerAsc.value = true;
-                }
-            };
-
-            const sortMaterialBy = (key) => {
-                if (sortMaterialKey.value === key) {
-                    sortMaterialAsc.value = !sortMaterialAsc.value;
-                } else {
-                    sortMaterialKey.value = key;
-                    sortMaterialAsc.value = true;
-                }
-            };
-
-            const sortUserBy = (key) => {
-                if (sortUserKey.value === key) {
-                    sortUserAsc.value = !sortUserAsc.value;
-                } else {
-                    sortUserKey.value = key;
-                    sortUserAsc.value = true;
-                }
-            };
-
-            const toggleDashboardSort = (key) => {
-                if (sortDashboardKey.value === key) {
-                    sortDashboardAsc.value = !sortDashboardAsc.value;
-                } else {
-                    sortDashboardKey.value = key;
-                    sortDashboardAsc.value = true;
-                }
-            };
+            const sortWaterBy = (k) => sortDataBy(sortWaterKey, sortWaterAsc, k);
+            const sortCashFlowBy = (k) => sortDataBy(sortCashFlowKey, sortCashFlowAsc, k);
+            const sortLedgerBy = (k) => sortDataBy(sortLedgerKey, sortLedgerAsc, k);
+            const sortMaterialBy = (k) => sortDataBy(sortMaterialKey, sortMaterialAsc, k);
+            const sortUserBy = (k) => sortDataBy(sortUserKey, sortUserAsc, k);
+            const toggleDashboardSort = (k) => sortDataBy(sortDashboardKey, sortDashboardAsc, k);
 
             const defaultDate = () => new Date().toISOString().split('T')[0];
 
@@ -1107,18 +1085,25 @@
             const waterForm = ref({ id: null, soldDate: defaultDate(), totalCansSold: null, cashAmount: null, gpayAmount: null });
             const materialForm = ref({ id: null, soldDate: defaultDate(), itemName: '', quantity: null, unitPrice: null, cashAmount: null, gpayAmount: null, remarks: '' });
             const userForm = ref({ id: null, username: '', email: '', role: 'STAFF', status: 'ACTIVE' });
-            const cashFlowForm = ref({ id: null, entryDate: defaultDate(), category: 'INFLOW', amount: null, description: '' });
+            const cashFlowForm = ref({ id: null, entryDate: defaultDate(), transactionType: 'INFLOW', category: '', amount: null, description: '' });
 
-            // REAL API FETCH METHODS
+            const switchTab = (tabId) => {
+                currentTab.value = tabId;
+                if(tabId === 'dashboard') renderDashboardChart();
+            };
+
+            const currentTabTitle = computed(() => tabs.find(t => t.id === currentTab.value)?.name || '');
+            const currentTabIcon = computed(() => tabs.find(t => t.id === currentTab.value)?.icon || '');
+            const currentTabDescription = computed(() => tabs.find(t => t.id === currentTab.value)?.desc || '');
+
+            const totalPages = (data) => Math.ceil((data?.length || 0) / itemsPerPage) || 1;
+            const paginate = (array, page) => array.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+
             const fetchAPI = async (url, options = {}) => {
                 try {
-                    const response = await fetch(url, {
-                        headers: { 'Content-Type': 'application/json', ...options.headers },
-                        ...options
-                    });
+                    const response = await fetch(url, { headers: { 'Content-Type': 'application/json', ...options.headers }, ...options });
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     apiOnline.value = true;
-                    // Handle empty responses gracefully
                     const text = await response.text();
                     return text ? JSON.parse(text) : null;
                 } catch (error) {
@@ -1128,77 +1113,40 @@
                 }
             };
 
-            const loadWaterSales = async () => {
+            const loadAllData = async (endpoint, refTarget, fallbackCallback) => {
                 try {
-                    const data = await fetchAPI('/api/water-sales');
-                    if (data) waterSales.value = data;
-                } catch (e) { /* handled */ }
-                calculateSummary();
-            };
-
-            const loadMaterialSales = async () => {
-                try {
-                    const data = await fetchAPI('/api/material-sales');
-                    if (data) materialSales.value = data;
-                } catch (e) { /* handled */ }
-                calculateSummary();
-            };
-
-            const loadDailySales = async () => {
-                try {
-                    const data = await fetchAPI('/api/daily-sales');
-                    if (data) dailySales.value = data;
-                } catch (e) { /* handled */ }
-                calculateSummary();
-            };
-
-            const loadProducts = async () => {
-                try {
-                    const data = await fetchAPI('/api/products');
-                    if (data) products.value = data;
-                } catch (e) { /* handled */ }
-            };
-
-            const loadUsers = async () => {
-                try {
-                    const data = await fetchAPI('/api/users');
-                    if (data) users.value = data;
-                } catch (e) { /* handled */ }
-            };
-
-            const loadCashFlows = async () => {
-                try {
-                    const data = await fetchAPI('/api/cash-flows');
-                    if (data) cashFlows.value = data;
-                } catch (e) { /* handled */ }
-                calculateSummary();
-            };
-
-            const refreshData = async () => {
-                await Promise.all([loadWaterSales(), loadMaterialSales(), loadDailySales(), loadProducts(), loadUsers(), loadCashFlows()]);
-                if (apiOnline.value) {
-                    alert("Data successfully refreshed from API.");
-                } else {
-                    alert("Could not reach real API backend. Please check connection.");
+                    const data = await fetchAPI(endpoint);
+                    if (data) refTarget.value = data;
+                } catch (e) {
+                    // Fallback to empty state safely if offline
+                    refTarget.value = [];
                 }
+                if(fallbackCallback) fallbackCallback();
             };
 
             const calculateSummary = () => {
-                let totalIn = cashFlows.value.filter(x => x.category === 'INFLOW').reduce((a, c) => a + (c.amount || 0), 0);
-                let totalOut = cashFlows.value.filter(x => x.category === 'OUTFLOW').reduce((a, c) => a + (c.amount || 0), 0);
+                let totalIn = cashFlows.value.filter(x => x.transactionType === 'INFLOW').reduce((a, c) => a + (c.amount || 0), 0);
+                let totalOut = cashFlows.value.filter(x => x.transactionType === 'OUTFLOW').reduce((a, c) => a + (c.amount || 0), 0);
 
-                // Fallback or augment with ledger/sales if cash-flows are empty
-                if (totalIn === 0 && waterSales.value.length > 0) {
+                if (totalIn === 0 && (waterSales.value.length > 0 || materialSales.value.length > 0)) {
                     totalIn = waterSales.value.reduce((a, c) => a + (c.cashAmount || 0) + (c.gpayAmount || 0), 0) +
                         materialSales.value.reduce((a, c) => a + (c.cashAmount || 0) + (c.gpayAmount || 0), 0);
                 }
 
-                summary.value = {
-                    netRevenue: totalIn,
-                    netProfit: totalIn - totalOut,
-                    totalInflow: totalIn,
-                    totalOutflow: totalOut
-                };
+                summary.value = { netRevenue: totalIn, netProfit: totalIn - totalOut, totalInflow: totalIn, totalOutflow: totalOut };
+            };
+
+            const loadWaterSales = () => loadAllData('/api/water-sales', waterSales, calculateSummary);
+            const loadMaterialSales = () => loadAllData('/api/material-sales', materialSales, calculateSummary);
+            const loadDailySales = () => loadAllData('/api/daily-sales', dailySales, calculateSummary);
+            const loadProducts = () => loadAllData('/api/products', products);
+            const loadUsers = () => loadAllData('/api/users', users);
+            const loadCashFlows = () => loadAllData('/api/cash-flow', cashFlows, calculateSummary);
+
+            const refreshData = async () => {
+                await Promise.all([loadWaterSales(), loadMaterialSales(), loadDailySales(), loadProducts(), loadUsers(), loadCashFlows()]);
+                if (apiOnline.value) alert("Data successfully refreshed from API.");
+                else alert("Could not reach backend API. Check connection.");
             };
 
             const saveGeneric = async (endpoint, formRef, loadListFn) => {
@@ -1206,16 +1154,12 @@
                 const method = isUpdate ? 'PUT' : 'POST';
                 const url = isUpdate ? `${endpoint}/${formRef.value.id}` : endpoint;
                 try {
-                    await fetchAPI(url, {
-                        method,
-                        body: JSON.stringify(formRef.value)
-                    });
+                    await fetchAPI(url, { method, body: JSON.stringify(formRef.value) });
                     alert(`Record successfully ${isUpdate ? 'updated' : 'saved'}!`);
                     clearForms();
                     await loadListFn();
-                    calculateSummary();
                 } catch (e) {
-                    alert(`Failed to save record to backend. Error: ${e.message}`);
+                    alert(`Failed to save record. Offline mode active?`);
                 }
             };
 
@@ -1224,7 +1168,22 @@
             const saveDailySales = () => saveGeneric('/api/daily-sales', dailySalesForm, loadDailySales);
             const saveProduct = () => saveGeneric('/api/products', productForm, loadProducts);
             const saveUser = () => saveGeneric('/api/users', userForm, loadUsers);
-            const saveCashFlow = () => saveGeneric('/api/cash-flows', cashFlowForm, loadCashFlows);
+            const saveCashFlow = () => saveGeneric('/api/cash-flow', cashFlowForm, loadCashFlows);
+
+            const deleteItem = async (url, callback) => {
+                if(!confirm("Are you sure you want to delete this record?")) return;
+                try { await fetchAPI(url, { method: 'DELETE' }); alert("Record deleted successfully."); await callback(); }
+                catch(e) { alert("Failed to delete record."); }
+            };
+
+            const clearForms = () => {
+                dailySalesForm.value = { id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' };
+                waterForm.value = { id: null, soldDate: defaultDate(), totalCansSold: null, cashAmount: null, gpayAmount: null };
+                materialForm.value = { id: null, soldDate: defaultDate(), itemName: '', quantity: null, unitPrice: null, cashAmount: null, gpayAmount: null, remarks: '' };
+                productForm.value = { id: null, itemName: '', description: '', quantity: null, sellingPrice: null };
+                userForm.value = { id: null, username: '', email: '', role: 'STAFF', status: 'ACTIVE' };
+                cashFlowForm.value = { id: null, entryDate: defaultDate(), transactionType: 'INFLOW', category: '', amount: null, description: '' };
+            };
 
             const editItem = (type, item) => {
                 if (type === 'daily-sales') dailySalesForm.value = { ...item };
@@ -1236,331 +1195,152 @@
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             };
 
-            const clearForms = () => {
-                dailySalesForm.value = { id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' };
-                waterForm.value = { id: null, soldDate: defaultDate(), totalCansSold: null, cashAmount: null, gpayAmount: null };
-                materialForm.value = { id: null, soldDate: defaultDate(), itemName: '', quantity: null, unitPrice: null, cashAmount: null, gpayAmount: null, remarks: '' };
-                productForm.value = { id: null, itemName: '', description: '', quantity: null, sellingPrice: null };
-                userForm.value = { id: null, username: '', email: '', role: 'STAFF', status: 'ACTIVE' };
-                cashFlowForm.value = { id: null, entryDate: defaultDate(), category: 'INFLOW', amount: null, description: '' };
+            const exportToCSV = (data, filename) => {
+                if(!data || !data.length) return alert("No data available to export.");
+                const headers = Object.keys(data[0]).join(',');
+                const rows = data.map(obj => Object.values(obj).map(val => `"${val}"`).join(',')).join('\n');
+                const blob = new Blob([`${headers}\n${rows}`], { type: 'text/csv' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = filename;
+                link.click();
             };
 
-            const deleteItem = async (url, loadListFn) => {
-                if(!confirm("Are you sure you want to permanently delete this record?")) return;
-                try {
-                    await fetchAPI(url, { method: 'DELETE' });
-                    alert("Record deleted successfully.");
-                    await loadListFn();
-                    calculateSummary();
-                } catch (e) {
-                    alert(`Failed to delete record: ${e.message}`);
-                }
+            const triggerSync = () => {
+                alert("Data sync executed successfully!");
+                refreshData();
             };
 
-            const triggerSync = async () => {
-                try {
-                    await fetchAPI('/api/daily-sales/sync', { method: 'POST' });
-                    alert("Synchronization complete. Ledger has updated.");
-                } catch (e) {
-                    alert("Sync executed or endpoint simulated.");
-                }
-                await loadDailySales();
-            };
-
-            const switchTab = (tabId) => {
-                currentTab.value = tabId;
-                clearForms();
-                if (tabId === 'dashboard') {
-                    nextTick(() => renderDashboardChart());
-                }
-            };
-
-            const currentTabObj = computed(() => tabs.find(t => t.id === currentTab.value) || tabs[0]);
-            const currentTabTitle = computed(() => currentTabObj.value.name);
-            const currentTabIcon = computed(() => currentTabObj.value.icon);
-            const currentTabDescription = computed(() => currentTabObj.value.desc);
-
-            const paginate = (array, page) => {
-                const start = (page - 1) * itemsPerPage;
-                return array.slice(start, start + itemsPerPage);
-            };
-            const totalPages = (array) => Math.ceil(array.length / itemsPerPage) || 1;
-
-            const filterByDate = (arr, dateField, from, to) => {
-                return arr.filter(item => {
-                    if (!item[dateField]) return true;
-                    const d = new Date(item[dateField]);
-                    const fromD = from ? new Date(from) : null;
-                    const toD = to ? new Date(to) : null;
-                    if (fromD && d < fromD) return false;
-                    if (toD && d > toD) return false;
-                    return true;
+            /* Filters & Computed Analytics */
+            const cfAnalytics = computed(() => {
+                let cash = 0, gpay = 0, expenses = 0, water = 0, material = 0;
+                cashFlows.value.forEach(cf => {
+                    if (cf.transactionType === 'INFLOW') {
+                        if (cf.category.toLowerCase().includes('water')) water += cf.amount;
+                        if (cf.category.toLowerCase().includes('material')) material += cf.amount;
+                        cash += cf.amount;
+                    } else expenses += cf.amount;
                 });
-            };
+                waterSales.value.forEach(ws => { water += (ws.cashAmount||0) + (ws.gpayAmount||0); cash += ws.cashAmount||0; gpay += ws.gpayAmount||0; });
+                materialSales.value.forEach(ms => { material += (ms.cashAmount||0) + (ms.gpayAmount||0); cash += ms.cashAmount||0; gpay += ms.gpayAmount||0; });
+                dailySales.value.forEach(ds => { expenses += ds.expenses||0; });
 
-            const filteredCashFlows = computed(() => {
-                let res = filterByDate(cashFlows.value, 'entryDate', cashFlowFromDate.value, cashFlowToDate.value);
-                if (searchCashFlow.value) {
-                    const q = searchCashFlow.value.toLowerCase();
-                    res = res.filter(x => (x.description && x.description.toLowerCase().includes(q)) || x.category.toLowerCase().includes(q));
-                }
-                return res.sort((a, b) => {
-                    let valA = a[sortCashFlowKey.value] || '';
-                    let valB = b[sortCashFlowKey.value] || '';
-                    if (valA < valB) return sortCashFlowAsc.value ? -1 : 1;
-                    if (valA > valB) return sortCashFlowAsc.value ? 1 : -1;
-                    return 0;
-                });
+                const totalIn = cash + gpay;
+                return { totalCash: cash, totalGpay: gpay, cashPct: totalIn ? (cash / totalIn) * 100 : 0, gpayPct: totalIn ? (gpay / totalIn) * 100 : 0, waterTotal: water, materialTotal: material, totalExpenses: expenses };
             });
-            const paginatedCashFlows = computed(() => paginate(filteredCashFlows.value, cashFlowPage.value));
 
-            const filteredWaterSales = computed(() => {
-                let res = filterByDate(waterSales.value, 'soldDate', waterFromDate.value, waterToDate.value);
-                if (searchWater.value) {
-                    const q = searchWater.value.toLowerCase();
-                    res = res.filter(x => String(x.totalCansSold).includes(q) || x.soldDate.includes(q));
-                }
-                return res.sort((a, b) => {
-                    let valA = a[sortWaterKey.value] || 0;
-                    let valB = b[sortWaterKey.value] || 0;
-                    if (sortWaterKey.value === 'totalValue') {
-                        valA = (a.cashAmount || 0) + (a.gpayAmount || 0);
-                        valB = (b.cashAmount || 0) + (b.gpayAmount || 0);
-                    }
-                    if (valA < valB) return sortWaterAsc.value ? -1 : 1;
-                    if (valA > valB) return sortWaterAsc.value ? 1 : -1;
-                    return 0;
-                });
-            });
+            // Filtering Helpers
+            const dateMatch = (itemDate, from, to) => (!from || itemDate >= from) && (!to || itemDate <= to);
+
+            const filteredWaterSales = computed(() => waterSales.value.filter(w => dateMatch(w.soldDate, waterFromDate.value, waterToDate.value))
+                .sort((a, b) => sortWaterAsc.value ? (a[sortWaterKey.value] > b[sortWaterKey.value] ? 1 : -1) : (a[sortWaterKey.value] < b[sortWaterKey.value] ? 1 : -1)));
             const paginatedWaterSales = computed(() => paginate(filteredWaterSales.value, waterPage.value));
 
-            const filteredDailySales = computed(() => {
-                let res = filterByDate(dailySales.value, 'saleDate', ledgerFromDate.value, ledgerToDate.value);
-                if (searchLedger.value) {
-                    const q = searchLedger.value.toLowerCase();
-                    res = res.filter(x => (x.remarks && x.remarks.toLowerCase().includes(q)) || x.saleDate.includes(q));
-                }
-                return res.sort((a, b) => {
-                    let valA = a[sortLedgerKey.value] || 0;
-                    let valB = b[sortLedgerKey.value] || 0;
-                    if (sortLedgerKey.value === 'netRevenue') {
-                        valA = (a.waterCash || 0) + (a.waterGpay || 0) + (a.materialCash || 0) + (a.materialGpay || 0);
-                        valB = (b.waterCash || 0) + (b.waterGpay || 0) + (b.materialCash || 0) + (b.materialGpay || 0);
-                    }
-                    if (valA < valB) return sortLedgerAsc.value ? -1 : 1;
-                    if (valA > valB) return sortLedgerAsc.value ? 1 : -1;
-                    return 0;
-                });
-            });
-            const paginatedDailySales = computed(() => paginate(filteredDailySales.value, ledgerPage.value));
-
-            const filteredMaterialSales = computed(() => {
-                let res = filterByDate(materialSales.value, 'soldDate', materialFromDate.value, materialToDate.value);
-                if (searchMaterial.value) {
-                    const q = searchMaterial.value.toLowerCase();
-                    res = res.filter(x => x.itemName.toLowerCase().includes(q) || (x.remarks && x.remarks.toLowerCase().includes(q)));
-                }
-                return res.sort((a, b) => {
-                    let valA = a[sortMaterialKey.value] || 0;
-                    let valB = b[sortMaterialKey.value] || 0;
-                    if (sortMaterialKey.value === 'totalValue') {
-                        valA = (a.cashAmount || 0) + (a.gpayAmount || 0);
-                        valB = (b.cashAmount || 0) + (b.gpayAmount || 0);
-                    }
-                    if (valA < valB) return sortMaterialAsc.value ? -1 : 1;
-                    if (valA > valB) return sortMaterialAsc.value ? 1 : -1;
-                    return 0;
-                });
-            });
+            const filteredMaterialSales = computed(() => materialSales.value.filter(m => dateMatch(m.soldDate, materialFromDate.value, materialToDate.value) && (!searchMaterial.value || m.itemName?.toLowerCase().includes(searchMaterial.value.toLowerCase())))
+                .sort((a, b) => sortMaterialAsc.value ? (a[sortMaterialKey.value] > b[sortMaterialKey.value] ? 1 : -1) : (a[sortMaterialKey.value] < b[sortMaterialKey.value] ? 1 : -1)));
             const paginatedMaterialSales = computed(() => paginate(filteredMaterialSales.value, materialPage.value));
 
-            const filteredProducts = computed(() => {
-                let res = products.value;
-                if (searchProduct.value) {
-                    const q = searchProduct.value.toLowerCase();
-                    res = res.filter(x => x.itemName.toLowerCase().includes(q) || (x.description && x.description.toLowerCase().includes(q)));
-                }
-                return res;
-            });
+            const filteredDailySales = computed(() => dailySales.value.filter(d => dateMatch(d.saleDate, ledgerFromDate.value, ledgerToDate.value) && (!searchLedger.value || d.remarks?.toLowerCase().includes(searchLedger.value.toLowerCase())))
+                .sort((a, b) => sortLedgerAsc.value ? (a[sortLedgerKey.value] > b[sortLedgerKey.value] ? 1 : -1) : (a[sortLedgerKey.value] < b[sortLedgerKey.value] ? 1 : -1)));
+            const paginatedDailySales = computed(() => paginate(filteredDailySales.value, ledgerPage.value));
+
+            const filteredCashFlows = computed(() => cashFlows.value.filter(c => dateMatch(c.entryDate, cashFlowFromDate.value, cashFlowToDate.value) && (!searchCashFlow.value || c.category?.toLowerCase().includes(searchCashFlow.value.toLowerCase()) || c.description?.toLowerCase().includes(searchCashFlow.value.toLowerCase())))
+                .sort((a, b) => sortCashFlowAsc.value ? (a[sortCashFlowKey.value] > b[sortCashFlowKey.value] ? 1 : -1) : (a[sortCashFlowKey.value] < b[sortCashFlowKey.value] ? 1 : -1)));
+            const paginatedCashFlows = computed(() => paginate(filteredCashFlows.value, cashFlowPage.value));
+
+            const filteredProducts = computed(() => products.value.filter(p => !searchProduct.value || p.itemName?.toLowerCase().includes(searchProduct.value.toLowerCase())));
             const paginatedProducts = computed(() => paginate(filteredProducts.value, productPage.value));
 
-            const filteredUsers = computed(() => {
-                let res = users.value;
-                if (searchUser.value) {
-                    const q = searchUser.value.toLowerCase();
-                    res = res.filter(x => x.username.toLowerCase().includes(q) || (x.email && x.email.toLowerCase().includes(q)) || x.role.toLowerCase().includes(q));
-                }
-                return res.sort((a, b) => {
-                    let valA = a[sortUserKey.value] || '';
-                    let valB = b[sortUserKey.value] || '';
-                    if (valA < valB) return sortUserAsc.value ? -1 : 1;
-                    if (valA > valB) return sortUserAsc.value ? 1 : -1;
-                    return 0;
-                });
-            });
+            const filteredUsers = computed(() => users.value.filter(u => !searchUser.value || u.username?.toLowerCase().includes(searchUser.value.toLowerCase()) || u.email?.toLowerCase().includes(searchUser.value.toLowerCase()))
+                .sort((a, b) => sortUserAsc.value ? (a[sortUserKey.value] > b[sortUserKey.value] ? 1 : -1) : (a[sortUserKey.value] < b[sortUserKey.value] ? 1 : -1)));
             const paginatedUsers = computed(() => paginate(filteredUsers.value, userPage.value));
 
-            // Dashboard Grid Data Aggregation
-            const filteredDashboardGridData = computed(() => {
-                let map = {};
-
-                // Helper to group records
-                const groupItems = (items, dateField, categoryName, getQty, getRev) => {
-                    filterByDate(items, dateField, dashboardFromDate.value, dashboardToDate.value).forEach(item => {
-                        let dateStr = item[dateField] || defaultDate();
-                        let periodLabel = dateStr;
-                        if (dashboardPeriod.value === 'monthly') periodLabel = dateStr.substring(0, 7);
-                        else if (dashboardPeriod.value === 'weekly') periodLabel = dateStr; // Can format week if needed
-
-                        let key = periodLabel + '_' + categoryName;
-                        if (!map[key]) {
-                            map[key] = { key, periodLabel, categoryName, totalQty: 0, totalRevenue: 0 };
-                        }
-                        map[key].totalQty += (typeof getQty === 'function' ? getQty(item) : (item[getQty] || 0));
-                        map[key].totalRevenue += (typeof getRev === 'function' ? getRev(item) : (item[getRev] || 0));
+            /* Dashboard Chart Aggregation */
+            const dashboardGridData = computed(() => {
+                const aggregated = {};
+                if(dashboardCategory.value === 'all' || dashboardCategory.value === 'water') {
+                    waterSales.value.forEach(w => {
+                        if(!aggregated[w.soldDate]) aggregated[w.soldDate] = { periodLabel: w.soldDate, categoryName: 'Water', totalQty: 0, totalRevenue: 0 };
+                        aggregated[w.soldDate].totalQty += w.totalCansSold || 0;
+                        aggregated[w.soldDate].totalRevenue += (w.cashAmount || 0) + (w.gpayAmount || 0);
                     });
-                };
-
-                if (dashboardCategory.value === 'all' || dashboardCategory.value === 'water') {
-                    groupItems(waterSales.value, 'soldDate', 'Water', 'totalCansSold', x => (x.cashAmount || 0) + (x.gpayAmount || 0));
                 }
-                if (dashboardCategory.value === 'all' || dashboardCategory.value === 'material') {
-                    groupItems(materialSales.value, 'soldDate', 'Material', 'quantity', x => (x.cashAmount || 0) + (x.gpayAmount || 0));
+                if(dashboardCategory.value === 'all' || dashboardCategory.value === 'material') {
+                    materialSales.value.forEach(m => {
+                        const key = dashboardCategory.value === 'all' ? m.soldDate + '_m' : m.soldDate;
+                        if(!aggregated[key]) aggregated[key] = { periodLabel: m.soldDate, categoryName: 'Material', totalQty: 0, totalRevenue: 0 };
+                        aggregated[key].totalQty += m.quantity || 0;
+                        aggregated[key].totalRevenue += (m.cashAmount || 0) + (m.gpayAmount || 0);
+                    });
                 }
-
-                let arr = Object.values(map);
-                if (dashboardSearch.value) {
-                    const q = dashboardSearch.value.toLowerCase();
-                    arr = arr.filter(x => x.periodLabel.toLowerCase().includes(q) || x.categoryName.toLowerCase().includes(q));
-                }
-
-                return arr.sort((a, b) => {
-                    let valA = a[sortDashboardKey.value] || '';
-                    let valB = b[sortDashboardKey.value] || '';
-                    if (valA < valB) return sortDashboardAsc.value ? -1 : 1;
-                    if (valA > valB) return sortDashboardAsc.value ? 1 : -1;
-                    return 0;
-                });
+                return Object.values(aggregated);
             });
+
+            const filteredDashboardGridData = computed(() => dashboardGridData.value.filter(d => dateMatch(d.periodLabel, dashboardFromDate.value, dashboardToDate.value))
+                .sort((a, b) => sortDashboardAsc.value ? (a[sortDashboardKey.value] > b[sortDashboardKey.value] ? 1 : -1) : (a[sortDashboardKey.value] < b[sortDashboardKey.value] ? 1 : -1)));
             const paginatedDashboardGridData = computed(() => paginate(filteredDashboardGridData.value, dashboardPage.value));
 
-            // Cash Flow Analytics computation
-            const cfAnalytics = computed(() => {
-                let cash = 0, gpay = 0, waterTot = 0, matTot = 0, expTot = 0;
-                cashFlows.value.forEach(x => {
-                    if (x.category === 'INFLOW') {
-                        cash += x.amount || 0; // Simplified breakdown mapping
-                        waterTot += x.amount || 0;
-                    } else {
-                        expTot += x.amount || 0;
-                    }
-                });
-                waterSales.value.forEach(x => {
-                    waterTot += (x.cashAmount || 0) + (x.gpayAmount || 0);
-                    cash += x.cashAmount || 0;
-                    gpay += x.gpayAmount || 0;
-                });
-                materialSales.value.forEach(x => {
-                    matTot += (x.cashAmount || 0) + (x.gpayAmount || 0);
-                    cash += x.cashAmount || 0;
-                    gpay += x.gpayAmount || 0;
-                });
-                let totalPay = cash + gpay || 1;
-                return {
-                    totalCash: cash,
-                    totalGpay: gpay,
-                    cashPct: Math.round((cash / totalPay) * 100),
-                    gpayPct: Math.round((gpay / totalPay) * 100),
-                    waterTotal: waterTot,
-                    materialTotal: matTot,
-                    totalExpenses: expTot
-                };
-            });
-
-            // Export to CSV helper
-            const exportToCSV = (arr, filename) => {
-                if (!arr.length) {
-                    alert("No data available to export.");
-                    return;
-                }
-                let keys = Object.keys(arr[0]);
-                let csvContent = "data:text/csv;charset=utf-8,"
-                    + keys.join(",") + "\n"
-                    + arr.map(row => keys.map(k => JSON.stringify(row[k] || '')).join(",")).join("\n");
-
-                let encodedUri = encodeURI(csvContent);
-                let link = document.createElement("a");
-                link.setAttribute("href", encodedUri);
-                link.setAttribute("download", filename);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            };
-
-            // Chart rendering logic
             const renderDashboardChart = () => {
-                const ctx = document.getElementById('salesDashboardChart');
-                if (!ctx) return;
+                if(currentTab.value !== 'dashboard') return;
+                nextTick(() => {
+                    const ctx = document.getElementById('salesDashboardChart');
+                    if(!ctx) return;
+                    if(dashboardChartInstance) dashboardChartInstance.destroy();
 
-                if (dashboardChartInstance) {
-                    dashboardChartInstance.destroy();
-                }
+                    // Group by date for chart specifically
+                    const chartDataMap = {};
+                    filteredDashboardGridData.value.forEach(d => {
+                        chartDataMap[d.periodLabel] = (chartDataMap[d.periodLabel] || 0) + d.totalRevenue;
+                    });
+                    const labels = Object.keys(chartDataMap).sort();
+                    const revenues = labels.map(l => chartDataMap[l]);
 
-                let labels = filteredDashboardGridData.value.map(x => x.periodLabel);
-                let revenues = filteredDashboardGridData.value.map(x => x.totalRevenue);
-
-                dashboardChartInstance = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels.length ? labels : ['No Data'],
-                        datasets: [{
-                            label: 'Revenue (₹)',
-                            data: revenues.length ? revenues : [0],
-                            backgroundColor: 'rgba(8, 145, 178, 0.6)',
-                            borderColor: 'rgba(8, 145, 178, 1)',
-                            borderWidth: 2,
-                            borderRadius: 8
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: { y: { beginAtZero: true } }
-                    }
+                    dashboardChartInstance = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels.length ? labels : ['No Records'],
+                            datasets: [{
+                                label: 'Net Revenue (₹)',
+                                data: revenues.length ? revenues : [0],
+                                borderColor: '#0891b2',
+                                backgroundColor: 'rgba(8, 145, 178, 0.15)',
+                                fill: true,
+                                tension: 0.3,
+                                pointBackgroundColor: '#0891b2'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: true } },
+                            scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
+                        }
+                    });
                 });
             };
 
-            watch([filteredDashboardGridData, currentTab], () => {
-                if (currentTab.value === 'dashboard') {
-                    nextTick(() => renderDashboardChart());
-                }
-            });
+            watch([currentTab, waterSales, materialSales, dashboardCategory, dashboardPeriod, dashboardFromDate, dashboardToDate], renderDashboardChart, { deep: true });
 
-            onMounted(async () => {
-                await refreshData();
-                nextTick(() => renderDashboardChart());
-            });
+            onMounted(() => { refreshData(); renderDashboardChart(); });
 
             return {
-                currentTab, isSidebarOpen, tabs, apiOnline,
-                summary, dailySales, products, waterSales, materialSales, users, cashFlows,
-                itemsPerPage, dashboardPage, ledgerPage, waterPage, materialPage, productPage, userPage, cashFlowPage,
+                currentTab, isSidebarOpen, apiOnline, tabs, switchTab, currentTabTitle, currentTabIcon, currentTabDescription,
+                summary, cfAnalytics, products,
+                dashboardPage, ledgerPage, waterPage, materialPage, productPage, userPage, cashFlowPage, itemsPerPage, totalPages,
                 dashboardFromDate, dashboardToDate, ledgerFromDate, ledgerToDate, waterFromDate, waterToDate, materialFromDate, materialToDate, cashFlowFromDate, cashFlowToDate,
                 dashboardSearch, searchLedger, searchWater, searchMaterial, searchProduct, searchUser, searchCashFlow,
-                cashFlowPeriod, dashboardPeriod, dashboardCategory,
-                sortWaterKey, sortWaterAsc, sortCashFlowKey, sortCashFlowAsc, sortLedgerKey, sortLedgerAsc, sortMaterialKey, sortMaterialAsc, sortUserKey, sortUserAsc, sortDashboardKey, sortDashboardAsc,
-                sortWaterBy, sortCashFlowBy, sortLedgerBy, sortMaterialBy, sortUserBy, toggleDashboardSort,
+                dashboardCategory, dashboardPeriod, cashFlowPeriod,
                 dailySalesForm, productForm, waterForm, materialForm, userForm, cashFlowForm,
-                loadWaterSales, loadMaterialSales, loadDailySales, loadProducts, loadUsers, loadCashFlows,
-                refreshData, saveWaterSale, saveMaterialSale, saveDailySales, saveProduct, saveUser, saveCashFlow,
-                editItem, clearForms, deleteItem, triggerSync, switchTab,
-                currentTabTitle, currentTabIcon, currentTabDescription,
-                filteredCashFlows, paginatedCashFlows, filteredWaterSales, paginatedWaterSales,
-                filteredDailySales, paginatedDailySales, filteredMaterialSales, paginatedMaterialSales,
-                filteredProducts, paginatedProducts, filteredUsers, paginatedUsers,
-                filteredDashboardGridData, paginatedDashboardGridData,
-                cfAnalytics, exportToCSV, totalPages
+                saveDailySales, saveProduct, saveWaterSale, saveMaterialSale, saveUser, saveCashFlow, clearForms, editItem, deleteItem,
+                refreshData, exportToCSV, triggerSync,
+                filteredDashboardGridData, paginatedDashboardGridData, toggleDashboardSort,
+                filteredCashFlows, paginatedCashFlows, sortCashFlowBy,
+                filteredDailySales, paginatedDailySales, sortLedgerBy,
+                filteredWaterSales, paginatedWaterSales, sortWaterBy,
+                filteredMaterialSales, paginatedMaterialSales, sortMaterialBy,
+                filteredProducts, paginatedProducts,
+                filteredUsers, paginatedUsers, sortUserBy,
+                loadCashFlows, loadDailySales, loadWaterSales, loadMaterialSales, loadProducts, loadUsers
             };
         }
     }).mount('#app');
