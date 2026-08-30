@@ -22,30 +22,28 @@
 
         .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
 
-        /* Upgraded Professional UI Styles */
         .input-field {
-            @apply w-full border border-slate-300 bg-white p-2.5 rounded-xl shadow-sm text-sm text-slate-700
-            focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 outline-none
-            transition-all duration-300 ease-in-out hover:border-slate-400 placeholder:text-slate-400;
+            width: 100%; border: 1px solid #cbd5e1; background: #ffffff; padding: 0.625rem; border-radius: 0.75rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); font-size: 0.875rem; color: #334155;
+            outline: none; transition: all 0.3s ease-in-out;
         }
+        .input-field:focus { ring: 4px; ring-color: rgba(6, 182, 212, 0.2); border-color: #06b6d4; }
         .form-label {
-            @apply block text-[13px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 transition-colors;
+            display: block; font-size: 13px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.375rem;
         }
         .btn-primary {
-            @apply bg-gradient-to-tr from-cyan-600 to-blue-600 text-white py-2.5 px-6 rounded-xl
-            shadow-[0_4px_12px_rgba(8,145,178,0.25)] hover:shadow-[0_6px_16px_rgba(8,145,178,0.35)]
-            hover:from-cyan-500 hover:to-blue-500 font-bold transition-all duration-300 transform
-            hover:-translate-y-0.5 flex items-center gap-2 justify-center active:translate-y-0 active:shadow-sm;
+            background: linear-gradient(135deg, #0891b2 0%, #2563eb 100%); color: white; padding: 0.625rem 1.5rem; border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(8,145,178,0.25); font-weight: 700; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.5rem; justify-content: center; cursor: pointer;
         }
+        .btn-primary:hover { opacity: 0.95; transform: translateY(-1px); }
         .btn-secondary {
-            @apply bg-white border border-slate-200 text-slate-700 py-2.5 px-6 rounded-xl shadow-sm
-            hover:bg-slate-50 hover:border-slate-300 hover:text-cyan-700 font-semibold transition-all duration-300
-            flex items-center gap-2 justify-center active:bg-slate-100;
+            background: white; border: 1px solid #e2e8f0; color: #334155; padding: 0.625rem 1.5rem; border-radius: 0.75rem; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+            font-weight: 600; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.5rem; justify-content: center; cursor: pointer;
         }
-
-        /* Pagination Styles */
-        .page-btn { @apply relative inline-flex items-center px-3 md:px-4 py-1.5 md:py-2 border border-slate-200 bg-white text-xs md:text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed; }
-        .page-btn-active { @apply bg-cyan-50 text-cyan-700 border-cyan-500 z-10; }
+        .btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; color: #0e7490; }
+        .page-btn { position: relative; display: inline-flex; align-items: center; padding: 0.375rem 0.75rem; border: 1px solid #e2e8f0; background: white; font-size: 0.75rem; font-weight: 600; color: #475569; transition: background-color 0.2s; cursor: pointer; }
+        .page-btn:hover:not(:disabled) { background-color: #f8fafc; }
+        .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .page-btn-active { background-color: #ecfeff; color: #0e7490; border-color: #06b6d4; z-index: 10; }
     </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800 selection:bg-cyan-200 selection:text-cyan-900">
@@ -64,7 +62,7 @@
                     <div class="bg-cyan-500/20 p-2 rounded-lg"><i class="fa-solid fa-water text-cyan-400"></i></div>
                     Madhan Traders
                 </div>
-                <button @click="isSidebarOpen = false" class="md:hidden text-slate-400 hover:text-white transition-colors">
+                <button @click="isSidebarOpen = false" class="md:hidden text-slate-400 hover:text-white transition-colors cursor-pointer">
                     <i class="fa-solid fa-xmark text-2xl"></i>
                 </button>
             </div>
@@ -89,7 +87,7 @@
         <!-- Header -->
         <header class="glass-panel shadow-sm border-b border-slate-200 px-4 md:px-8 py-4 flex flex-wrap gap-4 justify-between items-center sticky top-0 z-10">
             <div class="flex items-center gap-3 md:gap-4">
-                <button @click="isSidebarOpen = true" class="md:hidden p-2 -ml-2 text-slate-500 hover:text-cyan-600 focus:outline-none transition-colors">
+                <button @click="isSidebarOpen = true" class="md:hidden p-2 -ml-2 text-slate-500 hover:text-cyan-600 focus:outline-none transition-colors cursor-pointer">
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
                 <div>
@@ -105,7 +103,7 @@
                 <span :class="['text-[10px] md:text-xs border px-2 md:px-3 py-1.5 rounded-full font-bold flex items-center gap-1 md:gap-2 shadow-sm', apiOnline ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200']">
                     <span :class="['w-1.5 h-1.5 md:w-2 md:h-2 rounded-full', apiOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500']"></span> <span class="hidden sm:inline">API</span> {{ apiOnline ? 'Online' : 'Offline / Error' }}
                 </span>
-                <button @click="refreshData" class="btn-secondary !p-2 md:!p-2.5 !rounded-lg text-slate-500 group" title="Refresh Data">
+                <button @click="refreshData" class="btn-secondary !p-2 md:!p-2.5 !rounded-lg text-slate-500 group cursor-pointer" title="Refresh Data">
                     <i class="fa-solid fa-rotate-right group-hover:rotate-180 transition-transform duration-500"></i>
                 </button>
             </div>
@@ -116,7 +114,7 @@
             <!-- DASHBOARD TAB -->
             <div v-if="currentTab === 'dashboard'" class="space-y-6 md:space-y-8 animate-fade-in">
 
-                <!-- NEW MASTER BALANCE SECTION -->
+                <!-- MASTER BALANCE SECTION -->
                 <div class="bg-slate-900 rounded-3xl p-6 md:p-8 shadow-xl border border-slate-700 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
                     <div class="absolute -right-20 -top-20 w-64 h-64 bg-cyan-500/10 blur-3xl rounded-full"></div>
                     <div class="relative z-10 w-full text-center md:text-left">
@@ -185,15 +183,15 @@
                         <div class="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3">
                             <!-- Category Filter -->
                             <div class="flex flex-wrap items-center gap-1 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-inner w-full sm:w-auto">
-                                <button @click="dashboardCategory = 'all'" :class="['px-3 md:px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex-1 sm:flex-none text-center', dashboardCategory === 'all' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">All</button>
-                                <button @click="dashboardCategory = 'water'" :class="['px-3 md:px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex-1 sm:flex-none text-center', dashboardCategory === 'water' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Water</button>
-                                <button @click="dashboardCategory = 'material'" :class="['px-3 md:px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex-1 sm:flex-none text-center', dashboardCategory === 'material' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Material</button>
+                                <button @click="dashboardCategory = 'all'" :class="['px-3 md:px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex-1 sm:flex-none text-center cursor-pointer', dashboardCategory === 'all' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">All</button>
+                                <button @click="dashboardCategory = 'water'" :class="['px-3 md:px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex-1 sm:flex-none text-center cursor-pointer', dashboardCategory === 'water' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Water</button>
+                                <button @click="dashboardCategory = 'material'" :class="['px-3 md:px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex-1 sm:flex-none text-center cursor-pointer', dashboardCategory === 'material' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Material</button>
                             </div>
                             <!-- Period Filter -->
                             <div class="flex flex-wrap items-center gap-1 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-inner w-full sm:w-auto overflow-x-auto">
-                                <button @click="dashboardPeriod = 'daily'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0', dashboardPeriod === 'daily' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Daily</button>
-                                <button @click="dashboardPeriod = 'weekly'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0', dashboardPeriod === 'weekly' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Weekly</button>
-                                <button @click="dashboardPeriod = 'monthly'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0', dashboardPeriod === 'monthly' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Monthly</button>
+                                <button @click="dashboardPeriod = 'daily'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer', dashboardPeriod === 'daily' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Daily</button>
+                                <button @click="dashboardPeriod = 'weekly'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer', dashboardPeriod === 'weekly' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Weekly</button>
+                                <button @click="dashboardPeriod = 'monthly'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer', dashboardPeriod === 'monthly' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Monthly</button>
                             </div>
                         </div>
                     </div>
@@ -258,9 +256,7 @@
                         <!-- Pagination Controls -->
                         <div class="flex items-center justify-between border border-t-0 border-slate-200 bg-slate-50 px-4 py-3 rounded-b-xl shadow-inner">
                             <div class="text-xs text-slate-500 font-medium">
-                                Showing <span class="font-bold text-slate-700">{{ filteredDashboardGridData.length ? (dashboardPage - 1) * itemsPerPage + 1 : 0 }}</span>
-                                to <span class="font-bold text-slate-700">{{ Math.min(dashboardPage * itemsPerPage, filteredDashboardGridData.length) }}</span>
-                                of <span class="font-bold text-slate-700">{{ filteredDashboardGridData.length }}</span> records
+                                <span>{{ getPaginationText(filteredDashboardGridData, dashboardPage) }}</span>
                             </div>
                             <div class="inline-flex rounded-lg shadow-sm overflow-hidden">
                                 <button @click="dashboardPage--" :disabled="dashboardPage === 1" class="page-btn border-r-0 rounded-l-lg">Prev</button>
@@ -281,9 +277,9 @@
                         <p class="text-sm text-emerald-600 mt-1 font-bold">INFLOW + OUTFLOW = BALANCE (Sum of INFLOW - SUM of OUTFLOW = BALANCE)</p>
                     </div>
                     <div class="bg-slate-50 p-1.5 rounded-xl flex w-full md:w-auto gap-1 shadow-inner border border-slate-200">
-                        <button @click="cashFlowPeriod = 'daily'" :class="['flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-bold transition-all', cashFlowPeriod === 'daily' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Daily</button>
-                        <button @click="cashFlowPeriod = 'weekly'" :class="['flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-bold transition-all', cashFlowPeriod === 'weekly' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Weekly</button>
-                        <button @click="cashFlowPeriod = 'monthly'" :class="['flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-bold transition-all', cashFlowPeriod === 'monthly' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Monthly</button>
+                        <button @click="cashFlowPeriod = 'daily'" :class="['flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer', cashFlowPeriod === 'daily' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Daily</button>
+                        <button @click="cashFlowPeriod = 'weekly'" :class="['flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer', cashFlowPeriod === 'weekly' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Weekly</button>
+                        <button @click="cashFlowPeriod = 'monthly'" :class="['flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer', cashFlowPeriod === 'monthly' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Monthly</button>
                     </div>
                 </div>
 
@@ -375,13 +371,11 @@
                     <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-5">
                         <h4 class="font-bold text-slate-800 text-lg">Cash Flow Records</h4>
                         <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
-                            <!-- Date Filter Component -->
                             <div class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-inner">
                                 <input v-model="cashFlowFromDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer font-semibold">
                                 <span class="text-[10px] font-bold text-slate-400">TO</span>
                                 <input v-model="cashFlowToDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer font-semibold">
                             </div>
-                            <!-- Search & Export -->
                             <div class="relative flex-1 min-w-[200px]">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
                                 <input v-model="searchCashFlow" placeholder="Search records..." class="input-field !py-2 !pl-9 !text-sm">
@@ -416,8 +410,8 @@
                                     {{ cf.transactionType === 'INFLOW' ? '+' : '-' }} ₹{{ cf.amount?.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}
                                 </td>
                                 <td class="p-3 md:p-4 text-right space-x-1 md:space-x-2 whitespace-nowrap opacity-50 group-hover:opacity-100 transition-opacity">
-                                    <button @click="editItem('cash-flow', cf)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all"><i class="fa-solid fa-pen text-xs"></i></button>
-                                    <button @click="deleteItem('/api/cash-flow/' + cf.id, loadCashFlows)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all"><i class="fa-solid fa-trash text-xs"></i></button>
+                                    <button @click="editItem('cash-flow', cf)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button @click="deleteItem('/api/cash-flow/' + cf.id, loadCashFlows)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-trash text-xs"></i></button>
                                 </td>
                             </tr>
                             <tr v-if="!paginatedCashFlows.length"><td colspan="6" class="p-8 text-center text-slate-500 font-medium">No cash flow records found.</td></tr>
@@ -428,9 +422,7 @@
                     <!-- Pagination Controls -->
                     <div class="flex items-center justify-between border border-t-0 border-slate-200 bg-slate-50 px-4 py-3 rounded-b-xl shadow-inner">
                         <div class="text-xs text-slate-500 font-medium">
-                            Showing <span class="font-bold text-slate-700">{{ filteredCashFlows.length ? (cashFlowPage - 1) * itemsPerPage + 1 : 0 }}</span>
-                            to <span class="font-bold text-slate-700">{{ Math.min(cashFlowPage * itemsPerPage, filteredCashFlows.length) }}</span>
-                            of <span class="font-bold text-slate-700">{{ filteredCashFlows.length }}</span> records
+                            <span>{{ getPaginationText(filteredCashFlows, cashFlowPage) }}</span>
                         </div>
                         <div class="inline-flex rounded-lg shadow-sm overflow-hidden">
                             <button @click="cashFlowPage--" :disabled="cashFlowPage === 1" class="page-btn border-r-0 rounded-l-lg">Prev</button>
@@ -444,7 +436,6 @@
 
             <!-- DAILY SALES TAB (Consolidated Ledger) -->
             <div v-if="currentTab === 'daily-sales'" class="space-y-6">
-                <!-- Action Bar -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200">
                     <div>
                         <h3 class="text-lg font-bold text-slate-800">Ledger Configuration</h3>
@@ -518,18 +509,16 @@
                     </form>
                 </div>
 
-                <!-- Data Table with Pagination & Filters -->
+                <!-- Ledger Table -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-5">
                     <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-5">
                         <h4 class="font-bold text-slate-800 text-lg">Ledger Archive</h4>
                         <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
-                            <!-- Date Filter Component -->
                             <div class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-inner">
                                 <input v-model="ledgerFromDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 font-semibold cursor-pointer">
                                 <span class="text-[10px] font-bold text-slate-400">TO</span>
                                 <input v-model="ledgerToDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 font-semibold cursor-pointer">
                             </div>
-                            <!-- Search & Export -->
                             <div class="relative flex-1 min-w-[200px]">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
                                 <input v-model="searchLedger" placeholder="Search archive..." class="input-field !py-2 !pl-9 !text-sm">
@@ -572,8 +561,8 @@
                                 <td class="p-3 md:p-4 text-slate-500 max-w-[150px] truncate font-medium">{{ ds.remarks || '-' }}</td>
                                 <td class="p-3 md:p-4 font-extrabold text-emerald-600">₹{{ ((ds.waterCash || 0) + (ds.waterGpay || 0) + (ds.materialCash || 0) + (ds.materialGpay || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</td>
                                 <td class="p-3 md:p-4 text-right space-x-1 md:space-x-2 whitespace-nowrap opacity-50 group-hover:opacity-100 transition-opacity">
-                                    <button @click="editItem('daily-sales', ds)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all"><i class="fa-solid fa-pen text-xs"></i></button>
-                                    <button @click="deleteItem('/api/daily-sales/' + ds.id, loadDailySales)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all"><i class="fa-solid fa-trash text-xs"></i></button>
+                                    <button @click="editItem('daily-sales', ds)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button @click="deleteItem('/api/daily-sales/' + ds.id, loadDailySales)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-trash text-xs"></i></button>
                                 </td>
                             </tr>
                             <tr v-if="!paginatedDailySales.length"><td colspan="7" class="p-8 text-center text-slate-500 font-medium">No ledger records found matching your filters.</td></tr>
@@ -584,9 +573,7 @@
                     <!-- Pagination Controls -->
                     <div class="flex items-center justify-between border border-t-0 border-slate-200 bg-slate-50 px-4 py-3 rounded-b-xl shadow-inner">
                         <div class="text-xs text-slate-500 font-medium">
-                            Showing <span class="font-bold text-slate-700">{{ filteredDailySales.length ? (ledgerPage - 1) * itemsPerPage + 1 : 0 }}</span>
-                            to <span class="font-bold text-slate-700">{{ Math.min(ledgerPage * itemsPerPage, filteredDailySales.length) }}</span>
-                            of <span class="font-bold text-slate-700">{{ filteredDailySales.length }}</span> entries
+                            <span>{{ getPaginationText(filteredDailySales, ledgerPage) }}</span>
                         </div>
                         <div class="inline-flex rounded-lg shadow-sm overflow-hidden">
                             <button @click="ledgerPage--" :disabled="ledgerPage === 1" class="page-btn border-r-0 rounded-l-lg">Prev</button>
@@ -632,13 +619,11 @@
                     <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-5">
                         <h4 class="font-bold text-slate-800 text-lg">Dispatch Database</h4>
                         <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
-                            <!-- Date Filter Component -->
                             <div class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-inner">
                                 <input v-model="waterFromDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer font-semibold">
                                 <span class="text-[10px] font-bold text-slate-400">TO</span>
                                 <input v-model="waterToDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer font-semibold">
                             </div>
-                            <!-- Search & Export -->
                             <div class="relative flex-1 min-w-[200px]">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
                                 <input v-model="searchWater" placeholder="Search archive..." class="input-field !py-2 !pl-9 !text-sm">
@@ -667,8 +652,8 @@
                                 <td class="p-3 md:p-4 font-semibold text-indigo-700">₹{{ ws.gpayAmount?.toLocaleString('en-IN') || 0 }}</td>
                                 <td class="p-3 md:p-4 font-extrabold text-emerald-600 bg-emerald-50/20">₹{{ ((ws.cashAmount || 0) + (ws.gpayAmount || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</td>
                                 <td class="p-3 md:p-4 text-right space-x-1 md:space-x-2 whitespace-nowrap opacity-50 group-hover:opacity-100 transition-opacity">
-                                    <button @click="editItem('water', ws)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all"><i class="fa-solid fa-pen text-xs"></i></button>
-                                    <button @click="deleteItem('/api/water-sales/' + ws.id, loadWaterSales)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all"><i class="fa-solid fa-trash text-xs"></i></button>
+                                    <button @click="editItem('water', ws)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button @click="deleteItem('/api/water-sales/' + ws.id, loadWaterSales)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-trash text-xs"></i></button>
                                 </td>
                             </tr>
                             <tr v-if="!paginatedWaterSales.length"><td colspan="6" class="p-8 text-center text-slate-500 font-medium">No water dispatch data found.</td></tr>
@@ -679,9 +664,7 @@
                     <!-- Pagination Controls -->
                     <div class="flex items-center justify-between border border-t-0 border-slate-200 bg-slate-50 px-4 py-3 rounded-b-xl shadow-inner">
                         <div class="text-xs text-slate-500 font-medium">
-                            Showing <span class="font-bold text-slate-700">{{ filteredWaterSales.length ? (waterPage - 1) * itemsPerPage + 1 : 0 }}</span>
-                            to <span class="font-bold text-slate-700">{{ Math.min(waterPage * itemsPerPage, filteredWaterSales.length) }}</span>
-                            of <span class="font-bold text-slate-700">{{ filteredWaterSales.length }}</span> records
+                            <span>{{ getPaginationText(filteredWaterSales, waterPage) }}</span>
                         </div>
                         <div class="inline-flex rounded-lg shadow-sm overflow-hidden">
                             <button @click="waterPage--" :disabled="waterPage === 1" class="page-btn border-r-0 rounded-l-lg">Prev</button>
@@ -730,7 +713,7 @@
                                 <input v-model="materialForm.remarks" placeholder="Customer Name, Contact or Reference Info..." class="input-field bg-slate-50">
                             </div>
                             <div class="sm:col-span-2 md:col-span-4 lg:col-span-2 flex flex-col sm:flex-row items-end gap-2 pb-[1px]">
-                                <button type="submit" class="btn-primary w-full h-[46px] !from-amber-500 !to-orange-600 hover:!from-amber-600 hover:!to-orange-700 shadow-[0_4px_12px_rgba(245,158,11,0.25)] hover:shadow-[0_6px_16px_rgba(245,158,11,0.35)]">{{ materialForm.id ? 'Commit' : 'Publish Invoice' }}</button>
+                                <button type="submit" class="btn-primary w-full h-[46px] !from-amber-500 !to-orange-600 hover:!from-amber-600 hover:!to-orange-700 shadow-[0_4px_12px_rgba(245,158,11,0.25)]">{{ materialForm.id ? 'Commit' : 'Publish Invoice' }}</button>
                                 <button type="button" v-if="materialForm.id" @click="clearForms" class="btn-secondary w-full sm:w-auto h-[46px] px-4"><i class="fa-solid fa-xmark"></i></button>
                             </div>
                         </div>
@@ -742,13 +725,11 @@
                     <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-5">
                         <h4 class="font-bold text-slate-800 text-lg">Material Ledger Matrix</h4>
                         <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
-                            <!-- Date Filter Component -->
                             <div class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-inner">
                                 <input v-model="materialFromDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer font-semibold">
                                 <span class="text-[10px] font-bold text-slate-400">TO</span>
                                 <input v-model="materialToDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer font-semibold">
                             </div>
-                            <!-- Search & Export -->
                             <div class="relative flex-1 min-w-[200px]">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
                                 <input v-model="searchMaterial" placeholder="Search item or client..." class="input-field !py-2 !pl-9 !text-sm">
@@ -785,8 +766,8 @@
                                 </td>
                                 <td class="p-3 md:p-4 font-extrabold text-emerald-600 text-base bg-emerald-50/20">₹{{ ((ms.cashAmount || 0) + (ms.gpayAmount || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</td>
                                 <td class="p-3 md:p-4 text-right space-x-1 md:space-x-2 whitespace-nowrap opacity-50 group-hover:opacity-100 transition-opacity">
-                                    <button @click="editItem('material', ms)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all"><i class="fa-solid fa-pen text-xs"></i></button>
-                                    <button @click="deleteItem('/api/material-sales/' + ms.id, loadMaterialSales)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all"><i class="fa-solid fa-trash text-xs"></i></button>
+                                    <button @click="editItem('material', ms)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button @click="deleteItem('/api/material-sales/' + ms.id, loadMaterialSales)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-trash text-xs"></i></button>
                                 </td>
                             </tr>
                             <tr v-if="!paginatedMaterialSales.length"><td colspan="7" class="p-8 text-center text-slate-500 font-medium">No material invoices found.</td></tr>
@@ -797,14 +778,125 @@
                     <!-- Pagination Controls -->
                     <div class="flex items-center justify-between border border-t-0 border-slate-200 bg-slate-50 px-4 py-3 rounded-b-xl shadow-inner">
                         <div class="text-xs text-slate-500 font-medium">
-                            Showing <span class="font-bold text-slate-700">{{ filteredMaterialSales.length ? (materialPage - 1) * itemsPerPage + 1 : 0 }}</span>
-                            to <span class="font-bold text-slate-700">{{ Math.min(materialPage * itemsPerPage, filteredMaterialSales.length) }}</span>
-                            of <span class="font-bold text-slate-700">{{ filteredMaterialSales.length }}</span> records
+                            <span>{{ getPaginationText(filteredMaterialSales, materialPage) }}</span>
                         </div>
                         <div class="inline-flex rounded-lg shadow-sm overflow-hidden">
                             <button @click="materialPage--" :disabled="materialPage === 1" class="page-btn border-r-0 rounded-l-lg">Prev</button>
                             <button class="page-btn page-btn-active">{{ materialPage }}</button>
                             <button @click="materialPage++" :disabled="materialPage >= totalPages(filteredMaterialSales)" class="page-btn border-l-0 rounded-r-lg">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EXPENSE LEDGER TAB -->
+            <div v-if="currentTab === 'expenses'" class="space-y-6 animate-fade-in">
+                <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-rose-500">
+                    <h3 class="text-lg font-extrabold mb-5 text-slate-800 border-b border-slate-100 pb-3">{{ expenseForm.id ? 'Modify Expense' : 'Log New Expense' }}</h3>
+                    <form @submit.prevent="saveExpense" class="space-y-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 md:gap-5">
+                            <div>
+                                <label class="form-label">Expense Date</label>
+                                <input v-model="expenseForm.expenseDate" type="date" required class="input-field cursor-pointer">
+                            </div>
+                            <div>
+                                <label class="form-label">expenseCategory</label>
+                                <input v-model="expenseForm.expenseCategory" list="expense-categories" required placeholder="e.g., Fuel, Salary" class="input-field font-semibold text-slate-800">
+                                <datalist id="expense-categories">
+                                    <option value="Fuel / Transport"></option>
+                                    <option value="Salary / Wages"></option>
+                                    <option value="Maintenance"></option>
+                                    <option value="Office Supplies"></option>
+                                    <option value="Utilities / Bills"></option>
+                                </datalist>
+                            </div>
+                            <div>
+                                <label class="form-label !text-rose-700">Amount (₹)</label>
+                                <input v-model.number="expenseForm.amount" type="number" step="0.01" min="0" required placeholder="0.00" class="input-field border-rose-200 focus:border-rose-500 focus:ring-rose-500/20">
+                            </div>
+                            <div>
+                                <label class="form-label">Payment Method</label>
+                                <select v-model="expenseForm.paidTo" class="input-field cursor-pointer font-semibold">
+                                    <option value="Cash">Cash</option>
+                                    <option value="GPay">GPay / Digital</option>
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                </select>
+                            </div>
+                            <div class="flex items-end gap-2 pb-[1px]">
+                                <button type="submit" class="btn-primary w-full h-[46px] !from-rose-500 !to-pink-600 hover:!from-rose-600 hover:!to-pink-700 shadow-[0_4px_12px_rgba(244,63,94,0.25)]">{{ expenseForm.id ? 'Update' : 'Log Expense' }}</button>
+                                <button type="button" v-if="expenseForm.id" @click="clearForms" class="btn-secondary h-[46px] px-4"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label">Description / Remarks</label>
+                            <input v-model="expenseForm.notes" placeholder="Vendor name, bill number, or specific details..." class="input-field bg-slate-50">
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Expense Ledger Grid -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-5">
+                    <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-5">
+                        <h4 class="font-bold text-slate-800 text-lg">Expense Archive</h4>
+                        <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+                            <div class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-inner">
+                                <input v-model="expenseFromDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-rose-500 cursor-pointer font-semibold">
+                                <span class="text-[10px] font-bold text-slate-400">TO</span>
+                                <input v-model="expenseToDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-rose-500 cursor-pointer font-semibold">
+                            </div>
+                            <div class="relative flex-1 min-w-[200px]">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
+                                <input v-model="searchExpense" placeholder="Search category or remarks..." class="input-field !py-2 !pl-9 !text-sm">
+                            </div>
+                            <button @click="exportToCSV(filteredExpenses, 'Expense_Ledger.csv')" class="btn-secondary !py-2 !text-xs h-[38px]"><i class="fa-solid fa-download"></i> Export</button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-t-xl border border-slate-200">
+                        <table class="w-full text-left border-collapse min-w-[800px]">
+                            <thead>
+                            <tr class="bg-slate-50/80 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                <th @click="sortExpenseBy('expenseDate')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-rose-700 transition-colors">Date <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th @click="sortExpenseBy('expenseCategory')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-rose-700 transition-colors">Category <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th class="p-3 md:p-4 font-bold">Description</th>
+                                <th @click="sortExpenseBy('paymentMethod')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-rose-700 transition-colors">Method <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th @click="sortExpenseBy('amount')" class="p-3 md:p-4 font-bold text-rose-700 cursor-pointer hover:text-rose-900 transition-colors">Amount (₹) <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th class="p-3 md:p-4 font-bold text-right">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm bg-white">
+                            <tr v-for="exp in paginatedExpenses" :key="exp.id" class="hover:bg-slate-50/80 transition-colors group">
+                                <td class="p-3 md:p-4 font-extrabold text-slate-700">{{ exp.expenseDate }}</td>
+                                <td class="p-3 md:p-4 font-bold text-slate-600">
+                                    <span class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md text-xs border border-slate-200">{{ exp.expenseCategory }}</span>
+                                </td>
+                                <td class="p-3 md:p-4 text-slate-500 font-medium">{{ exp.notes || '--' }}</td>
+                                <td class="p-3 md:p-4">
+                                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">
+                                        <i :class="exp.paymentMethod === 'Cash' ? 'fa-solid fa-wallet text-emerald-600 mr-1' : 'fa-brands fa-google-pay text-indigo-600 mr-1'"></i>
+                                        {{ exp.paymentMethod }}
+                                    </span>
+                                </td>
+                                <td class="p-3 md:p-4 font-extrabold text-rose-600 bg-rose-50/20">₹{{ exp.amount?.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</td>
+                                <td class="p-3 md:p-4 text-right space-x-1 md:space-x-2 whitespace-nowrap opacity-50 group-hover:opacity-100 transition-opacity">
+                                    <button @click="editItem('expenses', exp)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button @click="deleteItem('/api/expenses/' + exp.id, loadExpenses)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-trash text-xs"></i></button>
+                                </td>
+                            </tr>
+                            <tr v-if="!paginatedExpenses.length"><td colspan="6" class="p-8 text-center text-slate-500 font-medium">No expenses found matching criteria.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div class="flex items-center justify-between border border-t-0 border-slate-200 bg-slate-50 px-4 py-3 rounded-b-xl shadow-inner">
+                        <div class="text-xs text-slate-500 font-medium">
+                            <span>{{ getPaginationText(filteredExpenses, expensePage) }}</span>
+                        </div>
+                        <div class="inline-flex rounded-lg shadow-sm overflow-hidden">
+                            <button @click="expensePage--" :disabled="expensePage === 1" class="page-btn border-r-0 rounded-l-lg">Prev</button>
+                            <button class="page-btn page-btn-active">{{ expensePage }}</button>
+                            <button @click="expensePage++" :disabled="expensePage >= totalPages(filteredExpenses)" class="page-btn border-l-0 rounded-r-lg">Next</button>
                         </div>
                     </div>
                 </div>
@@ -852,8 +944,8 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5">
                     <div v-for="prod in paginatedProducts" :key="prod.id" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative group hover:-translate-y-1.5 hover:shadow-md transition-all duration-300">
                         <div class="absolute top-4 right-4 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                            <button @click="editItem('product', prod)" class="text-blue-600 hover:bg-blue-600 hover:text-white bg-blue-50 border border-blue-100 w-8 h-8 rounded-lg flex items-center justify-center transition-all shadow-sm"><i class="fa-solid fa-pen text-xs"></i></button>
-                            <button @click="deleteItem('/api/products/' + prod.id, loadProducts)" class="text-rose-600 hover:bg-rose-600 hover:text-white bg-rose-50 border border-rose-100 w-8 h-8 rounded-lg flex items-center justify-center transition-all shadow-sm"><i class="fa-solid fa-trash text-xs"></i></button>
+                            <button @click="editItem('product', prod)" class="text-blue-600 hover:bg-blue-600 hover:text-white bg-blue-50 border border-blue-100 w-8 h-8 rounded-lg flex items-center justify-center transition-all shadow-sm cursor-pointer"><i class="fa-solid fa-pen text-xs"></i></button>
+                            <button @click="deleteItem('/api/products/' + prod.id, loadProducts)" class="text-rose-600 hover:bg-rose-600 hover:text-white bg-rose-50 border border-rose-100 w-8 h-8 rounded-lg flex items-center justify-center transition-all shadow-sm cursor-pointer"><i class="fa-solid fa-trash text-xs"></i></button>
                         </div>
                         <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mb-4 border border-indigo-100 shadow-sm text-xl"><i class="fa-solid fa-box-open"></i></div>
                         <h4 class="font-extrabold text-slate-800 text-lg pr-16 leading-tight mb-1">{{ prod.itemName }}</h4>
@@ -866,12 +958,9 @@
                     <div v-if="!paginatedProducts.length" class="col-span-1 sm:col-span-2 md:col-span-3 xl:col-span-4 p-10 text-center text-slate-500 bg-white rounded-2xl border border-slate-200 font-medium text-lg">No matching SKUs found in the catalog.</div>
                 </div>
 
-                <!-- Pagination Controls for Products -->
                 <div v-if="paginatedProducts.length" class="flex items-center justify-between border border-slate-200 bg-white px-5 py-4 rounded-xl shadow-sm">
                     <div class="text-xs text-slate-500 font-medium">
-                        Showing <span class="font-bold text-slate-700">{{ (productPage - 1) * itemsPerPage + 1 }}</span>
-                        to <span class="font-bold text-slate-700">{{ Math.min(productPage * itemsPerPage, filteredProducts.length) }}</span>
-                        of <span class="font-bold text-slate-700">{{ filteredProducts.length }}</span> items
+                        <span>{{ getPaginationText(filteredProducts, productPage) }}</span>
                     </div>
                     <div class="inline-flex rounded-lg shadow-sm overflow-hidden">
                         <button @click="productPage--" :disabled="productPage === 1" class="page-btn border-r-0 rounded-l-lg">Prev</button>
@@ -886,28 +975,31 @@
                 <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-purple-500">
                     <h3 class="text-lg font-extrabold mb-5 text-slate-800 border-b border-slate-100 pb-3">{{ userForm.id ? 'Modify User Profile' : 'Register New User' }}</h3>
                     <form @submit.prevent="saveUser" class="space-y-5">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 md:gap-5">
                             <div>
-                                <label class="form-label">Username / Full Name</label>
-                                <input v-model="userForm.username" required placeholder="Enter username..." class="input-field font-semibold text-slate-800">
+                                <label class="form-label">Full Name</label>
+                                <input v-model="userForm.fullName" required placeholder="Enter full name..." class="input-field font-semibold text-slate-800">
                             </div>
                             <div>
-                                <label class="form-label">Email Address</label>
-                                <input v-model="userForm.email" type="email" required placeholder="Email address" class="input-field">
+                                <label class="form-label">Phone Number</label>
+                                <input v-model="userForm.phoneNumber" type="tel" required placeholder="Phone number" class="input-field">
+                            </div>
+                            <div>
+                                <label class="form-label">Passcode</label>
+                                <input v-model="userForm.passcode" type="text" required placeholder="Enter passcode..." class="input-field">
                             </div>
                             <div>
                                 <label class="form-label">Role</label>
                                 <select v-model="userForm.role" class="input-field cursor-pointer font-semibold">
                                     <option value="ADMIN">ADMIN</option>
-                                    <option value="MANAGER">MANAGER</option>
-                                    <option value="STAFF">STAFF</option>
+                                    <option value="SALES_PERSON">SALES_PERSON</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="form-label">Status</label>
-                                <select v-model="userForm.status" class="input-field cursor-pointer font-semibold">
-                                    <option value="ACTIVE">ACTIVE</option>
-                                    <option value="INACTIVE">INACTIVE</option>
+                                <select v-model="userForm.isActive" class="input-field cursor-pointer font-semibold">
+                                    <option :value="true">ACTIVE</option>
+                                    <option :value="false">INACTIVE</option>
                                 </select>
                             </div>
                         </div>
@@ -925,7 +1017,7 @@
                         <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
                             <div class="relative flex-1 min-w-[200px]">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
-                                <input v-model="searchUser" placeholder="Search user by username, email, or role..." class="input-field !py-2 !pl-9 !text-sm">
+                                <input v-model="searchUser" placeholder="Search user by name, phone, or role..." class="input-field !py-2 !pl-9 !text-sm">
                             </div>
                             <button @click="exportToCSV(filteredUsers, 'Users_Directory.csv')" class="btn-secondary !py-2 !text-xs h-[38px]"><i class="fa-solid fa-download"></i> Export</button>
                         </div>
@@ -935,35 +1027,35 @@
                         <table class="w-full text-left border-collapse min-w-[650px]">
                             <thead>
                             <tr class="bg-slate-50/80 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
-                                <th @click="sortUserBy('username')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">User Entity <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
-                                <th @click="sortUserBy('email')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Email Address <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th @click="sortUserBy('fullName')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Full Name <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th @click="sortUserBy('phoneNumber')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Phone Number <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
                                 <th @click="sortUserBy('role')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Role <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
-                                <th @click="sortUserBy('status')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Status <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th @click="sortUserBy('isActive')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Status <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
                                 <th class="p-3 md:p-4 font-bold text-right">Actions</th>
                             </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100 text-sm bg-white">
                             <tr v-for="user in paginatedUsers" :key="user.id" class="hover:bg-slate-50/80 transition-colors group">
                                 <td class="p-3 md:p-4 font-bold text-slate-800 flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-extrabold text-xs uppercase shadow-sm border border-purple-200">{{ user.username ? user.username.charAt(0) : 'U' }}</div>
+                                    <div class="w-9 h-9 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-extrabold text-xs uppercase shadow-sm border border-purple-200">{{ user.fullName ? user.fullName.charAt(0) : 'U' }}</div>
                                     <div>
-                                        <div class="font-extrabold text-slate-800">{{ user.username }}</div>
-                                        <div class="text-[11px] text-slate-400 font-medium md:hidden">{{ user.email }}</div>
+                                        <div class="font-extrabold text-slate-800">{{ user.fullName }}</div>
+                                        <div class="text-[11px] text-slate-400 font-medium md:hidden">{{ user.phoneNumber }}</div>
                                     </div>
                                 </td>
-                                <td class="p-3 md:p-4 font-semibold text-slate-600">{{ user.email || '-' }}</td>
+                                <td class="p-3 md:p-4 font-semibold text-slate-600">{{ user.phoneNumber || '-' }}</td>
                                 <td class="p-3 md:p-4">
-                                    <span :class="['px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider', user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 border border-purple-200' : user.role === 'MANAGER' ? 'bg-blue-100 text-blue-700 border border-blue-200' : 'bg-slate-100 text-slate-700 border border-slate-200']">{{ user.role || 'STAFF' }}</span>
+                                    <span :class="['px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider', user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 border border-purple-200' : 'bg-slate-100 text-slate-700 border border-slate-200']">{{ user.role }}</span>
                                 </td>
                                 <td class="p-3 md:p-4">
-                                    <span :class="['inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold', user.status === 'ACTIVE' || !user.status ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200']">
-                                        <span :class="['w-1.5 h-1.5 rounded-full', user.status === 'ACTIVE' || !user.status ? 'bg-emerald-500' : 'bg-rose-500']"></span>
-                                        {{ user.status || 'ACTIVE' }}
-                                    </span>
+                        <span :class="['inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold', user.isActive !== false ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200']">
+                            <span :class="['w-1.5 h-1.5 rounded-full', user.isActive !== false ? 'bg-emerald-500' : 'bg-rose-500']"></span>
+                            {{ user.isActive !== false ? 'ACTIVE' : 'INACTIVE' }}
+                        </span>
                                 </td>
                                 <td class="p-3 md:p-4 text-right space-x-1 md:space-x-2 whitespace-nowrap opacity-50 group-hover:opacity-100 transition-opacity">
-                                    <button @click="editItem('user', user)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all"><i class="fa-solid fa-pen text-xs"></i></button>
-                                    <button @click="deleteItem('/api/users/' + user.id, loadUsers)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all"><i class="fa-solid fa-trash text-xs"></i></button>
+                                    <button @click="editItem('user', user)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button @click="deleteItem('/api/users/' + user.id, loadUsers)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-trash text-xs"></i></button>
                                 </td>
                             </tr>
                             <tr v-if="!paginatedUsers.length"><td colspan="5" class="p-8 text-center text-slate-500 font-medium">No user records found matching your filters.</td></tr>
@@ -974,9 +1066,7 @@
                     <!-- Pagination Controls -->
                     <div class="flex items-center justify-between border border-t-0 border-slate-200 bg-slate-50 px-4 py-3 rounded-b-xl shadow-inner">
                         <div class="text-xs text-slate-500 font-medium">
-                            Showing <span class="font-bold text-slate-700">{{ filteredUsers.length ? (userPage - 1) * itemsPerPage + 1 : 0 }}</span>
-                            to <span class="font-bold text-slate-700">{{ Math.min(userPage * itemsPerPage, filteredUsers.length) }}</span>
-                            of <span class="font-bold text-slate-700">{{ filteredUsers.length }}</span> users
+                            <span>{{ getPaginationText(filteredUsers, userPage) }}</span>
                         </div>
                         <div class="inline-flex rounded-lg shadow-sm overflow-hidden">
                             <button @click="userPage--" :disabled="userPage === 1" class="page-btn border-r-0 rounded-l-lg">Prev</button>
@@ -1006,6 +1096,7 @@
                 { id: 'daily-sales', name: 'Consolidated Ledger', icon: 'fa-solid fa-book', desc: 'Centralized daily profit & loss' },
                 { id: 'water', name: 'Water Logistics', icon: 'fa-solid fa-droplet', desc: 'Track daily water can dispatches' },
                 { id: 'material', name: 'Material Invoicing', icon: 'fa-solid fa-truck-ramp-box', desc: 'Track cement and material invoices' },
+                { id: 'expenses', name: 'Expense Ledger', icon: 'fa-solid fa-file-invoice-dollar', desc: 'Track operational and miscellaneous outflows' },
                 { id: 'products', name: 'SKU Catalog', icon: 'fa-solid fa-boxes-stacked', desc: 'Manage stock limits and pricing' },
                 { id: 'users', name: 'User Directory', icon: 'fa-solid fa-users', desc: 'Manage system users and access roles' }
             ];
@@ -1017,6 +1108,7 @@
             const materialSales = ref([]);
             const users = ref([]);
             const cashFlows = ref([]);
+            const expenses = ref([]);
 
             let dashboardChartInstance = null;
 
@@ -1028,6 +1120,7 @@
             const productPage = ref(1);
             const userPage = ref(1);
             const cashFlowPage = ref(1);
+            const expensePage = ref(1);
 
             const dashboardFromDate = ref('');
             const dashboardToDate = ref('');
@@ -1039,6 +1132,8 @@
             const materialToDate = ref('');
             const cashFlowFromDate = ref('');
             const cashFlowToDate = ref('');
+            const expenseFromDate = ref('');
+            const expenseToDate = ref('');
 
             const dashboardSearch = ref('');
             const searchLedger = ref('');
@@ -1047,24 +1142,37 @@
             const searchProduct = ref('');
             const searchUser = ref('');
             const searchCashFlow = ref('');
+            const searchExpense = ref('');
 
             const cashFlowPeriod = ref('monthly');
             const dashboardPeriod = ref('monthly');
             const dashboardCategory = ref('all');
 
-            // Sorting States
+            // Default all date grids to descending (asc = false)
             const sortWaterKey = ref('soldDate');
-            const sortWaterAsc = ref(true);
+            const sortWaterAsc = ref(false);
             const sortCashFlowKey = ref('entryDate');
-            const sortCashFlowAsc = ref(true);
+            const sortCashFlowAsc = ref(false);
             const sortLedgerKey = ref('saleDate');
-            const sortLedgerAsc = ref(true);
+            const sortLedgerAsc = ref(false);
             const sortMaterialKey = ref('soldDate');
-            const sortMaterialAsc = ref(true);
-            const sortUserKey = ref('username');
+            const sortMaterialAsc = ref(false);
+            const sortUserKey = ref('fullName');
             const sortUserAsc = ref(true);
             const sortDashboardKey = ref('periodLabel');
-            const sortDashboardAsc = ref(true);
+            const sortDashboardAsc = ref(false);
+            const sortExpenseKey = ref('expenseDate');
+            const sortExpenseAsc = ref(false);
+
+            const defaultDate = () => new Date().toISOString().split('T')[0];
+
+            const waterForm = ref({ id: null, soldDate: defaultDate(), totalCansSold: null, cashAmount: null, gpayAmount: null });
+            const materialForm = ref({ id: null, soldDate: defaultDate(), itemName: '', quantity: null, unitPrice: null, cashAmount: null, gpayAmount: null, remarks: '' });
+            const dailySalesForm = ref({ id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' });
+            const productForm = ref({ id: null, itemName: '', quantity: null, sellingPrice: null, description: '' });
+            const userForm = ref({ id: null, fullName: '', phoneNumber: '', passcode: '', role: 'SALES_PERSON', isActive: true });
+            const cashFlowForm = ref({ id: null, entryDate: defaultDate(), transactionType: 'INFLOW', category: '', amount: null, description: '' });
+            const expenseForm = ref({ id: null, expenseDate: defaultDate(), expenseCategory: '', amount: null, paidTo: 'Gpay', notes: '' });
 
             const sortDataBy = (keyRef, ascRef, key) => {
                 if (keyRef.value === key) ascRef.value = !ascRef.value;
@@ -1077,270 +1185,460 @@
             const sortMaterialBy = (k) => sortDataBy(sortMaterialKey, sortMaterialAsc, k);
             const sortUserBy = (k) => sortDataBy(sortUserKey, sortUserAsc, k);
             const toggleDashboardSort = (k) => sortDataBy(sortDashboardKey, sortDashboardAsc, k);
+            const sortExpenseBy = (k) => sortDataBy(sortExpenseKey, sortExpenseAsc, k);
 
-            const defaultDate = () => new Date().toISOString().split('T')[0];
-
-            const dailySalesForm = ref({ id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' });
-            const productForm = ref({ id: null, itemName: '', description: '', quantity: null, sellingPrice: null });
-            const waterForm = ref({ id: null, soldDate: defaultDate(), totalCansSold: null, cashAmount: null, gpayAmount: null });
-            const materialForm = ref({ id: null, soldDate: defaultDate(), itemName: '', quantity: null, unitPrice: null, cashAmount: null, gpayAmount: null, remarks: '' });
-            const userForm = ref({ id: null, username: '', email: '', role: 'STAFF', status: 'ACTIVE' });
-            const cashFlowForm = ref({ id: null, entryDate: defaultDate(), transactionType: 'INFLOW', category: '', amount: null, description: '' });
-
-            const switchTab = (tabId) => {
-                currentTab.value = tabId;
-                if(tabId === 'dashboard') renderDashboardChart();
+            const loadAllData = (url, targetRef, callback) => {
+                fetch(url)
+                    .then(res => {
+                        if (!res.ok) throw new Error('API Error');
+                        return res.json();
+                    })
+                    .then(data => {
+                        targetRef.value = data;
+                        apiOnline.value = true;
+                        if (callback) callback();
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        apiOnline.value = false;
+                    });
             };
 
-            const currentTabTitle = computed(() => tabs.find(t => t.id === currentTab.value)?.name || '');
-            const currentTabIcon = computed(() => tabs.find(t => t.id === currentTab.value)?.icon || '');
-            const currentTabDescription = computed(() => tabs.find(t => t.id === currentTab.value)?.desc || '');
-
-            const totalPages = (data) => Math.ceil((data?.length || 0) / itemsPerPage) || 1;
-            const paginate = (array, page) => array.slice((page - 1) * itemsPerPage, page * itemsPerPage);
-
-            const fetchAPI = async (url, options = {}) => {
-                try {
-                    const response = await fetch(url, { headers: { 'Content-Type': 'application/json', ...options.headers }, ...options });
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    apiOnline.value = true;
-                    const text = await response.text();
-                    return text ? JSON.parse(text) : null;
-                } catch (error) {
-                    console.error(`API Error on ${url}:`, error);
-                    apiOnline.value = false;
-                    throw error;
-                }
-            };
-
-            const loadAllData = async (endpoint, refTarget, fallbackCallback) => {
-                try {
-                    const data = await fetchAPI(endpoint);
-                    if (data) refTarget.value = data;
-                } catch (e) {
-                    // Fallback to empty state safely if offline
-                    refTarget.value = [];
-                }
-                if(fallbackCallback) fallbackCallback();
-            };
-
-            const calculateSummary = () => {
-                let totalIn = cashFlows.value.filter(x => x.transactionType === 'INFLOW').reduce((a, c) => a + (c.amount || 0), 0);
-                let totalOut = cashFlows.value.filter(x => x.transactionType === 'OUTFLOW').reduce((a, c) => a + (c.amount || 0), 0);
-
-                if (totalIn === 0 && (waterSales.value.length > 0 || materialSales.value.length > 0)) {
-                    totalIn = waterSales.value.reduce((a, c) => a + (c.cashAmount || 0) + (c.gpayAmount || 0), 0) +
-                        materialSales.value.reduce((a, c) => a + (c.cashAmount || 0) + (c.gpayAmount || 0), 0);
-                }
-
-                summary.value = { netRevenue: totalIn, netProfit: totalIn - totalOut, totalInflow: totalIn, totalOutflow: totalOut };
-            };
-
-            const loadWaterSales = () => loadAllData('/api/water-sales', waterSales, calculateSummary);
-            const loadMaterialSales = () => loadAllData('/api/material-sales', materialSales, calculateSummary);
             const loadDailySales = () => loadAllData('/api/daily-sales', dailySales, calculateSummary);
             const loadProducts = () => loadAllData('/api/products', products);
+            const loadWaterSales = () => loadAllData('/api/water-sales', waterSales, calculateSummary);
+            const loadMaterialSales = () => loadAllData('/api/material-sales', materialSales, calculateSummary);
             const loadUsers = () => loadAllData('/api/users', users);
             const loadCashFlows = () => loadAllData('/api/cash-flow', cashFlows, calculateSummary);
+            const loadExpenses = () => loadAllData('/api/expenses', expenses, calculateSummary);
 
-            const refreshData = async () => {
-                await Promise.all([loadWaterSales(), loadMaterialSales(), loadDailySales(), loadProducts(), loadUsers(), loadCashFlows()]);
-                if (apiOnline.value) alert("Data successfully refreshed from API.");
-                else alert("Could not reach backend API. Check connection.");
+            const calculateSummary = () => {
+                let totalInflow = 0;
+                let totalOutflow = 0;
+                let netRev = 0;
+
+                cashFlows.value.forEach(cf => {
+                    if (cf.transactionType === 'INFLOW') totalInflow += (cf.amount || 0);
+                    else totalOutflow += (cf.amount || 0);
+                });
+
+                dailySales.value.forEach(ds => {
+                    netRev += (ds.waterCash || 0) + (ds.waterGpay || 0) + (ds.materialCash || 0) + (ds.materialGpay || 0);
+                    totalOutflow += (ds.expenses || 0);
+                });
+
+                expenses.value.forEach(exp => {
+                    totalOutflow += (exp.amount || 0);
+                });
+
+                summary.value = {
+                    netRevenue: netRev,
+                    netProfit: netRev - totalOutflow,
+                    totalInflow: totalInflow > 0 ? totalInflow : netRev,
+                    totalOutflow: totalOutflow
+                };
             };
 
-            const saveGeneric = async (endpoint, formRef, loadListFn) => {
-                const isUpdate = !!formRef.value.id;
-                const method = isUpdate ? 'PUT' : 'POST';
-                const url = isUpdate ? `${endpoint}/${formRef.value.id}` : endpoint;
-                try {
-                    await fetchAPI(url, { method, body: JSON.stringify(formRef.value) });
-                    alert(`Record successfully ${isUpdate ? 'updated' : 'saved'}!`);
-                    clearForms();
-                    await loadListFn();
-                } catch (e) {
-                    alert(`Failed to save record. Offline mode active?`);
-                }
-            };
-
-            const saveWaterSale = () => saveGeneric('/api/water-sales', waterForm, loadWaterSales);
-            const saveMaterialSale = () => saveGeneric('/api/material-sales', materialForm, loadMaterialSales);
-            const saveDailySales = () => saveGeneric('/api/daily-sales', dailySalesForm, loadDailySales);
-            const saveProduct = () => saveGeneric('/api/products', productForm, loadProducts);
-            const saveUser = () => saveGeneric('/api/users', userForm, loadUsers);
-            const saveCashFlow = () => saveGeneric('/api/cash-flow', cashFlowForm, loadCashFlows);
-
-            const deleteItem = async (url, callback) => {
-                if(!confirm("Are you sure you want to delete this record?")) return;
-                try { await fetchAPI(url, { method: 'DELETE' }); alert("Record deleted successfully."); await callback(); }
-                catch(e) { alert("Failed to delete record."); }
-            };
-
-            const clearForms = () => {
-                dailySalesForm.value = { id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' };
-                waterForm.value = { id: null, soldDate: defaultDate(), totalCansSold: null, cashAmount: null, gpayAmount: null };
-                materialForm.value = { id: null, soldDate: defaultDate(), itemName: '', quantity: null, unitPrice: null, cashAmount: null, gpayAmount: null, remarks: '' };
-                productForm.value = { id: null, itemName: '', description: '', quantity: null, sellingPrice: null };
-                userForm.value = { id: null, username: '', email: '', role: 'STAFF', status: 'ACTIVE' };
-                cashFlowForm.value = { id: null, entryDate: defaultDate(), transactionType: 'INFLOW', category: '', amount: null, description: '' };
-            };
-
-            const editItem = (type, item) => {
-                if (type === 'daily-sales') dailySalesForm.value = { ...item };
-                if (type === 'water') waterForm.value = { ...item };
-                if (type === 'material') materialForm.value = { ...item };
-                if (type === 'product') productForm.value = { ...item };
-                if (type === 'user') userForm.value = { ...item };
-                if (type === 'cash-flow') cashFlowForm.value = { ...item };
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            };
-
-            const exportToCSV = (data, filename) => {
-                if(!data || !data.length) return alert("No data available to export.");
-                const headers = Object.keys(data[0]).join(',');
-                const rows = data.map(obj => Object.values(obj).map(val => `"${val}"`).join(',')).join('\n');
-                const blob = new Blob([`${headers}\n${rows}`], { type: 'text/csv' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = filename;
-                link.click();
+            const refreshData = () => {
+                loadDailySales();
+                loadProducts();
+                loadWaterSales();
+                loadMaterialSales();
+                loadUsers();
+                loadCashFlows();
+                loadExpenses();
             };
 
             const triggerSync = () => {
-                alert("Data sync executed successfully!");
-                refreshData();
+                fetch('/api/daily-sales/sync', { method: 'POST' })
+                    .then(res => {
+                        if (res.ok) refreshData();
+                        else alert('Sync failed');
+                    })
+                    .catch(() => alert('Sync error connecting to API'));
             };
 
-            /* Filters & Computed Analytics */
-            const cfAnalytics = computed(() => {
-                let cash = 0, gpay = 0, expenses = 0, water = 0, material = 0;
-                cashFlows.value.forEach(cf => {
-                    if (cf.transactionType === 'INFLOW') {
-                        if (cf.category.toLowerCase().includes('water')) water += cf.amount;
-                        if (cf.category.toLowerCase().includes('material')) material += cf.amount;
-                        cash += cf.amount;
-                    } else expenses += cf.amount;
+            const saveGeneric = (url, formRef, reloadCallback) => {
+                const method = formRef.value.id ? 'PUT' : 'POST';
+                const endpoint = formRef.value.id ? `${url}/${formRef.value.id}` : url;
+                fetch(endpoint, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formRef.value)
+                })
+                    .then(res => {
+                        if (res.ok) {
+                            clearForms();
+                            reloadCallback();
+                        } else {
+                            alert('Operation failed');
+                        }
+                    })
+                    .catch(() => alert('Network error'));
+            };
+
+            const saveWaterSale = () => saveGeneric('/api/water-sales', waterForm, () => { loadWaterSales(); loadDailySales(); });
+            const saveMaterialSale = () => saveGeneric('/api/material-sales', materialForm, () => { loadMaterialSales(); loadDailySales(); });
+            const saveDailySales = () => saveGeneric('/api/daily-sales', dailySalesForm, loadDailySales);
+            const saveProduct = () => saveGeneric('/api/products', productForm, loadProducts);
+
+            const saveUser = () => {
+                if (!userForm.value.fullName || userForm.value.fullName.trim() === '') {
+                    userForm.value.fullName = 'Vinoth';
+                }
+                saveGeneric('/api/users', userForm, loadUsers);
+            };
+
+            const saveCashFlow = () => saveGeneric('/api/cash-flow', cashFlowForm, loadCashFlows);
+            const saveExpense = () => saveGeneric('/api/expenses', expenseForm, loadExpenses);
+
+            const deleteItem = (url, reloadCallback) => {
+                if (confirm('Are you sure you want to delete this record?')) {
+                    fetch(url, { method: 'DELETE' })
+                        .then(res => {
+                            if (res.ok) reloadCallback();
+                            else alert('Delete failed');
+                        })
+                        .catch(() => alert('Network error'));
+                }
+            };
+
+            const editItem = (type, item) => {
+                if (type === 'water') waterForm.value = { ...item };
+                else if (type === 'material') materialForm.value = { ...item };
+                else if (type === 'daily-sales') dailySalesForm.value = { ...item };
+                else if (type === 'product') productForm.value = { ...item };
+                else if (type === 'user') userForm.value = { ...item };
+                else if (type === 'cash-flow') cashFlowForm.value = { ...item };
+                else if (type === 'expenses') expenseForm.value = { ...item };
+            };
+
+            const clearForms = () => {
+                waterForm.value = { id: null, soldDate: defaultDate(), totalCansSold: null, cashAmount: null, gpayAmount: null };
+                materialForm.value = { id: null, soldDate: defaultDate(), itemName: '', quantity: null, unitPrice: null, cashAmount: null, gpayAmount: null, remarks: '' };
+                dailySalesForm.value = { id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' };
+                productForm.value = { id: null, itemName: '', quantity: null, sellingPrice: null, description: '' };
+                userForm.value = { id: null, fullName: '', phoneNumber: '', passcode: '', role: 'SALES_PERSON', isActive: true };
+                cashFlowForm.value = { id: null, entryDate: defaultDate(), transactionType: 'INFLOW', category: '', amount: null, description: '' };
+                expenseForm.value = { id: null, expenseDate: defaultDate(), expenseCategory: '', amount: null, paymentMethod: 'Cash', remarks: '' };
+            };
+
+            const totalPages = (arr) => Math.ceil(arr.length / itemsPerPage) || 1;
+
+            const getPaginationText = (arr, pageRef) => {
+                const total = arr.length;
+                if (!total || total === 0) return "Showing 0 to 0 of 0 records";
+                const current = pageRef.value || 1;
+                const start = (current - 1) * itemsPerPage + 1;
+                const end = Math.min(current * itemsPerPage, total);
+                return `Showing ${start} to ${end} of ${total} records`;
+            };
+
+            const filterByDateAndSearch = (arr, dateField, fromDate, toDate, searchStr) => {
+                return arr.filter(item => {
+                    const d = item[dateField];
+                    if (fromDate && d < fromDate) return false;
+                    if (toDate && d > toDate) return false;
+                    if (searchStr) {
+                        const query = searchStr.toLowerCase();
+                        const matches = Object.values(item).some(val => String(val).toLowerCase().includes(query));
+                        if (!matches) return false;
+                    }
+                    return true;
                 });
-                waterSales.value.forEach(ws => { water += (ws.cashAmount||0) + (ws.gpayAmount||0); cash += ws.cashAmount||0; gpay += ws.gpayAmount||0; });
-                materialSales.value.forEach(ms => { material += (ms.cashAmount||0) + (ms.gpayAmount||0); cash += ms.cashAmount||0; gpay += ms.gpayAmount||0; });
-                dailySales.value.forEach(ds => { expenses += ds.expenses||0; });
+            };
 
-                const totalIn = cash + gpay;
-                return { totalCash: cash, totalGpay: gpay, cashPct: totalIn ? (cash / totalIn) * 100 : 0, gpayPct: totalIn ? (gpay / totalIn) * 100 : 0, waterTotal: water, materialTotal: material, totalExpenses: expenses };
+            const sortList = (arr, keyRef, ascRef) => {
+                return [...arr].sort((a, b) => {
+                    let valA = a[keyRef.value];
+                    let valB = b[keyRef.value];
+                    if (valA === undefined) valA = '';
+                    if (valB === undefined) valB = '';
+                    if (typeof valA === 'string') {
+                        valA = valA.toLowerCase();
+                        valB = valB.toLowerCase();
+                    }
+                    if (valA < valB) return ascRef.value ? -1 : 1;
+                    if (valA > valB) return ascRef.value ? 1 : -1;
+                    return 0;
+                });
+            };
+
+            const paginate = (arr, pageRef) => {
+                const start = (pageRef.value - 1) * itemsPerPage;
+                return arr.slice(start, start + itemsPerPage);
+            };
+
+            const filteredCashFlows = computed(() => {
+                let res = filterByDateAndSearch(cashFlows.value, 'entryDate', cashFlowFromDate.value, cashFlowToDate.value, searchCashFlow.value);
+                return sortList(res, sortCashFlowKey, sortCashFlowAsc);
+            });
+            const paginatedCashFlows = computed(() => paginate(filteredCashFlows.value, cashFlowPage));
+
+            const filteredDailySales = computed(() => {
+                let res = filterByDateAndSearch(dailySales.value, 'saleDate', ledgerFromDate.value, ledgerToDate.value, searchLedger.value);
+                return sortList(res, sortLedgerKey, sortLedgerAsc);
+            });
+            const paginatedDailySales = computed(() => paginate(filteredDailySales.value, ledgerPage));
+
+            const filteredWaterSales = computed(() => {
+                let res = filterByDateAndSearch(waterSales.value, 'soldDate', waterFromDate.value, waterToDate.value, searchWater.value);
+                return sortList(res, sortWaterKey, sortWaterAsc);
+            });
+            const paginatedWaterSales = computed(() => paginate(filteredWaterSales.value, waterPage));
+
+            const filteredMaterialSales = computed(() => {
+                let res = filterByDateAndSearch(materialSales.value, 'soldDate', materialFromDate.value, materialToDate.value, searchMaterial.value);
+                return sortList(res, sortMaterialKey, sortMaterialAsc);
+            });
+            const paginatedMaterialSales = computed(() => paginate(filteredMaterialSales.value, materialPage));
+
+            const filteredExpenses = computed(() => {
+                let res = filterByDateAndSearch(expenses.value, 'expenseDate', expenseFromDate.value, expenseToDate.value, searchExpense.value);
+                return sortList(res, sortExpenseKey, sortExpenseAsc);
+            });
+            const paginatedExpenses = computed(() => paginate(filteredExpenses.value, expensePage));
+
+            const filteredProducts = computed(() => {
+                return products.value.filter(p => {
+                    if (searchProduct.value && !String(p.itemName).toLowerCase().includes(searchProduct.value.toLowerCase()) && !String(p.description || '').toLowerCase().includes(searchProduct.value.toLowerCase())) return false;
+                    return true;
+                });
+            });
+            const paginatedProducts = computed(() => paginate(filteredProducts.value, productPage));
+
+            const filteredUsers = computed(() => {
+                let res = users.value.filter(u => {
+                    if (searchUser.value &&
+                        !String(u.fullName || '').toLowerCase().includes(searchUser.value.toLowerCase()) &&
+                        !String(u.phoneNumber || '').toLowerCase().includes(searchUser.value.toLowerCase()) &&
+                        !String(u.role || '').toLowerCase().includes(searchUser.value.toLowerCase())) {
+                        return false;
+                    }
+                    return true;
+                });
+                return sortList(res, sortUserKey, sortUserAsc);
+            });
+            const paginatedUsers = computed(() => paginate(filteredUsers.value, userPage));
+
+            const cfAnalytics = computed(() => {
+                let totalCash = 0;
+                let totalGpay = 0;
+                let waterTotal = 0;
+                let materialTotal = 0;
+                let totalExpenses = 0;
+
+                waterSales.value.forEach(w => {
+                    totalCash += (w.cashAmount || 0);
+                    totalGpay += (w.gpayAmount || 0);
+                    waterTotal += (w.cashAmount || 0) + (w.gpayAmount || 0);
+                });
+
+                materialSales.value.forEach(m => {
+                    totalCash += (m.cashAmount || 0);
+                    totalGpay += (m.gpayAmount || 0);
+                    materialTotal += (m.cashAmount || 0) + (m.gpayAmount || 0);
+                });
+
+                expenses.value.forEach(e => {
+                    totalExpenses += (e.amount || 0);
+                });
+
+                const totalRev = totalCash + totalGpay;
+                const cashPct = totalRev > 0 ? Math.round((totalCash / totalRev) * 100) : 0;
+                const gpayPct = totalRev > 0 ? Math.round((totalGpay / totalRev) * 100) : 0;
+
+                return { totalCash, totalGpay, waterTotal, materialTotal, totalExpenses, cashPct, gpayPct };
             });
 
-            // Filtering Helpers
-            const dateMatch = (itemDate, from, to) => (!from || itemDate >= from) && (!to || itemDate <= to);
+            const filteredDashboardGridData = computed(() => {
+                let dataMap = {};
 
-            const filteredWaterSales = computed(() => waterSales.value.filter(w => dateMatch(w.soldDate, waterFromDate.value, waterToDate.value))
-                .sort((a, b) => sortWaterAsc.value ? (a[sortWaterKey.value] > b[sortWaterKey.value] ? 1 : -1) : (a[sortWaterKey.value] < b[sortWaterKey.value] ? 1 : -1)));
-            const paginatedWaterSales = computed(() => paginate(filteredWaterSales.value, waterPage.value));
-
-            const filteredMaterialSales = computed(() => materialSales.value.filter(m => dateMatch(m.soldDate, materialFromDate.value, materialToDate.value) && (!searchMaterial.value || m.itemName?.toLowerCase().includes(searchMaterial.value.toLowerCase())))
-                .sort((a, b) => sortMaterialAsc.value ? (a[sortMaterialKey.value] > b[sortMaterialKey.value] ? 1 : -1) : (a[sortMaterialKey.value] < b[sortMaterialKey.value] ? 1 : -1)));
-            const paginatedMaterialSales = computed(() => paginate(filteredMaterialSales.value, materialPage.value));
-
-            const filteredDailySales = computed(() => dailySales.value.filter(d => dateMatch(d.saleDate, ledgerFromDate.value, ledgerToDate.value) && (!searchLedger.value || d.remarks?.toLowerCase().includes(searchLedger.value.toLowerCase())))
-                .sort((a, b) => sortLedgerAsc.value ? (a[sortLedgerKey.value] > b[sortLedgerKey.value] ? 1 : -1) : (a[sortLedgerKey.value] < b[sortLedgerKey.value] ? 1 : -1)));
-            const paginatedDailySales = computed(() => paginate(filteredDailySales.value, ledgerPage.value));
-
-            const filteredCashFlows = computed(() => cashFlows.value.filter(c => dateMatch(c.entryDate, cashFlowFromDate.value, cashFlowToDate.value) && (!searchCashFlow.value || c.category?.toLowerCase().includes(searchCashFlow.value.toLowerCase()) || c.description?.toLowerCase().includes(searchCashFlow.value.toLowerCase())))
-                .sort((a, b) => sortCashFlowAsc.value ? (a[sortCashFlowKey.value] > b[sortCashFlowKey.value] ? 1 : -1) : (a[sortCashFlowKey.value] < b[sortCashFlowKey.value] ? 1 : -1)));
-            const paginatedCashFlows = computed(() => paginate(filteredCashFlows.value, cashFlowPage.value));
-
-            const filteredProducts = computed(() => products.value.filter(p => !searchProduct.value || p.itemName?.toLowerCase().includes(searchProduct.value.toLowerCase())));
-            const paginatedProducts = computed(() => paginate(filteredProducts.value, productPage.value));
-
-            const filteredUsers = computed(() => users.value.filter(u => !searchUser.value || u.username?.toLowerCase().includes(searchUser.value.toLowerCase()) || u.email?.toLowerCase().includes(searchUser.value.toLowerCase()))
-                .sort((a, b) => sortUserAsc.value ? (a[sortUserKey.value] > b[sortUserKey.value] ? 1 : -1) : (a[sortUserKey.value] < b[sortUserKey.value] ? 1 : -1)));
-            const paginatedUsers = computed(() => paginate(filteredUsers.value, userPage.value));
-
-            /* Dashboard Chart Aggregation */
-            const dashboardGridData = computed(() => {
-                const aggregated = {};
-                if(dashboardCategory.value === 'all' || dashboardCategory.value === 'water') {
+                if (dashboardCategory.value === 'all' || dashboardCategory.value === 'water') {
                     waterSales.value.forEach(w => {
-                        if(!aggregated[w.soldDate]) aggregated[w.soldDate] = { periodLabel: w.soldDate, categoryName: 'Water', totalQty: 0, totalRevenue: 0 };
-                        aggregated[w.soldDate].totalQty += w.totalCansSold || 0;
-                        aggregated[w.soldDate].totalRevenue += (w.cashAmount || 0) + (w.gpayAmount || 0);
+                        let dateStr = w.soldDate || '';
+                        if (!dateStr) return;
+                        if (dashboardFromDate.value && dateStr < dashboardFromDate.value) return;
+                        if (dashboardToDate.value && dateStr > dashboardToDate.value) return;
+
+                        let periodLabel = dateStr;
+                        if (dashboardPeriod.value === 'weekly') {
+                            periodLabel = dateStr.substring(0, 7) + ' (W)';
+                        } else if (dashboardPeriod.value === 'monthly') {
+                            periodLabel = dateStr.substring(0, 7);
+                        }
+
+                        let key = periodLabel + '_water';
+                        if (!dataMap[key]) {
+                            dataMap[key] = { key: periodLabel, periodLabel, categoryName: 'Water', totalQty: 0, totalRevenue: 0 };
+                        }
+                        dataMap[key].totalQty += (w.totalCansSold || 0);
+                        dataMap[key].totalRevenue += (w.cashAmount || 0) + (w.gpayAmount || 0);
                     });
                 }
-                if(dashboardCategory.value === 'all' || dashboardCategory.value === 'material') {
+
+                if (dashboardCategory.value === 'all' || dashboardCategory.value === 'material') {
                     materialSales.value.forEach(m => {
-                        const key = dashboardCategory.value === 'all' ? m.soldDate + '_m' : m.soldDate;
-                        if(!aggregated[key]) aggregated[key] = { periodLabel: m.soldDate, categoryName: 'Material', totalQty: 0, totalRevenue: 0 };
-                        aggregated[key].totalQty += m.quantity || 0;
-                        aggregated[key].totalRevenue += (m.cashAmount || 0) + (m.gpayAmount || 0);
+                        let dateStr = m.soldDate || '';
+                        if (!dateStr) return;
+                        if (dashboardFromDate.value && dateStr < dashboardFromDate.value) return;
+                        if (dashboardToDate.value && dateStr > dashboardToDate.value) return;
+
+                        let periodLabel = dateStr;
+                        if (dashboardPeriod.value === 'weekly') {
+                            periodLabel = dateStr.substring(0, 7) + ' (W)';
+                        } else if (dashboardPeriod.value === 'monthly') {
+                            periodLabel = dateStr.substring(0, 7);
+                        }
+
+                        let key = periodLabel + '_' + (m.itemName || 'material');
+                        if (dashboardCategory.value !== 'all') {
+                            key = periodLabel + '_material';
+                        }
+                        if (!dataMap[key]) {
+                            dataMap[key] = { key: periodLabel, periodLabel, categoryName: dashboardCategory.value === 'all' ? (m.itemName || 'Material') : 'Material', totalQty: 0, totalRevenue: 0 };
+                        }
+                        dataMap[key].totalQty += (m.quantity || 0);
+                        dataMap[key].totalRevenue += (m.cashAmount || 0) + (m.gpayAmount || 0);
                     });
                 }
-                return Object.values(aggregated);
+
+                let resultArr = Object.values(dataMap);
+                if (dashboardSearch.value) {
+                    const q = dashboardSearch.value.toLowerCase();
+                    resultArr = resultArr.filter(r => r.periodLabel.toLowerCase().includes(q) || r.categoryName.toLowerCase().includes(q));
+                }
+
+                return sortList(resultArr, sortDashboardKey, sortDashboardAsc);
             });
 
-            const filteredDashboardGridData = computed(() => dashboardGridData.value.filter(d => dateMatch(d.periodLabel, dashboardFromDate.value, dashboardToDate.value))
-                .sort((a, b) => sortDashboardAsc.value ? (a[sortDashboardKey.value] > b[sortDashboardKey.value] ? 1 : -1) : (a[sortDashboardKey.value] < b[sortDashboardKey.value] ? 1 : -1)));
-            const paginatedDashboardGridData = computed(() => paginate(filteredDashboardGridData.value, dashboardPage.value));
+            const paginatedDashboardGridData = computed(() => paginate(filteredDashboardGridData.value, dashboardPage));
 
             const renderDashboardChart = () => {
-                if(currentTab.value !== 'dashboard') return;
                 nextTick(() => {
                     const ctx = document.getElementById('salesDashboardChart');
-                    if(!ctx) return;
-                    if(dashboardChartInstance) dashboardChartInstance.destroy();
+                    if (!ctx) return;
+                    if (dashboardChartInstance) dashboardChartInstance.destroy();
 
-                    // Group by date for chart specifically
-                    const chartDataMap = {};
-                    filteredDashboardGridData.value.forEach(d => {
-                        chartDataMap[d.periodLabel] = (chartDataMap[d.periodLabel] || 0) + d.totalRevenue;
+                    let chartLabels = [];
+                    let mapByPeriod = {};
+
+                    filteredDashboardGridData.value.forEach(row => {
+                        if (!mapByPeriod[row.periodLabel]) {
+                            mapByPeriod[row.periodLabel] = { water: 0, material: 0 };
+                        }
+                        if (row.categoryName === 'Water' || dashboardCategory.value === 'water') {
+                            mapByPeriod[row.periodLabel].water += row.totalRevenue;
+                        } else {
+                            mapByPeriod[row.periodLabel].material += row.totalRevenue;
+                        }
                     });
-                    const labels = Object.keys(chartDataMap).sort();
-                    const revenues = labels.map(l => chartDataMap[l]);
+
+                    chartLabels = Object.keys(mapByPeriod).sort();
+                    let chartWaterData = chartLabels.map(l => mapByPeriod[l].water);
+                    let chartMaterialData = chartLabels.map(l => mapByPeriod[l].material);
 
                     dashboardChartInstance = new Chart(ctx, {
-                        type: 'line',
+                        type: 'bar',
                         data: {
-                            labels: labels.length ? labels : ['No Records'],
-                            datasets: [{
-                                label: 'Net Revenue (₹)',
-                                data: revenues.length ? revenues : [0],
-                                borderColor: '#0891b2',
-                                backgroundColor: 'rgba(8, 145, 178, 0.15)',
-                                fill: true,
-                                tension: 0.3,
-                                pointBackgroundColor: '#0891b2'
-                            }]
+                            labels: chartLabels,
+                            datasets: [
+                                {
+                                    label: 'Water Revenue (₹)',
+                                    data: chartWaterData,
+                                    backgroundColor: 'rgba(8, 145, 178, 0.8)',
+                                    borderRadius: 8
+                                },
+                                {
+                                    label: 'Material Revenue (₹)',
+                                    data: chartMaterialData,
+                                    backgroundColor: 'rgba(245, 158, 11, 0.8)',
+                                    borderRadius: 8
+                                }
+                            ]
                         },
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
-                            plugins: { legend: { display: true } },
-                            scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
+                            plugins: {
+                                legend: { position: 'top' }
+                            },
+                            scales: {
+                                y: { beginAtZero: true, grid: { color: 'rgba(226, 232, 240, 0.6)' } },
+                                x: { grid: { display: false } }
+                            }
                         }
                     });
                 });
             };
 
-            watch([currentTab, waterSales, materialSales, dashboardCategory, dashboardPeriod, dashboardFromDate, dashboardToDate], renderDashboardChart, { deep: true });
+            watch([filteredDashboardGridData, currentTab], () => {
+                if (currentTab.value === 'dashboard') {
+                    renderDashboardChart();
+                }
+            });
 
-            onMounted(() => { refreshData(); renderDashboardChart(); });
+            const switchTab = (tabId) => {
+                currentTab.value = tabId;
+            };
+
+            const currentTabTitle = computed(() => {
+                const t = tabs.find(x => x.id === currentTab.value);
+                return t ? t.name : '';
+            });
+
+            const currentTabDescription = computed(() => {
+                const t = tabs.find(x => x.id === currentTab.value);
+                return t ? t.desc : '';
+            });
+
+            const currentTabIcon = computed(() => {
+                const t = tabs.find(x => x.id === currentTab.value);
+                return t ? t.icon : '';
+            });
+
+            const exportToCSV = (arr, filename) => {
+                if (!arr.length) {
+                    alert('No data available to export.');
+                    return;
+                }
+                let keys = Object.keys(arr[0]).filter(k => typeof arr[0][k] !== 'object');
+                let csvContent = "data:text/csv;charset=utf-8," + [
+                    keys.join(','),
+                    ...arr.map(row => keys.map(k => `"${row[k] !== undefined ? row[k] : ''}"`).join(','))
+                ].join('\n');
+
+                let encodedUri = encodeURI(csvContent);
+                let link = document.createElement('a');
+                link.setAttribute('href', encodedUri);
+                link.setAttribute('download', filename);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+
+            onMounted(() => {
+                refreshData();
+            });
 
             return {
-                currentTab, isSidebarOpen, apiOnline, tabs, switchTab, currentTabTitle, currentTabIcon, currentTabDescription,
-                summary, cfAnalytics, products,
-                dashboardPage, ledgerPage, waterPage, materialPage, productPage, userPage, cashFlowPage, itemsPerPage, totalPages,
-                dashboardFromDate, dashboardToDate, ledgerFromDate, ledgerToDate, waterFromDate, waterToDate, materialFromDate, materialToDate, cashFlowFromDate, cashFlowToDate,
-                dashboardSearch, searchLedger, searchWater, searchMaterial, searchProduct, searchUser, searchCashFlow,
-                dashboardCategory, dashboardPeriod, cashFlowPeriod,
-                dailySalesForm, productForm, waterForm, materialForm, userForm, cashFlowForm,
-                saveDailySales, saveProduct, saveWaterSale, saveMaterialSale, saveUser, saveCashFlow, clearForms, editItem, deleteItem,
-                refreshData, exportToCSV, triggerSync,
-                filteredDashboardGridData, paginatedDashboardGridData, toggleDashboardSort,
-                filteredCashFlows, paginatedCashFlows, sortCashFlowBy,
-                filteredDailySales, paginatedDailySales, sortLedgerBy,
-                filteredWaterSales, paginatedWaterSales, sortWaterBy,
-                filteredMaterialSales, paginatedMaterialSales, sortMaterialBy,
-                filteredProducts, paginatedProducts,
-                filteredUsers, paginatedUsers, sortUserBy,
-                loadCashFlows, loadDailySales, loadWaterSales, loadMaterialSales, loadProducts, loadUsers
+                currentTab, isSidebarOpen, apiOnline, tabs, summary,
+                dailySales, products, waterSales, materialSales, users, cashFlows, expenses,
+                dashboardPage, ledgerPage, waterPage, materialPage, productPage, userPage, cashFlowPage, expensePage,
+                dashboardFromDate, dashboardToDate, ledgerFromDate, ledgerToDate, waterFromDate, waterToDate,
+                materialFromDate, materialToDate, cashFlowFromDate, cashFlowToDate, expenseFromDate, expenseToDate,
+                dashboardSearch, searchLedger, searchWater, searchMaterial, searchProduct, searchUser, searchCashFlow, searchExpense,
+                cashFlowPeriod, dashboardPeriod, dashboardCategory,
+                waterForm, materialForm, dailySalesForm, productForm, userForm, cashFlowForm, expenseForm,
+                sortWaterBy, sortCashFlowBy, sortLedgerBy, sortMaterialBy, sortUserBy, toggleDashboardSort, sortExpenseBy,
+                loadDailySales, loadProducts, loadWaterSales, loadMaterialSales, loadUsers, loadCashFlows, loadExpenses,
+                refreshData, triggerSync, saveWaterSale, saveMaterialSale, saveDailySales, saveProduct, saveUser, saveCashFlow, saveExpense,
+                deleteItem, editItem, clearForms, totalPages, getPaginationText,
+                filteredCashFlows, paginatedCashFlows, filteredDailySales, paginatedDailySales,
+                filteredWaterSales, paginatedWaterSales, filteredMaterialSales, paginatedMaterialSales,
+                filteredExpenses, paginatedExpenses, filteredProducts, paginatedProducts, filteredUsers, paginatedUsers,
+                cfAnalytics, filteredDashboardGridData, paginatedDashboardGridData,
+                switchTab, currentTabTitle, currentTabDescription, currentTabIcon, exportToCSV
             };
         }
     }).mount('#app');
