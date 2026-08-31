@@ -44,6 +44,9 @@ public class MadhanTradersService {
     // --- PRODUCT INVENTORY ---
     public List<Product> getAllProducts() { return productRepository.findAll(); }
     public Product saveProduct(Product product) { return productRepository.save(product); }
+    public Product getProduct(String name){
+        return productRepository.findByItemName(name);
+    }
     public void deleteProduct(Long id) { productRepository.deleteById(id); }
 
     // --- WATER SALES ---
@@ -68,10 +71,20 @@ public class MadhanTradersService {
                 entry.setTotalAmount(entry.getGpayAmount());
             } else if(entry.getTotalAmount() == null && entry.getCashAmount() != null) {
                 entry.setTotalAmount(entry.getCashAmount());
+            } else {
+              entry.setTotalAmount(entry.getTotalAmount());
             }
-            if(entry.getProfit() == null)
-                entry.setProfit(Double.valueOf("0"));
-            entry.setUnitPrice(entry.getTotalAmount()/entry.getQuantity());
+            if(entry.getItemName() != null) {
+                Product product = getProduct(entry.getItemName() != null ? entry.getItemName().trim(): "");
+                if(product != null && product.getUnitCost() != null) {
+                    entry.setProfit(entry.getTotalAmount() - (product.getUnitCost() * entry.getQuantity()));
+                } else {
+                    entry.setProfit(Double.valueOf("0"));
+                }
+
+            }
+            if(entry.getTotalAmount() != null && entry.getQuantity() != null)
+                entry.setUnitPrice(entry.getTotalAmount()/entry.getQuantity());
             return materialSalesRepository.save(entry);
         }
         catch (Exception ex ){
