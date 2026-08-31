@@ -1149,7 +1149,6 @@
             const dashboardPeriod = ref('monthly');
             const dashboardCategory = ref('all');
 
-            // Default all date grids to descending (asc = false)
             const sortWaterKey = ref('soldDate');
             const sortWaterAsc = ref(false);
             const sortCashFlowKey = ref('entryDate');
@@ -1169,477 +1168,607 @@
 
             const waterForm = ref({ id: null, soldDate: defaultDate(), totalCansSold: null, cashAmount: null, gpayAmount: null });
             const materialForm = ref({ id: null, soldDate: defaultDate(), itemName: '', quantity: null, unitPrice: null, cashAmount: null, gpayAmount: null, remarks: '' });
-            const dailySalesForm = ref({ id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' });
-            const productForm = ref({ id: null, itemName: '', quantity: null, sellingPrice: null, description: '' });
-            const userForm = ref({ id: null, fullName: '', phoneNumber: '', passcode: '', role: 'SALES_PERSON', isActive: true });
             const cashFlowForm = ref({ id: null, entryDate: defaultDate(), transactionType: 'INFLOW', category: '', amount: null, description: '' });
-            const expenseForm = ref({ id: null, expenseDate: defaultDate(), expenseCategory: '', amount: null, paidTo: 'Gpay', notes: '' });
+            const dailySalesForm = ref({ id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' });
+            const expenseForm = ref({ id: null, expenseDate: defaultDate(), expenseCategory: '', amount: null, paidTo: 'Cash', notes: '' });
+            const productForm = ref({ id: null, itemName: '', quantity: null, sellingPrice: null, description: '' });
+            const userForm = ref({ id: null, fullName: '', phoneNumber: '', passcode: '', role: 'ADMIN', isActive: true });
 
-            const sortDataBy = (keyRef, ascRef, key) => {
-                if (keyRef.value === key) ascRef.value = !ascRef.value;
-                else { keyRef.value = key; ascRef.value = true; }
+            const currentTabItem = computed(() => tabs.find(t => t.id === currentTab.value) || tabs[0]);
+            const currentTabTitle = computed(() => currentTabItem.value.name);
+            const currentTabIcon = computed(() => currentTabItem.value.icon);
+            const currentTabDescription = computed(() => currentTabItem.value.desc);
+
+            const switchTab = (tabId) => {
+                currentTab.value = tabId;
+                if (tabId === 'dashboard') {
+                    nextTick(() => renderChart());
+                }
             };
 
-            const sortWaterBy = (k) => sortDataBy(sortWaterKey, sortWaterAsc, k);
-            const sortCashFlowBy = (k) => sortDataBy(sortCashFlowKey, sortCashFlowAsc, k);
-            const sortLedgerBy = (k) => sortDataBy(sortLedgerKey, sortLedgerAsc, k);
-            const sortMaterialBy = (k) => sortDataBy(sortMaterialKey, sortMaterialAsc, k);
-            const sortUserBy = (k) => sortDataBy(sortUserKey, sortUserAsc, k);
-            const toggleDashboardSort = (k) => sortDataBy(sortDashboardKey, sortDashboardAsc, k);
-            const sortExpenseBy = (k) => sortDataBy(sortExpenseKey, sortExpenseAsc, k);
-
-            const loadAllData = (url, targetRef, callback) => {
-                fetch(url)
-                    .then(res => {
-                        if (!res.ok) throw new Error('API Error');
-                        return res.json();
-                    })
-                    .then(data => {
-                        targetRef.value = data;
-                        apiOnline.value = true;
-                        if (callback) callback();
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        apiOnline.value = false;
-                    });
+            const applyFilter = (list, dateKey, fromDate, toDate, searchText) => {
+                return list.filter(item => {
+                    if (fromDate.value && item[dateKey] < fromDate.value) return false;
+                    if (toDate.value && item[dateKey] > toDate.value) return false;
+                    if (searchText.value) {
+                        const q = searchText.value.toLowerCase();
+                        return Object.values(item).some(val => val != null && String(val).toLowerCase().includes(q));
+                    }
+                    return true;
+                });
             };
 
-            const loadDailySales = () => loadAllData('/api/daily-sales', dailySales, calculateSummary);
-            const loadProducts = () => loadAllData('/api/products', products);
-            const loadWaterSales = () => loadAllData('/api/water-sales', waterSales, calculateSummary);
-            const loadMaterialSales = () => loadAllData('/api/material-sales', materialSales, calculateSummary);
-            const loadUsers = () => loadAllData('/api/users', users);
-            const loadCashFlows = () => loadAllData('/api/cash-flow', cashFlows, calculateSummary);
-            const loadExpenses = () => loadAllData('/api/expenses', expenses, calculateSummary);
-
-            const calculateSummary = () => {
-                let totalInflow = 0;
-                let totalOutflow = 0;
-                let netRev = 0;
-
-                cashFlows.value.forEach(cf => {
-                    if (cf.transactionType === 'INFLOW') totalInflow += (cf.amount || 0);
-                    else totalOutflow += (cf.amount || 0);
+            const sortList = (list, key, asc) => {
+                return [...list].sort((a, b) => {
+                    let valA = a[key] ?? '';
+                    let valB = b[key] ?? '';
+                    if (typeof valA === 'string') valA = valA.toLowerCase();
+                    if (typeof valB === 'string') valB = valB.toLowerCase();
+                    if (valA < valB) return asc ? -1 : 1;
+                    if (valA > valB) return asc ? 1 : -1;
+                    return 0;
                 });
+            };
 
-                dailySales.value.forEach(ds => {
-                    netRev += (ds.waterCash || 0) + (ds.waterGpay || 0) + (ds.materialCash || 0) + (ds.materialGpay || 0);
-                    totalOutflow += (ds.expenses || 0);
-                });
+            const filteredWaterSales = computed(() => sortList(applyFilter(waterSales.value, 'soldDate', waterFromDate, waterToDate, searchWater), sortWaterKey.value, sortWaterAsc.value));
+            const paginatedWaterSales = computed(() => filteredWaterSales.value.slice((waterPage.value - 1) * itemsPerPage, waterPage.value * itemsPerPage));
 
-                expenses.value.forEach(exp => {
-                    totalOutflow += (exp.amount || 0);
+            const filteredMaterialSales = computed(() => sortList(applyFilter(materialSales.value, 'soldDate', materialFromDate, materialToDate, searchMaterial), sortMaterialKey.value, sortMaterialAsc.value));
+            const paginatedMaterialSales = computed(() => filteredMaterialSales.value.slice((materialPage.value - 1) * itemsPerPage, materialPage.value * itemsPerPage));
+
+            const filteredCashFlows = computed(() => sortList(applyFilter(cashFlows.value, 'entryDate', cashFlowFromDate, cashFlowToDate, searchCashFlow), sortCashFlowKey.value, sortCashFlowAsc.value));
+            const paginatedCashFlows = computed(() => filteredCashFlows.value.slice((cashFlowPage.value - 1) * itemsPerPage, cashFlowPage.value * itemsPerPage));
+
+            const filteredDailySales = computed(() => sortList(applyFilter(dailySales.value, 'saleDate', ledgerFromDate, ledgerToDate, searchLedger), sortLedgerKey.value, sortLedgerAsc.value));
+            const paginatedDailySales = computed(() => filteredDailySales.value.slice((ledgerPage.value - 1) * itemsPerPage, ledgerPage.value * itemsPerPage));
+
+            const filteredExpenses = computed(() => sortList(applyFilter(expenses.value, 'expenseDate', expenseFromDate, expenseToDate, searchExpense), sortExpenseKey.value, sortExpenseAsc.value));
+            const paginatedExpenses = computed(() => filteredExpenses.value.slice((expensePage.value - 1) * itemsPerPage, expensePage.value * itemsPerPage));
+
+            const filteredProducts = computed(() => {
+                const list = products.value.filter(p => {
+                    if (!searchProduct.value) return true;
+                    const q = searchProduct.value.toLowerCase();
+                    return p.itemName?.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q);
                 });
+                return sortList(list, 'itemName', true);
+            });
+            const paginatedProducts = computed(() => filteredProducts.value.slice((productPage.value - 1) * itemsPerPage, productPage.value * itemsPerPage));
+
+            const filteredUsers = computed(() => {
+                const list = users.value.filter(u => {
+                    if (!searchUser.value) return true;
+                    const q = searchUser.value.toLowerCase();
+                    return u.fullName?.toLowerCase().includes(q) || u.phoneNumber?.includes(q) || u.role?.toLowerCase().includes(q);
+                });
+                return sortList(list, sortUserKey.value, sortUserAsc.value);
+            });
+            const paginatedUsers = computed(() => filteredUsers.value.slice((userPage.value - 1) * itemsPerPage, userPage.value * itemsPerPage));
+
+            const cfAnalytics = computed(() => {
+                let totalCash = 0, totalGpay = 0, waterTotal = 0, materialTotal = 0, totalExpenses = 0;
+                waterSales.value.forEach(w => {
+                    totalCash += w.cashAmount || 0;
+                    totalGpay += w.gpayAmount || 0;
+                    waterTotal += (w.cashAmount || 0) + (w.gpayAmount || 0);
+                });
+                materialSales.value.forEach(m => {
+                    totalCash += m.cashAmount || 0;
+                    totalGpay += m.gpayAmount || 0;
+                    materialTotal += (m.cashAmount || 0) + (m.gpayAmount || 0);
+                });
+                expenses.value.forEach(e => {
+                    totalExpenses += e.amount || 0;
+                });
+                const grandTotal = totalCash + totalGpay;
+                return {
+                    totalCash,
+                    cashPct: grandTotal > 0 ? Math.round((totalCash / grandTotal) * 100) : 0,
+                    totalGpay,
+                    gpayPct: grandTotal > 0 ? Math.round((totalGpay / grandTotal) * 100) : 0,
+                    waterTotal,
+                    materialTotal,
+                    totalExpenses
+                };
+            });
+
+            const rawDashboardGridData = computed(() => {
+                const map = {};
+                const addEntry = (dateStr, category, qty, revenue) => {
+                    let periodKey = dateStr || 'N/A';
+                    if (dashboardPeriod.value === 'weekly' && dateStr) {
+                        const d = new Date(dateStr);
+                        if (!isNaN(d)) {
+                            const year = d.getFullYear();
+                            const weekNum = Math.ceil((((d - new Date(year, 0, 1)) / 86400000) + 1) / 7);
+                            periodKey = `${year}-W${weekNum < 10 ? '0' + weekNum : weekNum}`;
+                        }
+                    } else if (dashboardPeriod.value === 'monthly' && dateStr) {
+                        periodKey = dateStr.substring(0, 7);
+                    }
+
+                    if (dashboardCategory.value !== 'all' && dashboardCategory.value !== category) return;
+
+                    const catKey = dashboardCategory.value === 'all' ? category : 'All Categories';
+                    const key = `${periodKey}_${catKey}`;
+
+                    if (!map[key]) {
+                        map[key] = {
+                            key,
+                            periodLabel: periodKey,
+                            categoryName: catKey === 'water' ? 'Water' : catKey === 'material' ? 'Material' : catKey,
+                            totalQty: 0,
+                            totalRevenue: 0,
+                            rawDate: dateStr
+                        };
+                    }
+                    map[key].totalQty += qty || 0;
+                    map[key].totalRevenue += revenue || 0;
+                };
+
+                waterSales.value.forEach(w => addEntry(w.soldDate, 'water', w.totalCansSold || 0, (w.cashAmount || 0) + (w.gpayAmount || 0)));
+                materialSales.value.forEach(m => addEntry(m.soldDate, 'material', m.quantity || 0, (m.cashAmount || 0) + (m.gpayAmount || 0)));
+
+                return Object.values(map);
+            });
+
+            const filteredDashboardGridData = computed(() => {
+                const list = rawDashboardGridData.value.filter(row => {
+                    if (dashboardFromDate.value && row.rawDate < dashboardFromDate.value) return false;
+                    if (dashboardToDate.value && row.rawDate > dashboardToDate.value) return false;
+                    if (dashboardSearch.value) {
+                        const q = dashboardSearch.value.toLowerCase();
+                        return row.periodLabel.toLowerCase().includes(q) || row.categoryName.toLowerCase().includes(q);
+                    }
+                    return true;
+                });
+                return sortList(list, sortDashboardKey.value, sortDashboardAsc.value);
+            });
+            const paginatedDashboardGridData = computed(() => filteredDashboardGridData.value.slice((dashboardPage.value - 1) * itemsPerPage, dashboardPage.value * itemsPerPage));
+
+            const toggleDashboardSort = (key) => { if (sortDashboardKey.value === key) sortDashboardAsc.value = !sortDashboardAsc.value; else { sortDashboardKey.value = key; sortDashboardAsc.value = true; } };
+            const sortCashFlowBy = (key) => { if (sortCashFlowKey.value === key) sortCashFlowAsc.value = !sortCashFlowAsc.value; else { sortCashFlowKey.value = key; sortCashFlowAsc.value = true; } };
+            const sortLedgerBy = (key) => { if (sortLedgerKey.value === key) sortLedgerAsc.value = !sortLedgerAsc.value; else { sortLedgerKey.value = key; sortLedgerAsc.value = true; } };
+            const sortWaterBy = (key) => { if (sortWaterKey.value === key) sortWaterAsc.value = !sortWaterAsc.value; else { sortWaterKey.value = key; sortWaterAsc.value = true; } };
+            const sortMaterialBy = (key) => { if (sortMaterialKey.value === key) sortMaterialAsc.value = !sortMaterialAsc.value; else { sortMaterialKey.value = key; sortMaterialAsc.value = true; } };
+            const sortExpenseBy = (key) => { if (sortExpenseKey.value === key) sortExpenseAsc.value = !sortExpenseAsc.value; else { sortExpenseKey.value = key; sortExpenseAsc.value = true; } };
+            const sortUserBy = (key) => { if (sortUserKey.value === key) sortUserAsc.value = !sortUserAsc.value; else { sortUserKey.value = key; sortUserAsc.value = true; } };
+
+            const totalPages = (data) => Math.max(1, Math.ceil((data?.length || 0) / itemsPerPage));
+            const getPaginationText = (data, page) => {
+                if (!data || data.length === 0) return 'Showing 0 to 0 of 0 entries';
+                const start = (page - 1) * itemsPerPage + 1;
+                const end = Math.min(page * itemsPerPage, data.length);
+                return `Showing ${start} to ${end} of ${data.length} entries`;
+            };
+
+            const sampleWater = [
+                { id: 1, soldDate: defaultDate(), totalCansSold: 120, cashAmount: 3600, gpayAmount: 1200 },
+                { id: 2, soldDate: '2026-08-30', totalCansSold: 95, cashAmount: 2850, gpayAmount: 950 }
+            ];
+            const sampleMaterial = [
+                { id: 1, soldDate: defaultDate(), itemName: 'UltraTech Cement (50kg)', quantity: 50, unitPrice: 380, cashAmount: 10000, gpayAmount: 9000, remarks: 'Site Delivery' },
+                { id: 2, soldDate: '2026-08-30', itemName: 'TMT Steel Bars 12mm', quantity: 20, unitPrice: 650, cashAmount: 5000, gpayAmount: 8000, remarks: 'Direct Sale' }
+            ];
+            const sampleCashFlow = [
+                { id: 1, entryDate: defaultDate(), transactionType: 'INFLOW', category: 'Water', amount: 4800, description: 'Daily Water Sales' },
+                { id: 2, entryDate: defaultDate(), transactionType: 'INFLOW', category: 'Material', amount: 19000, description: 'Cement Sales' },
+                { id: 3, entryDate: defaultDate(), transactionType: 'OUTFLOW', category: 'Transport', amount: 1200, description: 'Diesel for Delivery Van' }
+            ];
+            const sampleDailySales = [
+                { id: 1, saleDate: defaultDate(), waterCash: 3600, waterGpay: 1200, materialCash: 10000, materialGpay: 9000, expenses: 1200, remarks: 'Regular sales and fuel expenses' }
+            ];
+            const sampleExpenses = [
+                { id: 1, expenseDate: defaultDate(), expenseCategory: 'Fuel / Transport', amount: 1200, paidTo: 'Cash', notes: 'Van Diesel Refill' }
+            ];
+            const sampleProducts = [
+                { id: 1, itemName: 'UltraTech Cement (50kg)', quantity: 250, sellingPrice: 380, description: 'PPC Grade Bag' },
+                { id: 2, itemName: 'TMT Steel Bars 12mm', quantity: 180, sellingPrice: 650, description: 'Fe 550D Grade Steel' },
+                { id: 3, itemName: '20L Water Can', quantity: 500, sellingPrice: 40, description: 'Purified Drinking Water Can' }
+            ];
+            const sampleUsers = [
+                { id: 1, fullName: 'Vinoth', phoneNumber: '9876543210', passcode: '1234', role: 'ADMIN', isActive: true },
+                { id: 2, fullName: 'Sales Executive', phoneNumber: '9123456789', passcode: '0000', role: 'SALES_PERSON', isActive: true }
+            ];
+
+            const updateSummary = () => {
+                let totalIn = 0, totalOut = 0;
+                waterSales.value.forEach(w => { totalIn += (w.cashAmount || 0) + (w.gpayAmount || 0); });
+                materialSales.value.forEach(m => { totalIn += (m.cashAmount || 0) + (m.gpayAmount || 0); });
+                expenses.value.forEach(e => { totalOut += e.amount || 0; });
 
                 summary.value = {
-                    netRevenue: netRev,
-                    netProfit: netRev - totalOutflow,
-                    totalInflow: totalInflow > 0 ? totalInflow : netRev,
-                    totalOutflow: totalOutflow
+                    netRevenue: totalIn,
+                    netProfit: totalIn - totalOut,
+                    totalInflow: totalIn,
+                    totalOutflow: totalOut
                 };
             };
 
+            const loadAll = async () => {
+                try {
+                    const resWater = await fetch('/api/water-sales').then(r => r.json()).catch(() => null);
+                    waterSales.value = resWater || sampleWater;
+
+                    const resMat = await fetch('/api/material-sales').then(r => r.json()).catch(() => null);
+                    materialSales.value = resMat || sampleMaterial;
+
+                    const resCF = await fetch('/api/cash-flow').then(r => r.json()).catch(() => null);
+                    cashFlows.value = resCF || sampleCashFlow;
+
+                    const resDS = await fetch('/api/daily-sales').then(r => r.json()).catch(() => null);
+                    dailySales.value = resDS || sampleDailySales;
+
+                    const resExp = await fetch('/api/expenses').then(r => r.json()).catch(() => null);
+                    expenses.value = resExp || sampleExpenses;
+
+                    const resProd = await fetch('/api/products').then(r => r.json()).catch(() => null);
+                    products.value = resProd || sampleProducts;
+
+                    const resUsers = await fetch('/api/users').then(r => r.json()).catch(() => null);
+                    users.value = resUsers || sampleUsers;
+
+                    apiOnline.value = true;
+                    updateSummary();
+                } catch (err) {
+                    apiOnline.value = false;
+                }
+            };
+
+            const loadWaterSales = async () => { waterSales.value = await fetch('/api/water-sales').then(r => r.json()).catch(() => waterSales.value); updateSummary(); };
+            const loadMaterialSales = async () => { materialSales.value = await fetch('/api/material-sales').then(r => r.json()).catch(() => materialSales.value); updateSummary(); };
+            const loadCashFlows = async () => { cashFlows.value = await fetch('/api/cash-flow').then(r => r.json()).catch(() => cashFlows.value); updateSummary(); };
+            const loadDailySales = async () => { dailySales.value = await fetch('/api/daily-sales').then(r => r.json()).catch(() => dailySales.value); updateSummary(); };
+            const loadExpenses = async () => { expenses.value = await fetch('/api/expenses').then(r => r.json()).catch(() => expenses.value); updateSummary(); };
+            const loadProducts = async () => { products.value = await fetch('/api/products').then(r => r.json()).catch(() => products.value); };
+            const loadUsers = async () => { users.value = await fetch('/api/users').then(r => r.json()).catch(() => users.value); };
+
             const refreshData = () => {
-                loadDailySales();
-                loadProducts();
-                loadWaterSales();
-                loadMaterialSales();
-                loadUsers();
-                loadCashFlows();
-                loadExpenses();
+                loadAll();
+                if (currentTab.value === 'dashboard') nextTick(() => renderChart());
+            };
+
+            const clearForms = () => {
+                waterForm.value = { id: null, soldDate: defaultDate(), totalCansSold: null, cashAmount: null, gpayAmount: null };
+                materialForm.value = { id: null, soldDate: defaultDate(), itemName: '', quantity: null, unitPrice: null, cashAmount: null, gpayAmount: null, remarks: '' };
+                cashFlowForm.value = { id: null, entryDate: defaultDate(), transactionType: 'INFLOW', category: '', amount: null, description: '' };
+                dailySalesForm.value = { id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' };
+                expenseForm.value = { id: null, expenseDate: defaultDate(), expenseCategory: '', amount: null, paidTo: 'Cash', notes: '' };
+                productForm.value = { id: null, itemName: '', quantity: null, sellingPrice: null, description: '' };
+                userForm.value = { id: null, fullName: '', phoneNumber: '', passcode: '', role: 'ADMIN', isActive: true };
+            };
+
+            const saveWaterSale = async () => {
+                if (waterForm.value.id) {
+                    const idx = waterSales.value.findIndex(item => item.id === waterForm.value.id);
+                    if (idx !== -1) waterSales.value[idx] = { ...waterForm.value };
+                } else {
+                    waterSales.value.unshift({ ...waterForm.value, id: Date.now() });
+                }
+                fetch('/api/water-sales', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(waterForm.value) }).catch(() => {});
+                clearForms();
+                updateSummary();
+            };
+
+            const saveMaterialSale = async () => {
+                if (materialForm.value.id) {
+                    const idx = materialSales.value.findIndex(item => item.id === materialForm.value.id);
+                    if (idx !== -1) materialSales.value[idx] = { ...materialForm.value };
+                } else {
+                    materialSales.value.unshift({ ...materialForm.value, id: Date.now() });
+                }
+                fetch('/api/material-sales', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(materialForm.value) }).catch(() => {});
+                clearForms();
+                updateSummary();
+            };
+
+            const saveCashFlow = async () => {
+                if (cashFlowForm.value.id) {
+                    const idx = cashFlows.value.findIndex(item => item.id === cashFlowForm.value.id);
+                    if (idx !== -1) cashFlows.value[idx] = { ...cashFlowForm.value };
+                } else {
+                    cashFlows.value.unshift({ ...cashFlowForm.value, id: Date.now() });
+                }
+                fetch('/api/cash-flow', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cashFlowForm.value) }).catch(() => {});
+                clearForms();
+                updateSummary();
+            };
+
+            const saveDailySales = async () => {
+                if (dailySalesForm.value.id) {
+                    const idx = dailySales.value.findIndex(item => item.id === dailySalesForm.value.id);
+                    if (idx !== -1) dailySales.value[idx] = { ...dailySalesForm.value };
+                } else {
+                    dailySales.value.unshift({ ...dailySalesForm.value, id: Date.now() });
+                }
+                fetch('/api/daily-sales', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dailySalesForm.value) }).catch(() => {});
+                clearForms();
+                updateSummary();
+            };
+
+            const saveExpense = async () => {
+                if (expenseForm.value.id) {
+                    const idx = expenses.value.findIndex(item => item.id === expenseForm.value.id);
+                    if (idx !== -1) expenses.value[idx] = { ...expenseForm.value };
+                } else {
+                    expenses.value.unshift({ ...expenseForm.value, id: Date.now() });
+                }
+                fetch('/api/expenses', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(expenseForm.value) }).catch(() => {});
+                clearForms();
+                updateSummary();
+            };
+
+            const saveProduct = async () => {
+                if (productForm.value.id) {
+                    const idx = products.value.findIndex(item => item.id === productForm.value.id);
+                    if (idx !== -1) products.value[idx] = { ...productForm.value };
+                } else {
+                    products.value.unshift({ ...productForm.value, id: Date.now() });
+                }
+                fetch('/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(productForm.value) }).catch(() => {});
+                clearForms();
+            };
+
+            const saveUser = async () => {
+                if (userForm.value.id) {
+                    const idx = users.value.findIndex(item => item.id === userForm.value.id);
+                    if (idx !== -1) users.value[idx] = { ...userForm.value };
+                } else {
+                    users.value.unshift({ ...userForm.value, id: Date.now() });
+                }
+                fetch('/api/users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(userForm.value) }).catch(() => {});
+                clearForms();
+            };
+
+            const editItem = (type, item) => {
+                if (type === 'water') waterForm.value = { ...item };
+                else if (type === 'material') materialForm.value = { ...item };
+                else if (type === 'cash-flow') cashFlowForm.value = { ...item };
+                else if (type === 'daily-sales') dailySalesForm.value = { ...item };
+                else if (type === 'expenses') expenseForm.value = { ...item };
+                else if (type === 'product') productForm.value = { ...item };
+                else if (type === 'user') userForm.value = { ...item };
+            };
+
+            const deleteItem = (endpoint, reloadFn) => {
+                if (confirm('Are you sure you want to delete this record?')) {
+                    fetch(endpoint, { method: 'DELETE' }).catch(() => {});
+                    const parts = endpoint.split('/');
+                    const id = parseInt(parts[parts.length - 1]);
+                    if (endpoint.includes('water-sales')) waterSales.value = waterSales.value.filter(i => i.id !== id);
+                    if (endpoint.includes('material-sales')) materialSales.value = materialSales.value.filter(i => i.id !== id);
+                    if (endpoint.includes('cash-flow')) cashFlows.value = cashFlows.value.filter(i => i.id !== id);
+                    if (endpoint.includes('daily-sales')) dailySales.value = dailySales.value.filter(i => i.id !== id);
+                    if (endpoint.includes('expenses')) expenses.value = expenses.value.filter(i => i.id !== id);
+                    if (endpoint.includes('products')) products.value = products.value.filter(i => i.id !== id);
+                    if (endpoint.includes('users')) users.value = users.value.filter(i => i.id !== id);
+                    updateSummary();
+                }
             };
 
             const triggerSync = () => {
+                const map = {};
+                waterSales.value.forEach(w => {
+                    if (!map[w.soldDate]) map[w.soldDate] = { saleDate: w.soldDate, waterCash: 0, waterGpay: 0, materialCash: 0, materialGpay: 0, expenses: 0, remarks: 'Auto Synced' };
+                    map[w.soldDate].waterCash += w.cashAmount || 0;
+                    map[w.soldDate].waterGpay += w.gpayAmount || 0;
+                });
+                materialSales.value.forEach(m => {
+                    if (!map[m.soldDate]) map[m.soldDate] = { saleDate: m.soldDate, waterCash: 0, waterGpay: 0, materialCash: 0, materialGpay: 0, expenses: 0, remarks: 'Auto Synced' };
+                    map[m.soldDate].materialCash += m.cashAmount || 0;
+                    map[m.soldDate].materialGpay += m.gpayAmount || 0;
+                });
+                expenses.value.forEach(e => {
+                    if (!map[e.expenseDate]) map[e.expenseDate] = { saleDate: e.expenseDate, waterCash: 0, waterGpay: 0, materialCash: 0, materialGpay: 0, expenses: 0, remarks: 'Auto Synced' };
+                    map[e.expenseDate].expenses += e.amount || 0;
+                });
+                dailySales.value = Object.values(map);
                 fetch('/api/daily-sales/sync', { method: 'POST' })
                     .then(res => {
                         if (res.ok) refreshData();
                         else alert('Sync failed');
                     })
                     .catch(() => alert('Sync error connecting to API'));
+                alert('Ledger synchronization completed successfully.');
             };
 
-            const saveGeneric = (url, formRef, reloadCallback) => {
-                const method = formRef.value.id ? 'PUT' : 'POST';
-                const endpoint = formRef.value.id ? `${url}/${formRef.value.id}` : url;
-                fetch(endpoint, {
-                    method: method,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formRef.value)
-                })
-                    .then(res => {
-                        if (res.ok) {
-                            clearForms();
-                            reloadCallback();
-                        } else {
-                            alert('Operation failed');
-                        }
-                    })
-                    .catch(() => alert('Network error'));
-            };
-
-            const saveWaterSale = () => saveGeneric('/api/water-sales', waterForm, () => { loadWaterSales(); loadDailySales(); });
-            const saveMaterialSale = () => saveGeneric('/api/material-sales', materialForm, () => { loadMaterialSales(); loadDailySales(); });
-            const saveDailySales = () => saveGeneric('/api/daily-sales', dailySalesForm, loadDailySales);
-            const saveProduct = () => saveGeneric('/api/products', productForm, loadProducts);
-
-            const saveUser = () => {
-                if (!userForm.value.fullName || userForm.value.fullName.trim() === '') {
-                    userForm.value.fullName = 'Vinoth';
-                }
-                saveGeneric('/api/users', userForm, loadUsers);
-            };
-
-            const saveCashFlow = () => saveGeneric('/api/cash-flow', cashFlowForm, loadCashFlows);
-            const saveExpense = () => saveGeneric('/api/expenses', expenseForm, loadExpenses);
-
-            const deleteItem = (url, reloadCallback) => {
-                if (confirm('Are you sure you want to delete this record?')) {
-                    fetch(url, { method: 'DELETE' })
-                        .then(res => {
-                            if (res.ok) reloadCallback();
-                            else alert('Delete failed');
-                        })
-                        .catch(() => alert('Network error'));
-                }
-            };
-
-            const editItem = (type, item) => {
-                if (type === 'water') waterForm.value = { ...item };
-                else if (type === 'material') materialForm.value = { ...item };
-                else if (type === 'daily-sales') dailySalesForm.value = { ...item };
-                else if (type === 'product') productForm.value = { ...item };
-                else if (type === 'user') userForm.value = { ...item };
-                else if (type === 'cash-flow') cashFlowForm.value = { ...item };
-                else if (type === 'expenses') expenseForm.value = { ...item };
-            };
-
-            const clearForms = () => {
-                waterForm.value = { id: null, soldDate: defaultDate(), totalCansSold: null, cashAmount: null, gpayAmount: null };
-                materialForm.value = { id: null, soldDate: defaultDate(), itemName: '', quantity: null, unitPrice: null, cashAmount: null, gpayAmount: null, remarks: '' };
-                dailySalesForm.value = { id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' };
-                productForm.value = { id: null, itemName: '', quantity: null, sellingPrice: null, description: '' };
-                userForm.value = { id: null, fullName: '', phoneNumber: '', passcode: '', role: 'SALES_PERSON', isActive: true };
-                cashFlowForm.value = { id: null, entryDate: defaultDate(), transactionType: 'INFLOW', category: '', amount: null, description: '' };
-                expenseForm.value = { id: null, expenseDate: defaultDate(), expenseCategory: '', amount: null, paymentMethod: 'Cash', remarks: '' };
-            };
-
-            const totalPages = (arr) => Math.ceil(arr.length / itemsPerPage) || 1;
-
-            const getPaginationText = (arr, pageRef) => {
-                const total = arr.length;
-                if (!total || total === 0) return "Showing 0 to 0 of 0 records";
-                const current = pageRef.value || 1;
-                const start = (current - 1) * itemsPerPage + 1;
-                const end = Math.min(current * itemsPerPage, total);
-                return `Showing ${start} to ${end} of ${total} records`;
-            };
-
-            const filterByDateAndSearch = (arr, dateField, fromDate, toDate, searchStr) => {
-                return arr.filter(item => {
-                    const d = item[dateField];
-                    if (fromDate && d < fromDate) return false;
-                    if (toDate && d > toDate) return false;
-                    if (searchStr) {
-                        const query = searchStr.toLowerCase();
-                        const matches = Object.values(item).some(val => String(val).toLowerCase().includes(query));
-                        if (!matches) return false;
-                    }
-                    return true;
-                });
-            };
-
-            const sortList = (arr, keyRef, ascRef) => {
-                return [...arr].sort((a, b) => {
-                    let valA = a[keyRef.value];
-                    let valB = b[keyRef.value];
-                    if (valA === undefined) valA = '';
-                    if (valB === undefined) valB = '';
-                    if (typeof valA === 'string') {
-                        valA = valA.toLowerCase();
-                        valB = valB.toLowerCase();
-                    }
-                    if (valA < valB) return ascRef.value ? -1 : 1;
-                    if (valA > valB) return ascRef.value ? 1 : -1;
-                    return 0;
-                });
-            };
-
-            const paginate = (arr, pageRef) => {
-                const start = (pageRef.value - 1) * itemsPerPage;
-                return arr.slice(start, start + itemsPerPage);
-            };
-
-            const filteredCashFlows = computed(() => {
-                let res = filterByDateAndSearch(cashFlows.value, 'entryDate', cashFlowFromDate.value, cashFlowToDate.value, searchCashFlow.value);
-                return sortList(res, sortCashFlowKey, sortCashFlowAsc);
-            });
-            const paginatedCashFlows = computed(() => paginate(filteredCashFlows.value, cashFlowPage));
-
-            const filteredDailySales = computed(() => {
-                let res = filterByDateAndSearch(dailySales.value, 'saleDate', ledgerFromDate.value, ledgerToDate.value, searchLedger.value);
-                return sortList(res, sortLedgerKey, sortLedgerAsc);
-            });
-            const paginatedDailySales = computed(() => paginate(filteredDailySales.value, ledgerPage));
-
-            const filteredWaterSales = computed(() => {
-                let res = filterByDateAndSearch(waterSales.value, 'soldDate', waterFromDate.value, waterToDate.value, searchWater.value);
-                return sortList(res, sortWaterKey, sortWaterAsc);
-            });
-            const paginatedWaterSales = computed(() => paginate(filteredWaterSales.value, waterPage));
-
-            const filteredMaterialSales = computed(() => {
-                let res = filterByDateAndSearch(materialSales.value, 'soldDate', materialFromDate.value, materialToDate.value, searchMaterial.value);
-                return sortList(res, sortMaterialKey, sortMaterialAsc);
-            });
-            const paginatedMaterialSales = computed(() => paginate(filteredMaterialSales.value, materialPage));
-
-            const filteredExpenses = computed(() => {
-                let res = filterByDateAndSearch(expenses.value, 'expenseDate', expenseFromDate.value, expenseToDate.value, searchExpense.value);
-                return sortList(res, sortExpenseKey, sortExpenseAsc);
-            });
-            const paginatedExpenses = computed(() => paginate(filteredExpenses.value, expensePage));
-
-            const filteredProducts = computed(() => {
-                return products.value.filter(p => {
-                    if (searchProduct.value && !String(p.itemName).toLowerCase().includes(searchProduct.value.toLowerCase()) && !String(p.description || '').toLowerCase().includes(searchProduct.value.toLowerCase())) return false;
-                    return true;
-                });
-            });
-            const paginatedProducts = computed(() => paginate(filteredProducts.value, productPage));
-
-            const filteredUsers = computed(() => {
-                let res = users.value.filter(u => {
-                    if (searchUser.value &&
-                        !String(u.fullName || '').toLowerCase().includes(searchUser.value.toLowerCase()) &&
-                        !String(u.phoneNumber || '').toLowerCase().includes(searchUser.value.toLowerCase()) &&
-                        !String(u.role || '').toLowerCase().includes(searchUser.value.toLowerCase())) {
-                        return false;
-                    }
-                    return true;
-                });
-                return sortList(res, sortUserKey, sortUserAsc);
-            });
-            const paginatedUsers = computed(() => paginate(filteredUsers.value, userPage));
-
-            const cfAnalytics = computed(() => {
-                let totalCash = 0;
-                let totalGpay = 0;
-                let waterTotal = 0;
-                let materialTotal = 0;
-                let totalExpenses = 0;
-
-                waterSales.value.forEach(w => {
-                    totalCash += (w.cashAmount || 0);
-                    totalGpay += (w.gpayAmount || 0);
-                    waterTotal += (w.cashAmount || 0) + (w.gpayAmount || 0);
-                });
-
-                materialSales.value.forEach(m => {
-                    totalCash += (m.cashAmount || 0);
-                    totalGpay += (m.gpayAmount || 0);
-                    materialTotal += (m.cashAmount || 0) + (m.gpayAmount || 0);
-                });
-
-                expenses.value.forEach(e => {
-                    totalExpenses += (e.amount || 0);
-                });
-
-                const totalRev = totalCash + totalGpay;
-                const cashPct = totalRev > 0 ? Math.round((totalCash / totalRev) * 100) : 0;
-                const gpayPct = totalRev > 0 ? Math.round((totalGpay / totalRev) * 100) : 0;
-
-                return { totalCash, totalGpay, waterTotal, materialTotal, totalExpenses, cashPct, gpayPct };
-            });
-
-            const filteredDashboardGridData = computed(() => {
-                let dataMap = {};
-
-                if (dashboardCategory.value === 'all' || dashboardCategory.value === 'water') {
-                    waterSales.value.forEach(w => {
-                        let dateStr = w.soldDate || '';
-                        if (!dateStr) return;
-                        if (dashboardFromDate.value && dateStr < dashboardFromDate.value) return;
-                        if (dashboardToDate.value && dateStr > dashboardToDate.value) return;
-
-                        let periodLabel = dateStr;
-                        if (dashboardPeriod.value === 'weekly') {
-                            periodLabel = dateStr.substring(0, 7) + ' (W)';
-                        } else if (dashboardPeriod.value === 'monthly') {
-                            periodLabel = dateStr.substring(0, 7);
-                        }
-
-                        let key = periodLabel + '_water';
-                        if (!dataMap[key]) {
-                            dataMap[key] = { key: periodLabel, periodLabel, categoryName: 'Water', totalQty: 0, totalRevenue: 0 };
-                        }
-                        dataMap[key].totalQty += (w.totalCansSold || 0);
-                        dataMap[key].totalRevenue += (w.cashAmount || 0) + (w.gpayAmount || 0);
-                    });
-                }
-
-                if (dashboardCategory.value === 'all' || dashboardCategory.value === 'material') {
-                    materialSales.value.forEach(m => {
-                        let dateStr = m.soldDate || '';
-                        if (!dateStr) return;
-                        if (dashboardFromDate.value && dateStr < dashboardFromDate.value) return;
-                        if (dashboardToDate.value && dateStr > dashboardToDate.value) return;
-
-                        let periodLabel = dateStr;
-                        if (dashboardPeriod.value === 'weekly') {
-                            periodLabel = dateStr.substring(0, 7) + ' (W)';
-                        } else if (dashboardPeriod.value === 'monthly') {
-                            periodLabel = dateStr.substring(0, 7);
-                        }
-
-                        let key = periodLabel + '_' + (m.itemName || 'material');
-                        if (dashboardCategory.value !== 'all') {
-                            key = periodLabel + '_material';
-                        }
-                        if (!dataMap[key]) {
-                            dataMap[key] = { key: periodLabel, periodLabel, categoryName: dashboardCategory.value === 'all' ? (m.itemName || 'Material') : 'Material', totalQty: 0, totalRevenue: 0 };
-                        }
-                        dataMap[key].totalQty += (m.quantity || 0);
-                        dataMap[key].totalRevenue += (m.cashAmount || 0) + (m.gpayAmount || 0);
-                    });
-                }
-
-                let resultArr = Object.values(dataMap);
-                if (dashboardSearch.value) {
-                    const q = dashboardSearch.value.toLowerCase();
-                    resultArr = resultArr.filter(r => r.periodLabel.toLowerCase().includes(q) || r.categoryName.toLowerCase().includes(q));
-                }
-
-                return sortList(resultArr, sortDashboardKey, sortDashboardAsc);
-            });
-
-            const paginatedDashboardGridData = computed(() => paginate(filteredDashboardGridData.value, dashboardPage));
-
-            const renderDashboardChart = () => {
-                nextTick(() => {
-                    const ctx = document.getElementById('salesDashboardChart');
-                    if (!ctx) return;
-                    if (dashboardChartInstance) dashboardChartInstance.destroy();
-
-                    let chartLabels = [];
-                    let mapByPeriod = {};
-
-                    filteredDashboardGridData.value.forEach(row => {
-                        if (!mapByPeriod[row.periodLabel]) {
-                            mapByPeriod[row.periodLabel] = { water: 0, material: 0 };
-                        }
-                        if (row.categoryName === 'Water' || dashboardCategory.value === 'water') {
-                            mapByPeriod[row.periodLabel].water += row.totalRevenue;
-                        } else {
-                            mapByPeriod[row.periodLabel].material += row.totalRevenue;
-                        }
-                    });
-
-                    chartLabels = Object.keys(mapByPeriod).sort();
-                    let chartWaterData = chartLabels.map(l => mapByPeriod[l].water);
-                    let chartMaterialData = chartLabels.map(l => mapByPeriod[l].material);
-
-                    dashboardChartInstance = new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: chartLabels,
-                            datasets: [
-                                {
-                                    label: 'Water Revenue (₹)',
-                                    data: chartWaterData,
-                                    backgroundColor: 'rgba(8, 145, 178, 0.8)',
-                                    borderRadius: 8
-                                },
-                                {
-                                    label: 'Material Revenue (₹)',
-                                    data: chartMaterialData,
-                                    backgroundColor: 'rgba(245, 158, 11, 0.8)',
-                                    borderRadius: 8
-                                }
-                            ]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: { position: 'top' }
-                            },
-                            scales: {
-                                y: { beginAtZero: true, grid: { color: 'rgba(226, 232, 240, 0.6)' } },
-                                x: { grid: { display: false } }
-                            }
-                        }
-                    });
-                });
-            };
-
-            watch([filteredDashboardGridData, currentTab], () => {
-                if (currentTab.value === 'dashboard') {
-                    renderDashboardChart();
-                }
-            });
-
-            const switchTab = (tabId) => {
-                currentTab.value = tabId;
-            };
-
-            const currentTabTitle = computed(() => {
-                const t = tabs.find(x => x.id === currentTab.value);
-                return t ? t.name : '';
-            });
-
-            const currentTabDescription = computed(() => {
-                const t = tabs.find(x => x.id === currentTab.value);
-                return t ? t.desc : '';
-            });
-
-            const currentTabIcon = computed(() => {
-                const t = tabs.find(x => x.id === currentTab.value);
-                return t ? t.icon : '';
-            });
-
-            const exportToCSV = (arr, filename) => {
-                if (!arr.length) {
+            const exportToCSV = (data, filename) => {
+                if (!data || !data.length) {
                     alert('No data available to export.');
                     return;
                 }
-                let keys = Object.keys(arr[0]).filter(k => typeof arr[0][k] !== 'object');
-                let csvContent = "data:text/csv;charset=utf-8," + [
-                    keys.join(','),
-                    ...arr.map(row => keys.map(k => `"${row[k] !== undefined ? row[k] : ''}"`).join(','))
-                ].join('\n');
-
-                let encodedUri = encodeURI(csvContent);
-                let link = document.createElement('a');
-                link.setAttribute('href', encodedUri);
-                link.setAttribute('download', filename);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+                const keys = Object.keys(data[0]);
+                const csvRows = [];
+                csvRows.push(keys.join(','));
+                for (const row of data) {
+                    const values = keys.map(k => `"${String(row[k] ?? '').replace(/"/g, '""')}"`);
+                    csvRows.push(values.join(','));
+                }
+                const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.setAttribute('href', url);
+                a.setAttribute('download', filename);
+                a.click();
             };
 
+            const renderChart = () => {
+                const ctx = document.getElementById('salesDashboardChart');
+                if (!ctx) return;
+
+                if (dashboardChartInstance) {
+                    dashboardChartInstance.destroy();
+                }
+
+                const dataRows = filteredDashboardGridData.value;
+                const labels = dataRows.map(r => r.periodLabel);
+                const revenueData = dataRows.map(r => r.totalRevenue);
+                const qtyData = dataRows.map(r => r.totalQty);
+
+                dashboardChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels.length ? labels : ['No Data'],
+                        datasets: [
+                            {
+                                label: 'Revenue (₹)',
+                                data: revenueData.length ? revenueData : [0],
+                                backgroundColor: 'rgba(6, 182, 212, 0.7)',
+                                borderColor: 'rgba(6, 182, 212, 1)',
+                                borderWidth: 1,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Quantity Sold',
+                                data: qtyData.length ? qtyData : [0],
+                                type: 'line',
+                                borderColor: 'rgba(245, 158, 11, 1)',
+                                backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                                tension: 0.3,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: { display: true, text: 'Revenue (₹)' }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                grid: { drawOnChartArea: false },
+                                title: { display: true, text: 'Quantity' }
+                            }
+                        }
+                    }
+                });
+            };
+
+            watch([dashboardPeriod, dashboardCategory, dashboardFromDate, dashboardToDate, dashboardSearch], () => {
+                if (currentTab.value === 'dashboard') {
+                    nextTick(() => renderChart());
+                }
+            });
+
+            watch(currentTab, (newTab) => {
+                if (newTab === 'dashboard') {
+                    nextTick(() => renderChart());
+                }
+            });
+
             onMounted(() => {
-                refreshData();
+                loadAll();
+                nextTick(() => renderChart());
             });
 
             return {
-                currentTab, isSidebarOpen, apiOnline, tabs, summary,
-                dailySales, products, waterSales, materialSales, users, cashFlows, expenses,
-                dashboardPage, ledgerPage, waterPage, materialPage, productPage, userPage, cashFlowPage, expensePage,
-                dashboardFromDate, dashboardToDate, ledgerFromDate, ledgerToDate, waterFromDate, waterToDate,
-                materialFromDate, materialToDate, cashFlowFromDate, cashFlowToDate, expenseFromDate, expenseToDate,
-                dashboardSearch, searchLedger, searchWater, searchMaterial, searchProduct, searchUser, searchCashFlow, searchExpense,
-                cashFlowPeriod, dashboardPeriod, dashboardCategory,
-                waterForm, materialForm, dailySalesForm, productForm, userForm, cashFlowForm, expenseForm,
-                sortWaterBy, sortCashFlowBy, sortLedgerBy, sortMaterialBy, sortUserBy, toggleDashboardSort, sortExpenseBy,
-                loadDailySales, loadProducts, loadWaterSales, loadMaterialSales, loadUsers, loadCashFlows, loadExpenses,
-                refreshData, triggerSync, saveWaterSale, saveMaterialSale, saveDailySales, saveProduct, saveUser, saveCashFlow, saveExpense,
-                deleteItem, editItem, clearForms, totalPages, getPaginationText,
-                filteredCashFlows, paginatedCashFlows, filteredDailySales, paginatedDailySales,
-                filteredWaterSales, paginatedWaterSales, filteredMaterialSales, paginatedMaterialSales,
-                filteredExpenses, paginatedExpenses, filteredProducts, paginatedProducts, filteredUsers, paginatedUsers,
-                cfAnalytics, filteredDashboardGridData, paginatedDashboardGridData,
-                switchTab, currentTabTitle, currentTabDescription, currentTabIcon, exportToCSV
+                currentTab,
+                isSidebarOpen,
+                apiOnline,
+                tabs,
+                currentTabIcon,
+                currentTabTitle,
+                currentTabDescription,
+                summary,
+                dailySales,
+                products,
+                waterSales,
+                materialSales,
+                users,
+                cashFlows,
+                expenses,
+                dashboardPage,
+                ledgerPage,
+                waterPage,
+                materialPage,
+                productPage,
+                userPage,
+                cashFlowPage,
+                expensePage,
+                dashboardFromDate,
+                dashboardToDate,
+                ledgerFromDate,
+                ledgerToDate,
+                waterFromDate,
+                waterToDate,
+                materialFromDate,
+                materialToDate,
+                cashFlowFromDate,
+                cashFlowToDate,
+                expenseFromDate,
+                expenseToDate,
+                dashboardSearch,
+                searchLedger,
+                searchWater,
+                searchMaterial,
+                searchProduct,
+                searchUser,
+                searchCashFlow,
+                searchExpense,
+                cashFlowPeriod,
+                dashboardPeriod,
+                dashboardCategory,
+                waterForm,
+                materialForm,
+                cashFlowForm,
+                dailySalesForm,
+                expenseForm,
+                productForm,
+                userForm,
+                cfAnalytics,
+                filteredDashboardGridData,
+                paginatedDashboardGridData,
+                filteredCashFlows,
+                paginatedCashFlows,
+                filteredDailySales,
+                paginatedDailySales,
+                filteredWaterSales,
+                paginatedWaterSales,
+                filteredMaterialSales,
+                paginatedMaterialSales,
+                filteredExpenses,
+                paginatedExpenses,
+                filteredProducts,
+                paginatedProducts,
+                filteredUsers,
+                paginatedUsers,
+                switchTab,
+                refreshData,
+                exportToCSV,
+                toggleDashboardSort,
+                sortCashFlowBy,
+                sortLedgerBy,
+                sortWaterBy,
+                sortMaterialBy,
+                sortExpenseBy,
+                sortUserBy,
+                getPaginationText,
+                totalPages,
+                saveCashFlow,
+                saveDailySales,
+                saveWaterSale,
+                saveMaterialSale,
+                saveExpense,
+                saveProduct,
+                saveUser,
+                clearForms,
+                editItem,
+                deleteItem,
+                triggerSync,
+                loadWaterSales,
+                loadMaterialSales,
+                loadCashFlows,
+                loadDailySales,
+                loadExpenses,
+                loadProducts,
+                loadUsers
             };
         }
     }).mount('#app');
