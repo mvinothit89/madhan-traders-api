@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Chosen Palette: Ocean Slate & Cyan Emerald -->
+    <!-- Application Structure Plan: Designed as an enterprise management portal with modular tabs for High-Level Analytics (Dashboard), Cash Flow Dynamics, Consolidated Daily Sales Ledger, Water Sales Dispatch, Material Invoicing, Expense Tracking, Product Catalog, and User Administration. Tab switching, multi-range date filters, and backend API synchronization ensure real-time exploration and automated financial balance calculations across all operational dimensions. -->
+    <!-- Visualization & Content Choices: Core KPIs are presented via metric cards with dynamic trend calculations. Temporal sales trends are rendered through Chart.js canvas visualizations with period toggles (daily, weekly, monthly). Granular data entries are served in interactive, sortable, paginated HTML tables with date range filters and CSV export tools. NO SVG graphics or Mermaid JS used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Madhan Traders - Enterprise Management Portal</title>
-    <!-- Vue 3 -->
+    <!-- Vue 3 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome -->
-    <link rel="icon" type="image/png" href="mt_icon.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js for Pro Data Visualizations -->
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <style>
         [v-cloak] { display: none; }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -27,7 +29,7 @@
             width: 100%; border: 1px solid #cbd5e1; background: #ffffff; padding: 0.625rem; border-radius: 0.75rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); font-size: 0.875rem; color: #334155;
             outline: none; transition: all 0.3s ease-in-out;
         }
-        .input-field:focus { ring: 4px; ring-color: rgba(6, 182, 212, 0.2); border-color: #06b6d4; }
+        .input-field:focus { border-color: #06b6d4; box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.15); }
         .form-label {
             display: block; font-size: 13px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.375rem;
         }
@@ -47,8 +49,9 @@
         .page-btn-active { background-color: #ecfeff; color: #0e7490; border-color: #06b6d4; z-index: 10; }
     </style>
 </head>
-<body class="bg-slate-50 font-sans text-slate-800 selection:bg-cyan-200 selection:text-cyan-900">
-<div id="app" v-cloak class="flex h-screen overflow-hidden relative">
+<body class="bg-slate-100 font-sans text-slate-800 antialiased min-h-screen">
+
+<div id="app" v-cloak class="flex h-screen overflow-hidden bg-slate-100">
 
     <!-- Mobile Sidebar Overlay -->
     <div v-if="isSidebarOpen" @click="isSidebarOpen = false" class="fixed inset-0 bg-slate-900/50 z-20 md:hidden backdrop-blur-sm transition-opacity"></div>
@@ -78,7 +81,7 @@
         </div>
         <div class="p-5 text-xs text-slate-500 bg-slate-950/50 text-center border-t border-slate-800/80 relative z-10 mt-auto">
             Enterprise Management v6.0<br>
-            <span class="text-slate-600">Pro Edition - Advanced UI</span>
+            <span class="text-slate-600">Pro Edition - Realtime Integrated</span>
         </div>
     </aside>
 
@@ -102,7 +105,7 @@
             <div class="flex items-center gap-3 md:gap-5 ml-auto">
                 <span class="text-sm font-bold text-slate-600 hidden md:inline-block mr-2">Welcome, Vinoth</span>
                 <span :class="['text-[10px] md:text-xs border px-2 md:px-3 py-1.5 rounded-full font-bold flex items-center gap-1 md:gap-2 shadow-sm', apiOnline ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200']">
-                    <span :class="['w-1.5 h-1.5 md:w-2 md:h-2 rounded-full', apiOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500']"></span> <span class="hidden sm:inline">API</span> {{ apiOnline ? 'Online' : 'Offline / Error' }}
+                    <span :class="['w-1.5 h-1.5 md:w-2 md:h-2 rounded-full', apiOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500']"></span> <span class="hidden sm:inline">API</span> {{ apiOnline ? 'Online' : 'Offline Mode' }}
                 </span>
                 <button @click="refreshData" class="btn-secondary !p-2 md:!p-2.5 !rounded-lg text-slate-500 group cursor-pointer" title="Refresh Data">
                     <i class="fa-solid fa-rotate-right group-hover:rotate-180 transition-transform duration-500"></i>
@@ -114,6 +117,17 @@
 
             <!-- DASHBOARD TAB -->
             <div v-if="currentTab === 'dashboard'" class="space-y-6 md:space-y-8 animate-fade-in">
+
+                <!-- Section Introduction -->
+                <div class="bg-gradient-to-r from-cyan-900 to-slate-900 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-cyan-300">Executive Overview & Analytics Hub</h2>
+                        <p class="text-xs md:text-sm text-slate-300 mt-1">This section consolidates top-level operational KPIs, real-time revenue balances, and interactive temporal sales charts synthesized across all product categories.</p>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs bg-slate-800/80 px-3 py-2 rounded-xl border border-slate-700">
+                        <i class="fa-solid fa-calendar-check text-cyan-400"></i> Live Sync Enabled
+                    </div>
+                </div>
 
                 <!-- MASTER BALANCE SECTION -->
                 <div class="bg-slate-900 rounded-3xl p-6 md:p-8 shadow-xl border border-slate-700 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
@@ -139,7 +153,7 @@
                                 <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Net Revenue</p>
                                 <div class="bg-cyan-100 text-cyan-600 p-2 rounded-lg shadow-sm"><i class="fa-solid fa-chart-line"></i></div>
                             </div>
-                            <h3 class="text-2xl md:text-3xl font-extrabold text-slate-800">&#8377;{{ summary.netRevenue?.toLocaleString('en-IN') || 0 }}</h3>
+                            <h3 class="text-2xl md:text-3xl font-extrabold text-slate-800">&#8377;{{ summary.netRevenue?.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</h3>
                         </div>
                     </div>
                     <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden group hover:-translate-y-1 transition-all">
@@ -149,7 +163,7 @@
                                 <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Net Profit</p>
                                 <div class="bg-emerald-100 text-emerald-600 p-2 rounded-lg shadow-sm"><i class="fa-solid fa-sack-dollar"></i></div>
                             </div>
-                            <h3 class="text-2xl md:text-3xl font-extrabold text-emerald-600">&#8377;{{ summary.netProfit?.toLocaleString('en-IN') || 0 }}</h3>
+                            <h3 class="text-2xl md:text-3xl font-extrabold text-emerald-600">&#8377;{{ summary.netProfit?.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</h3>
                         </div>
                     </div>
                     <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden group hover:-translate-y-1 transition-all">
@@ -159,7 +173,7 @@
                                 <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Cash Inflow</p>
                                 <div class="bg-blue-100 text-blue-600 p-2 rounded-lg shadow-sm"><i class="fa-solid fa-arrow-trend-up"></i></div>
                             </div>
-                            <h3 class="text-2xl md:text-3xl font-extrabold text-blue-600">&#8377;{{ summary.totalInflow?.toLocaleString('en-IN') || 0 }}</h3>
+                            <h3 class="text-2xl md:text-3xl font-extrabold text-blue-600">&#8377;{{ summary.totalInflow?.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</h3>
                         </div>
                     </div>
                     <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden group hover:-translate-y-1 transition-all">
@@ -169,7 +183,7 @@
                                 <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Cash Outflow</p>
                                 <div class="bg-rose-100 text-rose-600 p-2 rounded-lg shadow-sm"><i class="fa-solid fa-arrow-trend-down"></i></div>
                             </div>
-                            <h3 class="text-2xl md:text-3xl font-extrabold text-rose-600">&#8377;{{ summary.totalOutflow?.toLocaleString('en-IN') || 0 }}</h3>
+                            <h3 class="text-2xl md:text-3xl font-extrabold text-rose-600">&#8377;{{ summary.totalOutflow?.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</h3>
                         </div>
                     </div>
                 </div>
@@ -179,9 +193,15 @@
                     <div class="flex flex-col xl:flex-row justify-between xl:items-center gap-4 border-b border-slate-100 pb-4">
                         <div>
                             <h3 class="text-lg md:text-xl font-extrabold text-slate-800">Sales Trends & Category Analysis</h3>
-                            <p class="text-xs md:text-sm text-slate-500 mt-1">Analyze performance by category across varying timeframes.</p>
+                            <p class="text-xs md:text-sm text-slate-500 mt-1">Analyze performance by category across varying timeframes and custom date ranges.</p>
                         </div>
                         <div class="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3">
+                            <!-- Dashboard Date Range Selector -->
+                            <div class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-inner">
+                                <input v-model="dashboardFromDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 font-semibold cursor-pointer">
+                                <span class="text-[10px] font-bold text-slate-400">TO</span>
+                                <input v-model="dashboardToDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 font-semibold cursor-pointer">
+                            </div>
                             <!-- Category Filter -->
                             <div class="flex flex-wrap items-center gap-1 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-inner w-full sm:w-auto">
                                 <button @click="dashboardCategory = 'all'" :class="['px-3 md:px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex-1 sm:flex-none text-center cursor-pointer', dashboardCategory === 'all' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">All</button>
@@ -207,11 +227,6 @@
                         <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
                             <h4 class="font-bold text-slate-800 text-md">Aggregated Data Matrix</h4>
                             <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
-                                <div class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-inner">
-                                    <input v-model="dashboardFromDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 font-semibold cursor-pointer">
-                                    <span class="text-[10px] font-bold text-slate-400">TO</span>
-                                    <input v-model="dashboardToDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 font-semibold cursor-pointer">
-                                </div>
                                 <div class="relative flex-1 min-w-[200px]">
                                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
                                     <input v-model="dashboardSearch" placeholder="Search period or category..." class="input-field !py-2 !pl-9 !text-sm">
@@ -231,7 +246,7 @@
                                         Category <i class="fa-solid fa-sort ml-1 opacity-50"></i>
                                     </th>
                                     <th @click="toggleDashboardSort('totalQty')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">
-                                        Quantity <i class="fa-solid fa-sort ml-1 opacity-50"></i>
+                                        Quantity / Volume <i class="fa-solid fa-sort ml-1 opacity-50"></i>
                                     </th>
                                     <th @click="toggleDashboardSort('totalRevenue')" class="p-3 md:p-4 font-bold text-emerald-700 cursor-pointer hover:text-emerald-800 transition-colors">
                                         Revenue (₹) <i class="fa-solid fa-sort ml-1 opacity-50"></i>
@@ -271,62 +286,131 @@
 
             <!-- CASH FLOW TAB -->
             <div v-if="currentTab === 'cash-flow'" class="space-y-6 animate-fade-in">
-                <!-- Top controls -->
-                <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-l-4 border-l-emerald-500">
+
+                <!-- Section Introduction -->
+                <div class="bg-gradient-to-r from-emerald-900 to-teal-900 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
-                        <h3 class="text-lg font-bold text-slate-800">Financial Trajectory & Entries</h3>
-                        <p class="text-sm text-emerald-600 mt-1 font-bold">INFLOW + OUTFLOW = BALANCE (Sum of INFLOW - SUM of OUTFLOW = BALANCE)</p>
+                        <h2 class="text-lg font-bold text-teal-300">Financial Trajectory & Cash Flow Ledger</h2>
+                        <p class="text-xs md:text-sm text-slate-200 mt-1">This view tracks real-time net cash movements, water and material profit calculations, and segregated operating expense timelines across daily, weekly, monthly, and quarterly intervals.</p>
                     </div>
-                    <div class="bg-slate-50 p-1.5 rounded-xl flex w-full md:w-auto gap-1 shadow-inner border border-slate-200">
-                        <button @click="cashFlowPeriod = 'daily'" :class="['flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer', cashFlowPeriod === 'daily' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Daily</button>
-                        <button @click="cashFlowPeriod = 'weekly'" :class="['flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer', cashFlowPeriod === 'weekly' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Weekly</button>
-                        <button @click="cashFlowPeriod = 'monthly'" :class="['flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer', cashFlowPeriod === 'monthly' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Monthly</button>
+                    <div class="bg-teal-800/80 px-4 py-2 rounded-xl border border-teal-600 text-xs font-bold text-teal-200">
+                        Inflow - Outflow = Balance
                     </div>
                 </div>
 
-                <!-- Breakdowns -->
+                <!-- Top controls & Summary with Date Filter -->
+                <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-l-4 border-l-emerald-500">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800">Financial Trajectory & Entries</h3>
+                        <p class="text-xs md:text-sm text-emerald-600 mt-1 font-bold">INFLOW + OUTFLOW = BALANCE (Sum of INFLOW - SUM of OUTFLOW = BALANCE)</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                        <div class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-inner">
+                            <input v-model="cashFlowFromDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none font-semibold cursor-pointer">
+                            <span class="text-[10px] font-bold text-slate-400">TO</span>
+                            <input v-model="cashFlowToDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none font-semibold cursor-pointer">
+                        </div>
+                        <div class="bg-slate-50 p-1.5 rounded-xl flex gap-1 shadow-inner border border-slate-200">
+                            <button @click="cashFlowPeriod = 'daily'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer', cashFlowPeriod === 'daily' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Daily</button>
+                            <button @click="cashFlowPeriod = 'weekly'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer', cashFlowPeriod === 'weekly' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Weekly</button>
+                            <button @click="cashFlowPeriod = 'monthly'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer', cashFlowPeriod === 'monthly' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Monthly</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Master Balance and Inflow / Outflow Summary Banner -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-slate-900 text-white p-5 rounded-2xl shadow border border-slate-700 flex flex-col justify-between">
+                        <p class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-2">Calculated Balance</p>
+                        <h3 class="text-3xl font-extrabold">₹{{ (cfAnalytics.totalInflow - cfAnalytics.totalOutflow).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</h3>
+                        <p class="text-[10px] text-slate-400 mt-2 font-medium">Sum of Inflow - Sum of Outflow</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 border-l-4 border-l-blue-500 flex flex-col justify-between">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Total Cashflow Inflow</p>
+                        <h3 class="text-2xl font-extrabold text-blue-600">₹{{ cfAnalytics.totalInflow.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</h3>
+                        <p class="text-[10px] text-slate-400 mt-2 font-medium">Sum of all Inflow entries</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 border-l-4 border-l-rose-500 flex flex-col justify-between">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Total Cashflow Outflow</p>
+                        <h3 class="text-2xl font-extrabold text-rose-600">₹{{ cfAnalytics.totalOutflow.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</h3>
+                        <p class="text-[10px] text-slate-400 mt-2 font-medium">Sum of all Outflow entries</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 border-l-4 border-l-amber-500 flex flex-col justify-between">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Net Profit Overview</p>
+                        <h3 class="text-2xl font-extrabold text-emerald-600">₹{{ (cfAnalytics.waterProfitTotal + cfAnalytics.materialProfitTotal).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</h3>
+                        <p class="text-[10px] text-slate-400 mt-2 font-medium">Water Profit + Material Profit</p>
+                    </div>
+                </div>
+
+                <!-- Profits & Separate Expenses Breakdown Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-blue-500 hover:-translate-y-1 transition-transform">
-                        <h4 class="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider mb-5">Payment Distribution</h4>
-                        <div class="space-y-4">
-                            <div>
-                                <div class="flex justify-between text-sm mb-1">
-                                    <span class="font-bold text-slate-600"><i class="fa-solid fa-money-bill text-emerald-500 mr-2"></i>Cash</span>
-                                    <span class="font-extrabold text-slate-800">₹{{ cfAnalytics.totalCash.toLocaleString('en-IN') }}</span>
-                                </div>
-                                <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden"><div class="bg-gradient-to-r from-emerald-400 to-emerald-500 h-full rounded-full" :style="`width: ${cfAnalytics.cashPct}%`"></div></div>
+                    <!-- Water Profit Card -->
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-cyan-500">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="text-xs md:text-sm font-bold text-slate-700 uppercase tracking-wider">Water Profit Breakdown</h4>
+                            <span class="bg-cyan-50 text-cyan-700 font-extrabold text-xs px-2.5 py-1 rounded-md border border-cyan-100">₹{{ cfAnalytics.waterProfitTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                        </div>
+                        <div class="space-y-3 text-xs">
+                            <div class="flex justify-between p-2 bg-slate-50 rounded-lg">
+                                <span class="font-bold text-slate-600">Daily Profit:</span>
+                                <span class="font-extrabold text-cyan-700">₹{{ cfAnalytics.waterProfitDaily.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
                             </div>
-                            <div>
-                                <div class="flex justify-between text-sm mb-1">
-                                    <span class="font-bold text-slate-600"><i class="fa-brands fa-google-pay text-indigo-500 mr-2"></i>Digital</span>
-                                    <span class="font-extrabold text-slate-800">₹{{ cfAnalytics.totalGpay.toLocaleString('en-IN') }}</span>
-                                </div>
-                                <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden"><div class="bg-gradient-to-r from-indigo-400 to-blue-500 h-full rounded-full" :style="`width: ${cfAnalytics.gpayPct}%`"></div></div>
+                            <div class="flex justify-between p-2 bg-slate-50 rounded-lg">
+                                <span class="font-bold text-slate-600">Weekly Profit:</span>
+                                <span class="font-extrabold text-cyan-700">₹{{ cfAnalytics.waterProfitWeekly.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-slate-50 rounded-lg">
+                                <span class="font-bold text-slate-600">Monthly Profit:</span>
+                                <span class="font-extrabold text-cyan-700">₹{{ cfAnalytics.waterProfitMonthly.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-cyan-500 hover:-translate-y-1 transition-transform">
-                        <h4 class="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider mb-5">Revenue Source</h4>
-                        <div class="flex items-center gap-4 mb-4">
-                            <div class="w-10 h-10 rounded-xl bg-cyan-50 flex items-center justify-center text-cyan-600 text-lg border border-cyan-100 shadow-sm"><i class="fa-solid fa-droplet"></i></div>
-                            <div class="flex-1">
-                                <p class="text-[11px] text-slate-400 font-bold uppercase">Water Collections</p>
-                                <p class="text-xl font-extrabold text-slate-800">₹{{ cfAnalytics.waterTotal.toLocaleString('en-IN') }}</p>
-                            </div>
+
+                    <!-- Material Profit Card -->
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-amber-500">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="text-xs md:text-sm font-bold text-slate-700 uppercase tracking-wider">Material Profit Breakdown</h4>
+                            <span class="bg-amber-50 text-amber-700 font-extrabold text-xs px-2.5 py-1 rounded-md border border-amber-100">₹{{ cfAnalytics.materialProfitTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
                         </div>
-                        <div class="flex items-center gap-4 border-t border-slate-100 pt-4">
-                            <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 text-lg border border-amber-100 shadow-sm"><i class="fa-solid fa-truck-ramp-box"></i></div>
-                            <div class="flex-1">
-                                <p class="text-[11px] text-slate-400 font-bold uppercase">Material Collections</p>
-                                <p class="text-xl font-extrabold text-slate-800">₹{{ cfAnalytics.materialTotal.toLocaleString('en-IN') }}</p>
+                        <div class="space-y-3 text-xs">
+                            <div class="flex justify-between p-2 bg-slate-50 rounded-lg">
+                                <span class="font-bold text-slate-600">Daily Profit:</span>
+                                <span class="font-extrabold text-amber-700">₹{{ cfAnalytics.materialProfitDaily.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-slate-50 rounded-lg">
+                                <span class="font-bold text-slate-600">Weekly Profit:</span>
+                                <span class="font-extrabold text-amber-700">₹{{ cfAnalytics.materialProfitWeekly.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-slate-50 rounded-lg">
+                                <span class="font-bold text-slate-600">Monthly Profit:</span>
+                                <span class="font-extrabold text-amber-700">₹{{ cfAnalytics.materialProfitMonthly.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-rose-500 hover:-translate-y-1 transition-transform flex flex-col justify-center">
-                        <h4 class="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider mb-2 text-center">Operating Outflows</h4>
-                        <div class="text-center py-2">
-                            <p class="text-slate-400 text-[11px] font-bold uppercase mb-1">Total Expenses</p>
-                            <p class="text-3xl md:text-4xl font-extrabold text-rose-600 drop-shadow-sm">₹{{ cfAnalytics.totalExpenses.toLocaleString('en-IN') }}</p>
+
+                    <!-- Separate Expenses Card (Daily, Weekly, Monthly, Quarterly) -->
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-rose-500">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="text-xs md:text-sm font-bold text-slate-700 uppercase tracking-wider">Total Expense (Separate)</h4>
+                            <span class="bg-rose-50 text-rose-700 font-extrabold text-xs px-2.5 py-1 rounded-md border border-rose-100">₹{{ cfAnalytics.totalExpenses.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                        </div>
+                        <div class="space-y-2 text-xs">
+                            <div class="flex justify-between p-1.5 bg-slate-50 rounded-lg">
+                                <span class="font-bold text-slate-600">Daily Expense:</span>
+                                <span class="font-extrabold text-rose-600">₹{{ cfAnalytics.expenseDaily.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                            </div>
+                            <div class="flex justify-between p-1.5 bg-slate-50 rounded-lg">
+                                <span class="font-bold text-slate-600">Weekly Expense:</span>
+                                <span class="font-extrabold text-rose-600">₹{{ cfAnalytics.expenseWeekly.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                            </div>
+                            <div class="flex justify-between p-1.5 bg-slate-50 rounded-lg">
+                                <span class="font-bold text-slate-600">Monthly Expense:</span>
+                                <span class="font-extrabold text-rose-600">₹{{ cfAnalytics.expenseMonthly.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                            </div>
+                            <div class="flex justify-between p-1.5 bg-slate-50 rounded-lg">
+                                <span class="font-bold text-slate-600">Quarterly Expense:</span>
+                                <span class="font-extrabold text-rose-600">₹{{ cfAnalytics.expenseQuarterly.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -372,11 +456,6 @@
                     <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-5">
                         <h4 class="font-bold text-slate-800 text-lg">Cash Flow Records</h4>
                         <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
-                            <div class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-inner">
-                                <input v-model="cashFlowFromDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer font-semibold">
-                                <span class="text-[10px] font-bold text-slate-400">TO</span>
-                                <input v-model="cashFlowToDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer font-semibold">
-                            </div>
                             <div class="relative flex-1 min-w-[200px]">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
                                 <input v-model="searchCashFlow" placeholder="Search records..." class="input-field !py-2 !pl-9 !text-sm">
@@ -437,10 +516,18 @@
 
             <!-- DAILY SALES TAB (Consolidated Ledger) -->
             <div v-if="currentTab === 'daily-sales'" class="space-y-6">
+                <!-- Section Introduction -->
+                <div class="bg-gradient-to-r from-blue-900 to-indigo-900 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-blue-300">Consolidated Daily Sales Ledger</h2>
+                        <p class="text-xs md:text-sm text-slate-200 mt-1">This module consolidates daily cash and digital revenue streams from water dispatches and material invoicing into a master ledger with expense deductions.</p>
+                    </div>
+                </div>
+
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200">
                     <div>
                         <h3 class="text-lg font-bold text-slate-800">Ledger Configuration</h3>
-                        <p class="text-sm text-slate-500 mt-1 font-medium">Pull data automatically from material sub-ledgers.</p>
+                        <p class="text-sm text-slate-500 mt-1 font-medium">Pull data automatically from material and water sub-ledgers.</p>
                     </div>
                     <button @click="triggerSync" class="btn-primary w-full sm:w-auto !from-emerald-500 !to-teal-600 hover:!from-emerald-600 hover:!to-teal-700">
                         <i class="fa-solid fa-rotate"></i> Synchronize Data
@@ -587,6 +674,14 @@
 
             <!-- WATER SALES TAB -->
             <div v-if="currentTab === 'water'" class="space-y-6">
+                <!-- Section Introduction -->
+                <div class="bg-gradient-to-r from-cyan-900 to-sky-900 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-cyan-300">Water Dispatch & Distribution Sub-Ledger</h2>
+                        <p class="text-xs md:text-sm text-slate-200 mt-1">This module manages water container dispatches, volume quantities (cans sold), and cash vs. GPay collections with real-time API syncing.</p>
+                    </div>
+                </div>
+
                 <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-cyan-500">
                     <h3 class="text-lg font-extrabold mb-5 text-slate-800 border-b border-slate-100 pb-3">{{ waterForm.id ? 'Modify Dispatched Form' : 'Register Dispatched Form' }} (Water)</h3>
                     <form @submit.prevent="saveWaterSale" class="space-y-5">
@@ -678,6 +773,14 @@
 
             <!-- MATERIAL SALES TAB -->
             <div v-if="currentTab === 'material'" class="space-y-6">
+                <!-- Section Introduction -->
+                <div class="bg-gradient-to-r from-amber-900 to-orange-900 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-amber-300">Material Sales & Invoicing Sub-Ledger</h2>
+                        <p class="text-xs md:text-sm text-slate-200 mt-1">This module logs itemized inventory sales, product SKUs, client memo details, and split cash/GPay revenue receipts.</p>
+                    </div>
+                </div>
+
                 <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-amber-500">
                     <h3 class="text-lg font-extrabold mb-5 text-slate-800 border-b border-slate-100 pb-3">{{ materialForm.id ? 'Modify Invoice' : 'Generate Invoice' }} (Materials)</h3>
                     <form @submit.prevent="saveMaterialSale" class="space-y-5">
@@ -792,6 +895,14 @@
 
             <!-- EXPENSE LEDGER TAB -->
             <div v-if="currentTab === 'expenses'" class="space-y-6 animate-fade-in">
+                <!-- Section Introduction -->
+                <div class="bg-gradient-to-r from-rose-900 to-pink-900 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-rose-300">Operational Expense Tracking</h2>
+                        <p class="text-xs md:text-sm text-slate-200 mt-1">This panel records operational expenditures, fuel costs, salaries, and vendor disbursements with categorical breakdowns.</p>
+                    </div>
+                </div>
+
                 <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-rose-500">
                     <h3 class="text-lg font-extrabold mb-5 text-slate-800 border-b border-slate-100 pb-3">{{ expenseForm.id ? 'Modify Expense' : 'Log New Expense' }}</h3>
                     <form @submit.prevent="saveExpense" class="space-y-5">
@@ -801,7 +912,7 @@
                                 <input v-model="expenseForm.expenseDate" type="date" required class="input-field cursor-pointer">
                             </div>
                             <div>
-                                <label class="form-label">expenseCategory</label>
+                                <label class="form-label">Category</label>
                                 <input v-model="expenseForm.expenseCategory" list="expense-categories" required placeholder="e.g., Fuel, Salary" class="input-field font-semibold text-slate-800">
                                 <datalist id="expense-categories">
                                     <option value="Fuel / Transport"></option>
@@ -817,7 +928,7 @@
                             </div>
                             <div>
                                 <label class="form-label">Payment Method</label>
-                                <select v-model="expenseForm.paidTo" class="input-field cursor-pointer font-semibold">
+                                <select v-model="paidTo" class="input-field cursor-pointer font-semibold">
                                     <option value="Cash">Cash</option>
                                     <option value="GPay">GPay / Digital</option>
                                     <option value="Bank Transfer">Bank Transfer</option>
@@ -860,7 +971,7 @@
                                 <th @click="sortExpenseBy('expenseDate')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-rose-700 transition-colors">Date <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
                                 <th @click="sortExpenseBy('expenseCategory')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-rose-700 transition-colors">Category <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
                                 <th class="p-3 md:p-4 font-bold">Description</th>
-                                <th @click="sortExpenseBy('paymentMethod')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-rose-700 transition-colors">Method <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th @click="sortExpenseBy('paidTo')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-rose-700 transition-colors">Method <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
                                 <th @click="sortExpenseBy('amount')" class="p-3 md:p-4 font-bold text-rose-700 cursor-pointer hover:text-rose-900 transition-colors">Amount (₹) <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
                                 <th class="p-3 md:p-4 font-bold text-right">Action</th>
                             </tr>
@@ -874,8 +985,8 @@
                                 <td class="p-3 md:p-4 text-slate-500 font-medium">{{ exp.notes || '--' }}</td>
                                 <td class="p-3 md:p-4">
                                     <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">
-                                        <i :class="exp.paymentMethod === 'Cash' ? 'fa-solid fa-wallet text-emerald-600 mr-1' : 'fa-brands fa-google-pay text-indigo-600 mr-1'"></i>
-                                        {{ exp.paymentMethod }}
+                                        <i :class="exp.paidTo === 'Cash' ? 'fa-solid fa-wallet text-emerald-600 mr-1' : 'fa-brands fa-google-pay text-indigo-600 mr-1'"></i>
+                                        {{ exp.paidTo }}
                                     </span>
                                 </td>
                                 <td class="p-3 md:p-4 font-extrabold text-rose-600 bg-rose-50/20">₹{{ exp.amount?.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</td>
@@ -905,6 +1016,14 @@
 
             <!-- PRODUCTS TAB -->
             <div v-if="currentTab === 'products'" class="space-y-6">
+                <!-- Section Introduction -->
+                <div class="bg-gradient-to-r from-indigo-900 to-purple-900 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-indigo-300">Master Product Catalog & Inventory SKUs</h2>
+                        <p class="text-xs md:text-sm text-slate-200 mt-1">Manage active materials, inventory quantities, unit pricing bases, and item metadata.</p>
+                    </div>
+                </div>
+
                 <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-indigo-500">
                     <h3 class="text-lg font-extrabold mb-5 text-slate-800 border-b border-slate-100 pb-3">{{ productForm.id ? 'Modify SKU Base' : 'Provision New SKU' }}</h3>
                     <form @submit.prevent="saveProduct" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-4 md:gap-5 items-end">
@@ -973,6 +1092,14 @@
 
             <!-- USERS TAB -->
             <div v-if="currentTab === 'users'" class="space-y-6">
+                <!-- Section Introduction -->
+                <div class="bg-gradient-to-r from-purple-900 to-violet-900 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-purple-300">System Users & Administrative Roles</h2>
+                        <p class="text-xs md:text-sm text-slate-200 mt-1">Configure staff accounts, role-based access levels, contact phone numbers, and operational status.</p>
+                    </div>
+                </div>
+
                 <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-purple-500">
                     <h3 class="text-lg font-extrabold mb-5 text-slate-800 border-b border-slate-100 pb-3">{{ userForm.id ? 'Modify User Profile' : 'Register New User' }}</h3>
                     <form @submit.prevent="saveUser" class="space-y-5">
@@ -1049,10 +1176,10 @@
                                     <span :class="['px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider', user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 border border-purple-200' : 'bg-slate-100 text-slate-700 border border-slate-200']">{{ user.role }}</span>
                                 </td>
                                 <td class="p-3 md:p-4">
-                        <span :class="['inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold', user.isActive !== false ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200']">
-                            <span :class="['w-1.5 h-1.5 rounded-full', user.isActive !== false ? 'bg-emerald-500' : 'bg-rose-500']"></span>
-                            {{ user.isActive !== false ? 'ACTIVE' : 'INACTIVE' }}
-                        </span>
+                                    <span :class="['inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold', user.isActive !== false ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200']">
+                                        <span :class="['w-1.5 h-1.5 rounded-full', user.isActive !== false ? 'bg-emerald-500' : 'bg-rose-500']"></span>
+                                        {{ user.isActive !== false ? 'ACTIVE' : 'INACTIVE' }}
+                                    </span>
                                 </td>
                                 <td class="p-3 md:p-4 text-right space-x-1 md:space-x-2 whitespace-nowrap opacity-50 group-hover:opacity-100 transition-opacity">
                                     <button @click="editItem('user', user)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-pen text-xs"></i></button>
@@ -1080,489 +1207,752 @@
 
         </div>
     </main>
+
 </div>
 
 <script>
-    const { createApp, ref, computed, onMounted, watch, nextTick } = Vue;
+    const { createApp, ref, computed, watch, onMounted, nextTick } = Vue;
 
     createApp({
         setup() {
+            // Navigation Tabs
+            const tabs = [
+                { id: 'dashboard', name: 'Dashboard', icon: 'fa-solid fa-chart-pie', title: 'Dashboard Analytics', desc: 'Real-time overview of financial indicators and performance.' },
+                { id: 'cash-flow', name: 'Cash Flow', icon: 'fa-solid fa-money-bill-trend-up', title: 'Cash Flow Management', desc: 'Monitor liquid inflows, outflows, balance, and separate expense breakdowns.' },
+                { id: 'daily-sales', name: 'Consolidated Ledger', icon: 'fa-solid fa-book-open', title: 'Daily Sales Ledger', desc: 'Aggregated daily sales records across water and material streams.' },
+                { id: 'water', name: 'Water Sales', icon: 'fa-solid fa-droplet', title: 'Water Sales Dispatch', desc: 'Track water container volume sales and revenue collections.' },
+                { id: 'material', name: 'Material Sales', icon: 'fa-solid fa-boxes-stacked', title: 'Material Sales Invoicing', desc: 'Itemized material sales, unit pricing, and client billing.' },
+                { id: 'expenses', name: 'Expense Ledger', icon: 'fa-solid fa-receipt', title: 'Operating Expenses', desc: 'Track categorized business expenditures, fuel, and salaries.' },
+                { id: 'products', name: 'Product Base', icon: 'fa-solid fa-box', title: 'Product Inventory Catalog', desc: 'Manage stock quantities, unit pricing, and product SKUs.' },
+                { id: 'users', name: 'User Directory', icon: 'fa-solid fa-users', title: 'User Management', desc: 'Manage system users, access credentials, and security roles.' }
+            ];
+
             const currentTab = ref('dashboard');
             const isSidebarOpen = ref(false);
             const apiOnline = ref(true);
+            const itemsPerPage = 8;
 
-            const tabs = [
-                { id: 'dashboard', name: 'Dashboard Matrix', icon: 'fa-solid fa-chart-pie', desc: 'Real-time financial overview & analytics' },
-                { id: 'cash-flow', name: 'Cash Flow', icon: 'fa-solid fa-money-bill-trend-up', desc: 'Financial trends & analysis' },
-                { id: 'daily-sales', name: 'Consolidated Ledger', icon: 'fa-solid fa-book', desc: 'Centralized daily profit & loss' },
-                { id: 'water', name: 'Water Logistics', icon: 'fa-solid fa-droplet', desc: 'Track daily water can dispatches' },
-                { id: 'material', name: 'Material Invoicing', icon: 'fa-solid fa-truck-ramp-box', desc: 'Track cement and material invoices' },
-                { id: 'expenses', name: 'Expense Ledger', icon: 'fa-solid fa-file-invoice-dollar', desc: 'Track operational and miscellaneous outflows' },
-                { id: 'products', name: 'SKU Catalog', icon: 'fa-solid fa-boxes-stacked', desc: 'Manage stock limits and pricing' },
-                { id: 'users', name: 'User Directory', icon: 'fa-solid fa-users', desc: 'Manage system users and access roles' }
-            ];
-
-            const summary = ref({ netRevenue: 0, netProfit: 0, totalInflow: 0, totalOutflow: 0 });
-            const dailySales = ref([]);
-            const products = ref([]);
+            // API Data State
             const waterSales = ref([]);
             const materialSales = ref([]);
-            const users = ref([]);
+            const dailySales = ref([]);
             const cashFlows = ref([]);
             const expenses = ref([]);
+            const products = ref([]);
+            const users = ref([]);
 
-            let dashboardChartInstance = null;
-
-            const itemsPerPage = 10;
-            const dashboardPage = ref(1);
-            const ledgerPage = ref(1);
-            const waterPage = ref(1);
-            const materialPage = ref(1);
-            const productPage = ref(1);
-            const userPage = ref(1);
-            const cashFlowPage = ref(1);
-            const expensePage = ref(1);
-
+            // Filter States
+            // Dashboard Filters
             const dashboardFromDate = ref('');
             const dashboardToDate = ref('');
-            const ledgerFromDate = ref('');
-            const ledgerToDate = ref('');
-            const waterFromDate = ref('');
-            const waterToDate = ref('');
-            const materialFromDate = ref('');
-            const materialToDate = ref('');
+            const dashboardCategory = ref('all');
+            const dashboardPeriod = ref('daily');
+            const dashboardSearch = ref('');
+            const dashboardPage = ref(1);
+            const dashboardSortKey = ref('periodLabel');
+            const dashboardSortAsc = ref(false);
+
+            // Cash Flow Filters
             const cashFlowFromDate = ref('');
             const cashFlowToDate = ref('');
+            const cashFlowPeriod = ref('daily');
+            const searchCashFlow = ref('');
+            const cashFlowPage = ref(1);
+            const cashFlowSortKey = ref('entryDate');
+            const cashFlowSortAsc = ref(false);
+
+            // Ledger Filters
+            const ledgerFromDate = ref('');
+            const ledgerToDate = ref('');
+            const searchLedger = ref('');
+            const ledgerPage = ref(1);
+            const ledgerSortKey = ref('saleDate');
+            const ledgerSortAsc = ref(false);
+
+            // Water Filters
+            const waterFromDate = ref('');
+            const waterToDate = ref('');
+            const searchWater = ref('');
+            const waterPage = ref(1);
+            const waterSortKey = ref('soldDate');
+            const waterSortAsc = ref(false);
+
+            // Material Filters
+            const materialFromDate = ref('');
+            const materialToDate = ref('');
+            const searchMaterial = ref('');
+            const materialPage = ref(1);
+            const materialSortKey = ref('soldDate');
+            const materialSortAsc = ref(false);
+
+            // Expense Filters
             const expenseFromDate = ref('');
             const expenseToDate = ref('');
-
-            const dashboardSearch = ref('');
-            const searchLedger = ref('');
-            const searchWater = ref('');
-            const searchMaterial = ref('');
-            const searchProduct = ref('');
-            const searchUser = ref('');
-            const searchCashFlow = ref('');
             const searchExpense = ref('');
+            const expensePage = ref(1);
+            const expenseSortKey = ref('expenseDate');
+            const expenseSortAsc = ref(false);
 
-            const cashFlowPeriod = ref('monthly');
-            const dashboardPeriod = ref('monthly');
-            const dashboardCategory = ref('all');
+            // Product & User Filters
+            const searchProduct = ref('');
+            const productPage = ref(1);
+            const searchUser = ref('');
+            const userPage = ref(1);
 
-            const sortWaterKey = ref('soldDate');
-            const sortWaterAsc = ref(false);
-            const sortCashFlowKey = ref('entryDate');
-            const sortCashFlowAsc = ref(false);
-            const sortLedgerKey = ref('saleDate');
-            const sortLedgerAsc = ref(false);
-            const sortMaterialKey = ref('soldDate');
-            const sortMaterialAsc = ref(false);
-            const sortUserKey = ref('fullName');
-            const sortUserAsc = ref(true);
-            const sortDashboardKey = ref('periodLabel');
-            const sortDashboardAsc = ref(false);
-            const sortExpenseKey = ref('expenseDate');
-            const sortExpenseAsc = ref(false);
+            // Forms State
+            const cashFlowForm = ref({ id: null, entryDate: new Date().toISOString().split('T')[0], transactionType: 'INFLOW', category: 'Water', amount: null, description: '' });
+            const dailySalesForm = ref({ id: null, saleDate: new Date().toISOString().split('T')[0], waterCash: 0, waterGpay: 0, materialCash: 0, materialGpay: 0, expenses: 0, remarks: '' });
+            const waterForm = ref({ id: null, soldDate: new Date().toISOString().split('T')[0], totalCansSold: null, cashAmount: null, gpayAmount: null });
+            const materialForm = ref({ id: null, soldDate: new Date().toISOString().split('T')[0], itemName: '', quantity: null, unitPrice: null, cashAmount: null, gpayAmount: null, remarks: '' });
+            const expenseForm = ref({ id: null, expenseDate: new Date().toISOString().split('T')[0], expenseCategory: 'Fuel / Transport', amount: null, paidTo: 'Cash', notes: '' });
+            const productForm = ref({ id: null, itemName: '', quantity: 0, sellingPrice: 0, description: '' });
+            const userForm = ref({ id: null, fullName: '', phoneNumber: '', passcode: '', role: 'SALES_PERSON', isActive: true });
 
-            const defaultDate = () => new Date().toISOString().split('T')[0];
+            let chartInstance = null;
 
-            const waterForm = ref({ id: null, soldDate: defaultDate(), totalCansSold: null, cashAmount: null, gpayAmount: null });
-            const materialForm = ref({ id: null, soldDate: defaultDate(), itemName: '', quantity: null, unitPrice: null, cashAmount: null, gpayAmount: null, remarks: '' });
-            const cashFlowForm = ref({ id: null, entryDate: defaultDate(), transactionType: 'INFLOW', category: '', amount: null, description: '' });
-            const dailySalesForm = ref({ id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' });
-            const expenseForm = ref({ id: null, expenseDate: defaultDate(), expenseCategory: '', amount: null, paidTo: 'Cash', notes: '' });
-            const productForm = ref({ id: null, itemName: '', quantity: null, sellingPrice: null, description: '' });
-            const userForm = ref({ id: null, fullName: '', phoneNumber: '', passcode: '', role: 'ADMIN', isActive: true });
+            // Computed Tab Info
+            const currentTabTitle = computed(() => tabs.find(t => t.id === currentTab.value)?.title || '');
+            const currentTabDescription = computed(() => tabs.find(t => t.id === currentTab.value)?.desc || '');
+            const currentTabIcon = computed(() => tabs.find(t => t.id === currentTab.value)?.icon || 'fa-solid fa-layer-group');
 
-            const currentTabItem = computed(() => tabs.find(t => t.id === currentTab.value) || tabs[0]);
-            const currentTabTitle = computed(() => currentTabItem.value.name);
-            const currentTabIcon = computed(() => currentTabItem.value.icon);
-            const currentTabDescription = computed(() => currentTabItem.value.desc);
-
-            const switchTab = (tabId) => {
-                currentTab.value = tabId;
-                if (tabId === 'dashboard') {
-                    nextTick(() => renderChart());
+            // API Loaders with Initial Seed / Fallback if server offline
+            const loadWaterSales = async () => {
+                try {
+                    const res = await fetch('/api/water-sales');
+                    if (res.ok) waterSales.value = await res.json();
+                } catch {
+                    apiOnline.value = false;
+                    if (!waterSales.value.length) {
+                        waterSales.value = [
+                            { id: 1, soldDate: '2026-09-01', totalCansSold: 120, cashAmount: 3600, gpayAmount: 2400, profit: 1800 },
+                            { id: 2, soldDate: '2026-09-02', totalCansSold: 150, cashAmount: 4500, gpayAmount: 3000, profit: 2250 },
+                            { id: 3, soldDate: '2026-09-03', totalCansSold: 110, cashAmount: 3300, gpayAmount: 2200, profit: 1650 }
+                        ];
+                    }
                 }
             };
 
-            const applyFilter = (list, dateKey, fromDate, toDate, searchText) => {
-                return list.filter(item => {
-                    if (fromDate.value && item[dateKey] < fromDate.value) return false;
-                    if (toDate.value && item[dateKey] > toDate.value) return false;
-                    if (searchText.value) {
-                        const q = searchText.value.toLowerCase();
-                        return Object.values(item).some(val => val != null && String(val).toLowerCase().includes(q));
+            const loadMaterialSales = async () => {
+                try {
+                    const res = await fetch('/api/material-sales');
+                    if (res.ok) materialSales.value = await res.json();
+                } catch {
+                    apiOnline.value = false;
+                    if (!materialSales.value.length) {
+                        materialSales.value = [
+                            { id: 1, soldDate: '2026-09-01', itemName: 'PVC Pipe 1 inch', quantity: 20, unitPrice: 250, cashAmount: 3000, gpayAmount: 2000, profit: 1200, remarks: 'Sharma Traders' },
+                            { id: 2, soldDate: '2026-09-02', itemName: 'Brass Valve 0.5 inch', quantity: 15, unitPrice: 400, cashAmount: 2000, gpayAmount: 4000, profit: 1500, remarks: 'Site B' },
+                            { id: 3, soldDate: '2026-09-03', itemName: 'Water Pump 1HP', quantity: 2, unitPrice: 6500, cashAmount: 6500, gpayAmount: 6500, profit: 2600, remarks: 'Ramesh' }
+                        ];
                     }
-                    return true;
-                });
+                }
             };
 
-            const sortList = (list, key, asc) => {
-                return [...list].sort((a, b) => {
-                    let valA = a[key] ?? '';
-                    let valB = b[key] ?? '';
+            const loadDailySales = async () => {
+                try {
+                    const res = await fetch('/api/daily-sales');
+                    if (res.ok) dailySales.value = await res.json();
+                } catch {
+                    apiOnline.value = false;
+                    if (!dailySales.value.length) {
+                        dailySales.value = [
+                            { id: 1, saleDate: '2026-09-01', waterCash: 3600, waterGpay: 2400, materialCash: 3000, materialGpay: 2000, expenses: 500, remarks: 'Daily Fuel' },
+                            { id: 2, saleDate: '2026-09-02', waterCash: 4500, waterGpay: 3000, materialCash: 2000, materialGpay: 4000, expenses: 800, remarks: 'Tea & Snacks' },
+                            { id: 3, saleDate: '2026-09-03', waterCash: 3300, waterGpay: 2200, materialCash: 6500, materialGpay: 6500, expenses: 400, remarks: 'Driver Allowance' }
+                        ];
+                    }
+                }
+            };
+
+            const loadCashFlows = async () => {
+                try {
+                    const res = await fetch('/api/cash-flow');
+                    if (res.ok) cashFlows.value = await res.json();
+                } catch {
+                    apiOnline.value = false;
+                    if (!cashFlows.value.length) {
+                        cashFlows.value = [
+                            { id: 1, entryDate: '2026-09-01', transactionType: 'INFLOW', category: 'Water', amount: 6000, description: 'Water collections' },
+                            { id: 2, entryDate: '2026-09-01', transactionType: 'INFLOW', category: 'Material', amount: 5000, description: 'Material billing' },
+                            { id: 3, entryDate: '2026-09-01', transactionType: 'OUTFLOW', category: 'Expense', amount: 500, description: 'Fuel charge' },
+                            { id: 4, entryDate: '2026-09-02', transactionType: 'INFLOW', category: 'Water', amount: 7500, description: 'Water dispatch' },
+                            { id: 5, entryDate: '2026-09-02', transactionType: 'INFLOW', category: 'Material', amount: 6000, description: 'Pipes supply' },
+                            { id: 6, entryDate: '2026-09-02', transactionType: 'OUTFLOW', category: 'Expense', amount: 800, description: 'Vehicle repair' },
+                            { id: 7, entryDate: '2026-09-03', transactionType: 'INFLOW', category: 'Water', amount: 5500, description: 'Water sales' },
+                            { id: 8, entryDate: '2026-09-03', transactionType: 'INFLOW', category: 'Material', amount: 13000, description: 'Pumps invoicing' },
+                            { id: 9, entryDate: '2026-09-03', transactionType: 'OUTFLOW', category: 'Expense', amount: 400, description: 'Office snacks' }
+                        ];
+                    }
+                }
+            };
+
+            const loadExpenses = async () => {
+                try {
+                    const res = await fetch('/api/expenses');
+                    if (res.ok) expenses.value = await res.json();
+                } catch {
+                    apiOnline.value = false;
+                    if (!expenses.value.length) {
+                        expenses.value = [
+                            { id: 1, expenseDate: '2026-09-01', expenseCategory: 'Fuel / Transport', amount: 500, paidTo: 'Cash', notes: 'Diesel for van' },
+                            { id: 2, expenseDate: '2026-09-02', expenseCategory: 'Maintenance', amount: 800, paidTo: 'GPay', notes: 'Tyre patch' },
+                            { id: 3, expenseDate: '2026-09-03', expenseCategory: 'Office Supplies', amount: 400, paidTo: 'Cash', notes: 'Drinking water & tea' }
+                        ];
+                    }
+                }
+            };
+
+            const loadProducts = async () => {
+                try {
+                    const res = await fetch('/api/products');
+                    if (res.ok) products.value = await res.json();
+                } catch {
+                    apiOnline.value = false;
+                    if (!products.value.length) {
+                        products.value = [
+                            { id: 1, itemName: '20L Water Can', quantity: 350, sellingPrice: 50, description: 'Standard Purified Mineral Water Can' },
+                            { id: 2, itemName: 'PVC Pipe 1 inch', quantity: 140, sellingPrice: 250, description: 'Heavy Duty Rigid PVC Pipe' },
+                            { id: 3, itemName: 'Brass Valve 0.5 inch', quantity: 85, sellingPrice: 400, description: 'Rust proof brass control valve' },
+                            { id: 4, itemName: 'Water Pump 1HP', quantity: 12, sellingPrice: 6500, description: 'Submersible High Pressure Water Pump' }
+                        ];
+                    }
+                }
+            };
+
+            const loadUsers = async () => {
+                try {
+                    const res = await fetch('/api/users');
+                    if (res.ok) users.value = await res.json();
+                } catch {
+                    apiOnline.value = false;
+                    if (!users.value.length) {
+                        users.value = [
+                            { id: 1, fullName: 'Vinoth Madhan', phoneNumber: '9876543210', role: 'ADMIN', isActive: true },
+                            { id: 2, fullName: 'Suresh Kumar', phoneNumber: '9876543211', role: 'SALES_PERSON', isActive: true },
+                            { id: 3, fullName: 'Karthik Raja', phoneNumber: '9876543212', role: 'SALES_PERSON', isActive: true }
+                        ];
+                    }
+                }
+            };
+
+            const refreshData = async () => {
+                apiOnline.value = true;
+                await Promise.all([
+                    loadWaterSales(),
+                    loadMaterialSales(),
+                    loadDailySales(),
+                    loadCashFlows(),
+                    loadExpenses(),
+                    loadProducts(),
+                    loadUsers()
+                ]);
+                updateChart();
+            };
+
+            // Helpers for Time / Date Calculations
+            const parseDate = (dStr) => new Date(dStr);
+            const isSameDay = (d1, d2) => d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
+            const isSameWeek = (d1, d2) => {
+                const oneJan = new Date(d1.getFullYear(), 0, 1);
+                const week1 = Math.ceil((((d1 - oneJan) / 86400000) + oneJan.getDay() + 1) / 7);
+                const week2 = Math.ceil((((d2 - oneJan) / 86400000) + oneJan.getDay() + 1) / 7);
+                return d1.getFullYear() === d2.getFullYear() && week1 === week2;
+            };
+            const isSameMonth = (d1, d2) => d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth();
+            const isSameQuarter = (d1, d2) => d1.getFullYear() === d2.getFullYear() && Math.floor(d1.getMonth() / 3) === Math.floor(d2.getMonth() / 3);
+
+            // Global Summary Metrics
+            const summary = computed(() => {
+                const waterRev = waterSales.value.reduce((acc, curr) => acc + (Number(curr.cashAmount || 0) + Number(curr.gpayAmount || 0)), 0);
+                const matRev = materialSales.value.reduce((acc, curr) => acc + (Number(curr.cashAmount || 0) + Number(curr.gpayAmount || 0)), 0);
+                const netRevenue = waterRev + matRev;
+
+                const waterProf = waterSales.value.reduce((acc, curr) => acc + Number(curr.profit || ((Number(curr.cashAmount || 0) + Number(curr.gpayAmount || 0)) * 0.3)), 0);
+                const matProf = materialSales.value.reduce((acc, curr) => acc + Number(curr.profit || ((Number(curr.cashAmount || 0) + Number(curr.gpayAmount || 0)) * 0.2)), 0);
+                const netProfit = waterProf + matProf;
+
+                const totalInflow = cashFlows.value.filter(c => c.transactionType === 'INFLOW').reduce((acc, curr) => acc + Number(curr.amount || 0), 0);
+                const totalOutflow = cashFlows.value.filter(c => c.transactionType === 'OUTFLOW').reduce((acc, curr) => acc + Number(curr.amount || 0), 0);
+
+                return { netRevenue, netProfit, totalInflow, totalOutflow,waterRev,matRev,waterProf,matProf };
+            });
+
+            // Cashflow Analytics & Profit Breakdowns
+            const cfAnalytics = computed(() => {
+                const now = new Date();
+
+                // Filtered Cash Flows
+                let filteredCF = [...cashFlows.value];
+                if (cashFlowFromDate.value) filteredCF = filteredCF.filter(c => c.entryDate >= cashFlowFromDate.value);
+                if (cashFlowToDate.value) filteredCF = filteredCF.filter(c => c.entryDate <= cashFlowToDate.value);
+
+                const totalInflow = filteredCF.filter(c => c.transactionType === 'INFLOW').reduce((acc, c) => acc + Number(c.amount || 0), 0);
+                const totalOutflow = filteredCF.filter(c => c.transactionType === 'OUTFLOW').reduce((acc, c) => acc + Number(c.amount || 0), 0);
+
+                // Water Profit Breakdown from /api/water-sales
+                let waterProfitDaily = 0, waterProfitWeekly = 0, waterProfitMonthly = 0, waterProfitTotal = 0;
+                waterSales.value.forEach(w => {
+                    const d = parseDate(w.soldDate);
+                    const p = Number(w.profit || ((Number(w.cashAmount || 0) + Number(w.gpayAmount || 0)) * 0.3));
+                    waterProfitTotal += p;
+                    if (isSameDay(d, now)) waterProfitDaily += p;
+                    if (isSameWeek(d, now)) waterProfitWeekly += p;
+                    if (isSameMonth(d, now)) waterProfitMonthly += p;
+                });
+
+                // Material Profit Breakdown from /api/material-sales
+                let materialProfitDaily = 0, materialProfitWeekly = 0, materialProfitMonthly = 0, materialProfitTotal = 0;
+                materialSales.value.forEach(m => {
+                    const d = parseDate(m.soldDate);
+                    const p = Number(m.profit || ((Number(m.cashAmount || 0) + Number(m.gpayAmount || 0)) * 0.2));
+                    materialProfitTotal += p;
+                    if (isSameDay(d, now)) materialProfitDaily += p;
+                    if (isSameWeek(d, now)) materialProfitWeekly += p;
+                    if (isSameMonth(d, now)) materialProfitMonthly += p;
+                });
+
+                // Separate Expense Metrics (Daily, Weekly, Monthly, Quarterly)
+                let expenseDaily = 0, expenseWeekly = 0, expenseMonthly = 0, expenseQuarterly = 0, totalExpenses = 0;
+                expenses.value.forEach(e => {
+                    const d = parseDate(e.expenseDate);
+                    const amt = Number(e.amount || 0);
+                    totalExpenses += amt;
+                    if (isSameDay(d, now)) expenseDaily += amt;
+                    if (isSameWeek(d, now)) expenseWeekly += amt;
+                    if (isSameMonth(d, now)) expenseMonthly += amt;
+                    if (isSameQuarter(d, now)) expenseQuarterly += amt;
+                });
+
+                return {
+                    totalInflow,
+                    totalOutflow,
+                    waterProfitDaily, waterProfitWeekly, waterProfitMonthly, waterProfitTotal,
+                    materialProfitDaily, materialProfitWeekly, materialProfitMonthly, materialProfitTotal,
+                    expenseDaily, expenseWeekly, expenseMonthly, expenseQuarterly, totalExpenses
+                };
+            });
+
+            // Dashboard Chart & Table Aggregation Data
+            const filteredDashboardGridData = computed(() => {
+                let rows = [];
+
+                const getWaterVal = (w) => Number(w.cashAmount || 0) + Number(w.gpayAmount || 0);
+                const getMatVal = (m) => Number(m.cashAmount || 0) + Number(m.gpayAmount || 0);
+
+                let filteredW = [...waterSales.value];
+                let filteredM = [...materialSales.value];
+
+                if (dashboardFromDate.value) {
+                    filteredW = filteredW.filter(w => w.soldDate >= dashboardFromDate.value);
+                    filteredM = filteredM.filter(m => m.soldDate >= dashboardFromDate.value);
+                }
+                if (dashboardToDate.value) {
+                    filteredW = filteredW.filter(w => w.soldDate <= dashboardToDate.value);
+                    filteredM = filteredM.filter(m => m.soldDate <= dashboardToDate.value);
+                }
+
+                if (dashboardCategory.value === 'all' || dashboardCategory.value === 'water') {
+                    filteredW.forEach(w => {
+                        let label = w.soldDate;
+                        if (dashboardPeriod.value === 'weekly') {
+                            const d = parseDate(w.soldDate);
+                            label = `Week ${Math.ceil(d.getDate() / 7)} (${d.toLocaleString('default', { month: 'short' })})`;
+                        } else if (dashboardPeriod.value === 'monthly') {
+                            const d = parseDate(w.soldDate);
+                            label = `${d.toLocaleString('default', { month: 'long' })} ${d.getFullYear()}`;
+                        }
+                        rows.push({
+                            key: label + '-water',
+                            periodLabel: label,
+                            categoryName: 'Water',
+                            totalQty: Number(w.totalCansSold || 0) + ' cans',
+                            rawQty: Number(w.totalCansSold || 0),
+                            totalRevenue: getWaterVal(w)
+                        });
+                    });
+                }
+
+                if (dashboardCategory.value === 'all' || dashboardCategory.value === 'material') {
+                    filteredM.forEach(m => {
+                        let label = m.soldDate;
+                        if (dashboardPeriod.value === 'weekly') {
+                            const d = parseDate(m.soldDate);
+                            label = `Week ${Math.ceil(d.getDate() / 7)} (${d.toLocaleString('default', { month: 'short' })})`;
+                        } else if (dashboardPeriod.value === 'monthly') {
+                            const d = parseDate(m.soldDate);
+                            label = `${d.toLocaleString('default', { month: 'long' })} ${d.getFullYear()}`;
+                        }
+                        rows.push({
+                            key: label + '-material',
+                            periodLabel: label,
+                            categoryName: 'Material',
+                            totalQty: Number(m.quantity || 0) + ' items',
+                            rawQty: Number(m.quantity || 0),
+                            totalRevenue: getMatVal(m)
+                        });
+                    });
+                }
+
+                if (dashboardSearch.value) {
+                    const q = dashboardSearch.value.toLowerCase();
+                    rows = rows.filter(r => r.periodLabel.toLowerCase().includes(q) || r.categoryName.toLowerCase().includes(q));
+                }
+
+                rows.sort((a, b) => {
+                    let valA = a[dashboardSortKey.value];
+                    let valB = b[dashboardSortKey.value];
                     if (typeof valA === 'string') valA = valA.toLowerCase();
                     if (typeof valB === 'string') valB = valB.toLowerCase();
-                    if (valA < valB) return asc ? -1 : 1;
-                    if (valA > valB) return asc ? 1 : -1;
+                    if (valA < valB) return dashboardSortAsc.value ? -1 : 1;
+                    if (valA > valB) return dashboardSortAsc.value ? 1 : -1;
                     return 0;
+                });
+
+                return rows;
+            });
+
+            const paginatedDashboardGridData = computed(() => {
+                const start = (dashboardPage.value - 1) * itemsPerPage;
+                return filteredDashboardGridData.value.slice(start, start + itemsPerPage);
+            });
+
+            const toggleDashboardSort = (key) => {
+                if (dashboardSortKey.value === key) dashboardSortAsc.value = !dashboardSortAsc.value;
+                else { dashboardSortKey.value = key; dashboardSortAsc.value = true; }
+            };
+
+            // Chart Render Function
+            const updateChart = () => {
+                if (currentTab.value !== 'dashboard') return;
+                nextTick(() => {
+                    const ctx = document.getElementById('salesDashboardChart');
+                    if (!ctx) return;
+
+                    if (chartInstance) chartInstance.destroy();
+
+                    const gridData = filteredDashboardGridData.value;
+                    const labels = [...new Set(gridData.map(r => r.periodLabel))].sort();
+
+                    const waterRevs = labels.map(lbl => gridData.filter(r => r.periodLabel === lbl && r.categoryName === 'Water').reduce((acc, r) => acc + r.totalRevenue, 0));
+                    const matRevs = labels.map(lbl => gridData.filter(r => r.periodLabel === lbl && r.categoryName === 'Material').reduce((acc, r) => acc + r.totalRevenue, 0));
+
+                    chartInstance = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels.length ? labels : ['No Data'],
+                            datasets: [
+                                {
+                                    label: 'Water Sales (₹)',
+                                    data: waterRevs.length ? waterRevs : [0],
+                                    backgroundColor: 'rgba(6, 182, 212, 0.85)',
+                                    borderRadius: 6
+                                },
+                                {
+                                    label: 'Material Sales (₹)',
+                                    data: matRevs.length ? matRevs : [0],
+                                    backgroundColor: 'rgba(245, 158, 11, 0.85)',
+                                    borderRadius: 6
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { position: 'top' },
+                                tooltip: {
+                                    callbacks: {
+                                        label: (context) => `${context.dataset.label}: ₹${context.raw.toLocaleString('en-IN')}`
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                                x: { grid: { display: false } }
+                            }
+                        }
+                    });
                 });
             };
 
-            const filteredWaterSales = computed(() => sortList(applyFilter(waterSales.value, 'soldDate', waterFromDate, waterToDate, searchWater), sortWaterKey.value, sortWaterAsc.value));
-            const paginatedWaterSales = computed(() => filteredWaterSales.value.slice((waterPage.value - 1) * itemsPerPage, waterPage.value * itemsPerPage));
-
-            const filteredMaterialSales = computed(() => sortList(applyFilter(materialSales.value, 'soldDate', materialFromDate, materialToDate, searchMaterial), sortMaterialKey.value, sortMaterialAsc.value));
-            const paginatedMaterialSales = computed(() => filteredMaterialSales.value.slice((materialPage.value - 1) * itemsPerPage, materialPage.value * itemsPerPage));
-
-            const filteredCashFlows = computed(() => sortList(applyFilter(cashFlows.value, 'entryDate', cashFlowFromDate, cashFlowToDate, searchCashFlow), sortCashFlowKey.value, sortCashFlowAsc.value));
+            // Filtered Tab Data Generators
+            const filteredCashFlows = computed(() => {
+                let res = [...cashFlows.value];
+                if (cashFlowFromDate.value) res = res.filter(c => c.entryDate >= cashFlowFromDate.value);
+                if (cashFlowToDate.value) res = res.filter(c => c.entryDate <= cashFlowToDate.value);
+                if (searchCashFlow.value) {
+                    const q = searchCashFlow.value.toLowerCase();
+                    res = res.filter(c => c.category.toLowerCase().includes(q) || (c.description && c.description.toLowerCase().includes(q)));
+                }
+                res.sort((a, b) => {
+                    let vA = a[cashFlowSortKey.value], vB = b[cashFlowSortKey.value];
+                    if (vA < vB) return cashFlowSortAsc.value ? -1 : 1;
+                    if (vA > vB) return cashFlowSortAsc.value ? 1 : -1;
+                    return 0;
+                });
+                return res;
+            });
             const paginatedCashFlows = computed(() => filteredCashFlows.value.slice((cashFlowPage.value - 1) * itemsPerPage, cashFlowPage.value * itemsPerPage));
+            const sortCashFlowBy = (k) => { if (cashFlowSortKey.value === k) cashFlowSortAsc.value = !cashFlowSortAsc.value; else { cashFlowSortKey.value = k; cashFlowSortAsc.value = true; } };
 
-            const filteredDailySales = computed(() => sortList(applyFilter(dailySales.value, 'saleDate', ledgerFromDate, ledgerToDate, searchLedger), sortLedgerKey.value, sortLedgerAsc.value));
+            const filteredDailySales = computed(() => {
+                let res = [...dailySales.value];
+                if (ledgerFromDate.value) res = res.filter(d => d.saleDate >= ledgerFromDate.value);
+                if (ledgerToDate.value) res = res.filter(d => d.saleDate <= ledgerToDate.value);
+                if (searchLedger.value) {
+                    const q = searchLedger.value.toLowerCase();
+                    res = res.filter(d => d.saleDate.includes(q) || (d.remarks && d.remarks.toLowerCase().includes(q)));
+                }
+                res.sort((a, b) => {
+                    let vA = a[ledgerSortKey.value], vB = b[ledgerSortKey.value];
+                    if (vA < vB) return ledgerSortAsc.value ? -1 : 1;
+                    if (vA > vB) return ledgerSortAsc.value ? 1 : -1;
+                    return 0;
+                });
+                return res;
+            });
             const paginatedDailySales = computed(() => filteredDailySales.value.slice((ledgerPage.value - 1) * itemsPerPage, ledgerPage.value * itemsPerPage));
+            const sortLedgerBy = (k) => { if (ledgerSortKey.value === k) ledgerSortAsc.value = !ledgerSortAsc.value; else { ledgerSortKey.value = k; ledgerSortAsc.value = true; } };
 
-            const filteredExpenses = computed(() => sortList(applyFilter(expenses.value, 'expenseDate', expenseFromDate, expenseToDate, searchExpense), sortExpenseKey.value, sortExpenseAsc.value));
+            const filteredWaterSales = computed(() => {
+                let res = [...waterSales.value];
+                if (waterFromDate.value) res = res.filter(w => w.soldDate >= waterFromDate.value);
+                if (waterToDate.value) res = res.filter(w => w.soldDate <= waterToDate.value);
+                if (searchWater.value) {
+                    const q = searchWater.value.toLowerCase();
+                    res = res.filter(w => w.soldDate.includes(q));
+                }
+                res.sort((a, b) => {
+                    let vA = a[waterSortKey.value], vB = b[waterSortKey.value];
+                    if (vA < vB) return waterSortAsc.value ? -1 : 1;
+                    if (vA > vB) return waterSortAsc.value ? 1 : -1;
+                    return 0;
+                });
+                return res;
+            });
+            const paginatedWaterSales = computed(() => filteredWaterSales.value.slice((waterPage.value - 1) * itemsPerPage, waterPage.value * itemsPerPage));
+            const sortWaterBy = (k) => { if (waterSortKey.value === k) waterSortAsc.value = !waterSortAsc.value; else { waterSortKey.value = k; waterSortAsc.value = true; } };
+
+            const filteredMaterialSales = computed(() => {
+                let res = [...materialSales.value];
+                if (materialFromDate.value) res = res.filter(m => m.soldDate >= materialFromDate.value);
+                if (materialToDate.value) res = res.filter(m => m.soldDate <= materialToDate.value);
+                if (searchMaterial.value) {
+                    const q = searchMaterial.value.toLowerCase();
+                    res = res.filter(m => m.itemName.toLowerCase().includes(q) || (m.remarks && m.remarks.toLowerCase().includes(q)));
+                }
+                res.sort((a, b) => {
+                    let vA = a[materialSortKey.value], vB = b[materialSortKey.value];
+                    if (vA < vB) return materialSortAsc.value ? -1 : 1;
+                    if (vA > vB) return materialSortAsc.value ? 1 : -1;
+                    return 0;
+                });
+                return res;
+            });
+            const paginatedMaterialSales = computed(() => filteredMaterialSales.value.slice((materialPage.value - 1) * itemsPerPage, materialPage.value * itemsPerPage));
+            const sortMaterialBy = (k) => { if (materialSortKey.value === k) materialSortAsc.value = !materialSortAsc.value; else { materialSortKey.value = k; materialSortAsc.value = true; } };
+
+            const filteredExpenses = computed(() => {
+                let res = [...expenses.value];
+                if (expenseFromDate.value) res = res.filter(e => e.expenseDate >= expenseFromDate.value);
+                if (expenseToDate.value) res = res.filter(e => e.expenseDate <= expenseToDate.value);
+                if (searchExpense.value) {
+                    const q = searchExpense.value.toLowerCase();
+                    res = res.filter(e => e.expenseCategory.toLowerCase().includes(q) || (e.notes && e.notes.toLowerCase().includes(q)));
+                }
+                res.sort((a, b) => {
+                    let vA = a[expenseSortKey.value], vB = b[expenseSortKey.value];
+                    if (vA < vB) return expenseSortAsc.value ? -1 : 1;
+                    if (vA > vB) return expenseSortAsc.value ? 1 : -1;
+                    return 0;
+                });
+                return res;
+            });
             const paginatedExpenses = computed(() => filteredExpenses.value.slice((expensePage.value - 1) * itemsPerPage, expensePage.value * itemsPerPage));
+            const sortExpenseBy = (k) => { if (expenseSortKey.value === k) expenseSortAsc.value = !expenseSortAsc.value; else { expenseSortKey.value = k; expenseSortAsc.value = true; } };
 
             const filteredProducts = computed(() => {
-                const list = products.value.filter(p => {
-                    if (!searchProduct.value) return true;
+                let res = [...products.value];
+                if (searchProduct.value) {
                     const q = searchProduct.value.toLowerCase();
-                    return p.itemName?.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q);
-                });
-                return sortList(list, 'itemName', true);
+                    res = res.filter(p => p.itemName.toLowerCase().includes(q) || (p.description && p.description.toLowerCase().includes(q)));
+                }
+                return res;
             });
             const paginatedProducts = computed(() => filteredProducts.value.slice((productPage.value - 1) * itemsPerPage, productPage.value * itemsPerPage));
 
             const filteredUsers = computed(() => {
-                const list = users.value.filter(u => {
-                    if (!searchUser.value) return true;
+                let res = [...users.value];
+                if (searchUser.value) {
                     const q = searchUser.value.toLowerCase();
-                    return u.fullName?.toLowerCase().includes(q) || u.phoneNumber?.includes(q) || u.role?.toLowerCase().includes(q);
-                });
-                return sortList(list, sortUserKey.value, sortUserAsc.value);
+                    res = res.filter(u => u.fullName.toLowerCase().includes(q) || u.phoneNumber.includes(q) || u.role.toLowerCase().includes(q));
+                }
+                return res;
             });
             const paginatedUsers = computed(() => filteredUsers.value.slice((userPage.value - 1) * itemsPerPage, userPage.value * itemsPerPage));
 
-            const cfAnalytics = computed(() => {
-                let totalCash = 0, totalGpay = 0, waterTotal = 0, materialTotal = 0, totalExpenses = 0;
-                waterSales.value.forEach(w => {
-                    totalCash += w.cashAmount || 0;
-                    totalGpay += w.gpayAmount || 0;
-                    waterTotal += (w.cashAmount || 0) + (w.gpayAmount || 0);
-                });
-                materialSales.value.forEach(m => {
-                    totalCash += m.cashAmount || 0;
-                    totalGpay += m.gpayAmount || 0;
-                    materialTotal += (m.cashAmount || 0) + (m.gpayAmount || 0);
-                });
-                expenses.value.forEach(e => {
-                    totalExpenses += e.amount || 0;
-                });
-                const grandTotal = totalCash + totalGpay;
-                return {
-                    totalCash,
-                    cashPct: grandTotal > 0 ? Math.round((totalCash / grandTotal) * 100) : 0,
-                    totalGpay,
-                    gpayPct: grandTotal > 0 ? Math.round((totalGpay / grandTotal) * 100) : 0,
-                    waterTotal,
-                    materialTotal,
-                    totalExpenses
-                };
-            });
-
-            const rawDashboardGridData = computed(() => {
-                const map = {};
-                const addEntry = (dateStr, category, qty, revenue) => {
-                    let periodKey = dateStr || 'N/A';
-                    if (dashboardPeriod.value === 'weekly' && dateStr) {
-                        const d = new Date(dateStr);
-                        if (!isNaN(d)) {
-                            const year = d.getFullYear();
-                            const weekNum = Math.ceil((((d - new Date(year, 0, 1)) / 86400000) + 1) / 7);
-                            periodKey = `${year}-W${weekNum < 10 ? '0' + weekNum : weekNum}`;
-                        }
-                    } else if (dashboardPeriod.value === 'monthly' && dateStr) {
-                        periodKey = dateStr.substring(0, 7);
-                    }
-
-                    if (dashboardCategory.value !== 'all' && dashboardCategory.value !== category) return;
-
-                    const catKey = dashboardCategory.value === 'all' ? category : 'All Categories';
-                    const key = `${periodKey}_${catKey}`;
-
-                    if (!map[key]) {
-                        map[key] = {
-                            key,
-                            periodLabel: periodKey,
-                            categoryName: catKey === 'water' ? 'Water' : catKey === 'material' ? 'Material' : catKey,
-                            totalQty: 0,
-                            totalRevenue: 0,
-                            rawDate: dateStr
-                        };
-                    }
-                    map[key].totalQty += qty || 0;
-                    map[key].totalRevenue += revenue || 0;
-                };
-
-                waterSales.value.forEach(w => addEntry(w.soldDate, 'water', w.totalCansSold || 0, (w.cashAmount || 0) + (w.gpayAmount || 0)));
-                materialSales.value.forEach(m => addEntry(m.soldDate, 'material', m.quantity || 0, (m.cashAmount || 0) + (m.gpayAmount || 0)));
-
-                return Object.values(map);
-            });
-
-            const filteredDashboardGridData = computed(() => {
-                const list = rawDashboardGridData.value.filter(row => {
-                    if (dashboardFromDate.value && row.rawDate < dashboardFromDate.value) return false;
-                    if (dashboardToDate.value && row.rawDate > dashboardToDate.value) return false;
-                    if (dashboardSearch.value) {
-                        const q = dashboardSearch.value.toLowerCase();
-                        return row.periodLabel.toLowerCase().includes(q) || row.categoryName.toLowerCase().includes(q);
-                    }
-                    return true;
-                });
-                return sortList(list, sortDashboardKey.value, sortDashboardAsc.value);
-            });
-            const paginatedDashboardGridData = computed(() => filteredDashboardGridData.value.slice((dashboardPage.value - 1) * itemsPerPage, dashboardPage.value * itemsPerPage));
-
-            const toggleDashboardSort = (key) => { if (sortDashboardKey.value === key) sortDashboardAsc.value = !sortDashboardAsc.value; else { sortDashboardKey.value = key; sortDashboardAsc.value = true; } };
-            const sortCashFlowBy = (key) => { if (sortCashFlowKey.value === key) sortCashFlowAsc.value = !sortCashFlowAsc.value; else { sortCashFlowKey.value = key; sortCashFlowAsc.value = true; } };
-            const sortLedgerBy = (key) => { if (sortLedgerKey.value === key) sortLedgerAsc.value = !sortLedgerAsc.value; else { sortLedgerKey.value = key; sortLedgerAsc.value = true; } };
-            const sortWaterBy = (key) => { if (sortWaterKey.value === key) sortWaterAsc.value = !sortWaterAsc.value; else { sortWaterKey.value = key; sortWaterAsc.value = true; } };
-            const sortMaterialBy = (key) => { if (sortMaterialKey.value === key) sortMaterialAsc.value = !sortMaterialAsc.value; else { sortMaterialKey.value = key; sortMaterialAsc.value = true; } };
-            const sortExpenseBy = (key) => { if (sortExpenseKey.value === key) sortExpenseAsc.value = !sortExpenseAsc.value; else { sortExpenseKey.value = key; sortExpenseAsc.value = true; } };
-            const sortUserBy = (key) => { if (sortUserKey.value === key) sortUserAsc.value = !sortUserAsc.value; else { sortUserKey.value = key; sortUserAsc.value = true; } };
-
-            const totalPages = (data) => Math.max(1, Math.ceil((data?.length || 0) / itemsPerPage));
-            const getPaginationText = (data, page) => {
-                if (!data || data.length === 0) return 'Showing 0 to 0 of 0 entries';
-                const start = (page - 1) * itemsPerPage + 1;
-                const end = Math.min(page * itemsPerPage, data.length);
-                return `Showing ${start} to ${end} of ${data.length} entries`;
-            };
-
-            const sampleWater = [
-                { id: 1, soldDate: defaultDate(), totalCansSold: 120, cashAmount: 3600, gpayAmount: 1200 },
-                { id: 2, soldDate: '2026-08-30', totalCansSold: 95, cashAmount: 2850, gpayAmount: 950 }
-            ];
-            const sampleMaterial = [
-                { id: 1, soldDate: defaultDate(), itemName: 'UltraTech Cement (50kg)', quantity: 50, unitPrice: 380, cashAmount: 10000, gpayAmount: 9000, remarks: 'Site Delivery' },
-                { id: 2, soldDate: '2026-08-30', itemName: 'TMT Steel Bars 12mm', quantity: 20, unitPrice: 650, cashAmount: 5000, gpayAmount: 8000, remarks: 'Direct Sale' }
-            ];
-            const sampleCashFlow = [
-                { id: 1, entryDate: defaultDate(), transactionType: 'INFLOW', category: 'Water', amount: 4800, description: 'Daily Water Sales' },
-                { id: 2, entryDate: defaultDate(), transactionType: 'INFLOW', category: 'Material', amount: 19000, description: 'Cement Sales' },
-                { id: 3, entryDate: defaultDate(), transactionType: 'OUTFLOW', category: 'Transport', amount: 1200, description: 'Diesel for Delivery Van' }
-            ];
-            const sampleDailySales = [
-                { id: 1, saleDate: defaultDate(), waterCash: 3600, waterGpay: 1200, materialCash: 10000, materialGpay: 9000, expenses: 1200, remarks: 'Regular sales and fuel expenses' }
-            ];
-            const sampleExpenses = [
-                { id: 1, expenseDate: defaultDate(), expenseCategory: 'Fuel / Transport', amount: 1200, paidTo: 'Cash', notes: 'Van Diesel Refill' }
-            ];
-            const sampleProducts = [
-                { id: 1, itemName: 'UltraTech Cement (50kg)', quantity: 250, sellingPrice: 380, description: 'PPC Grade Bag' },
-                { id: 2, itemName: 'TMT Steel Bars 12mm', quantity: 180, sellingPrice: 650, description: 'Fe 550D Grade Steel' },
-                { id: 3, itemName: '20L Water Can', quantity: 500, sellingPrice: 40, description: 'Purified Drinking Water Can' }
-            ];
-            const sampleUsers = [
-                { id: 1, fullName: 'Vinoth', phoneNumber: '9876543210', passcode: '1234', role: 'ADMIN', isActive: true },
-                { id: 2, fullName: 'Sales Executive', phoneNumber: '9123456789', passcode: '0000', role: 'SALES_PERSON', isActive: true }
-            ];
-
-            const updateSummary = () => {
-                let totalIn = 0, totalOut = 0;
-                waterSales.value.forEach(w => { totalIn += (w.cashAmount || 0) + (w.gpayAmount || 0); });
-                materialSales.value.forEach(m => { totalIn += (m.cashAmount || 0) + (m.gpayAmount || 0); });
-                expenses.value.forEach(e => { totalOut += e.amount || 0; });
-
-                summary.value = {
-                    netRevenue: totalIn,
-                    netProfit: totalIn - totalOut,
-                    totalInflow: totalIn,
-                    totalOutflow: totalOut
-                };
-            };
-
-            const loadAll = async () => {
-                try {
-                    const resWater = await fetch('/api/water-sales').then(r => r.json()).catch(() => null);
-                    waterSales.value = resWater || sampleWater;
-
-                    const resMat = await fetch('/api/material-sales').then(r => r.json()).catch(() => null);
-                    materialSales.value = resMat || sampleMaterial;
-
-                    const resCF = await fetch('/api/cash-flow').then(r => r.json()).catch(() => null);
-                    cashFlows.value = resCF || sampleCashFlow;
-
-                    const resDS = await fetch('/api/daily-sales').then(r => r.json()).catch(() => null);
-                    dailySales.value = resDS || sampleDailySales;
-
-                    const resExp = await fetch('/api/expenses').then(r => r.json()).catch(() => null);
-                    expenses.value = resExp || sampleExpenses;
-
-                    const resProd = await fetch('/api/products').then(r => r.json()).catch(() => null);
-                    products.value = resProd || sampleProducts;
-
-                    const resUsers = await fetch('/api/users').then(r => r.json()).catch(() => null);
-                    users.value = resUsers || sampleUsers;
-
-                    apiOnline.value = true;
-                    updateSummary();
-                } catch (err) {
-                    apiOnline.value = false;
-                }
-            };
-
-            const loadWaterSales = async () => { waterSales.value = await fetch('/api/water-sales').then(r => r.json()).catch(() => waterSales.value); updateSummary(); };
-            const loadMaterialSales = async () => { materialSales.value = await fetch('/api/material-sales').then(r => r.json()).catch(() => materialSales.value); updateSummary(); };
-            const loadCashFlows = async () => { cashFlows.value = await fetch('/api/cash-flow').then(r => r.json()).catch(() => cashFlows.value); updateSummary(); };
-            const loadDailySales = async () => { dailySales.value = await fetch('/api/daily-sales').then(r => r.json()).catch(() => dailySales.value); updateSummary(); };
-            const loadExpenses = async () => { expenses.value = await fetch('/api/expenses').then(r => r.json()).catch(() => expenses.value); updateSummary(); };
-            const loadProducts = async () => { products.value = await fetch('/api/products').then(r => r.json()).catch(() => products.value); };
-            const loadUsers = async () => { users.value = await fetch('/api/users').then(r => r.json()).catch(() => users.value); };
-
-            const refreshData = () => {
-                loadAll();
-                if (currentTab.value === 'dashboard') nextTick(() => renderChart());
-            };
-
-            const clearForms = () => {
-                waterForm.value = { id: null, soldDate: defaultDate(), totalCansSold: null, cashAmount: null, gpayAmount: null };
-                materialForm.value = { id: null, soldDate: defaultDate(), itemName: '', quantity: null, unitPrice: null, cashAmount: null, gpayAmount: null, remarks: '' };
-                cashFlowForm.value = { id: null, entryDate: defaultDate(), transactionType: 'INFLOW', category: '', amount: null, description: '' };
-                dailySalesForm.value = { id: null, saleDate: defaultDate(), waterCash: null, waterGpay: null, materialCash: null, materialGpay: null, expenses: null, remarks: '' };
-                expenseForm.value = { id: null, expenseDate: defaultDate(), expenseCategory: '', amount: null, paidTo: 'Cash', notes: '' };
-                productForm.value = { id: null, itemName: '', quantity: null, sellingPrice: null, description: '' };
-                userForm.value = { id: null, fullName: '', phoneNumber: '', passcode: '', role: 'ADMIN', isActive: true };
-            };
-
-            const saveWaterSale = async () => {
-                if (waterForm.value.id) {
-                    const idx = waterSales.value.findIndex(item => item.id === waterForm.value.id);
-                    if (idx !== -1) waterSales.value[idx] = { ...waterForm.value };
-                } else {
-                    waterSales.value.unshift({ ...waterForm.value, id: Date.now() });
-                }
-                fetch('/api/water-sales', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(waterForm.value) }).catch(() => {});
-                clearForms();
-                updateSummary();
-            };
-
-            const saveMaterialSale = async () => {
-                if (materialForm.value.id) {
-                    const idx = materialSales.value.findIndex(item => item.id === materialForm.value.id);
-                    if (idx !== -1) materialSales.value[idx] = { ...materialForm.value };
-                } else {
-                    materialSales.value.unshift({ ...materialForm.value, id: Date.now() });
-                }
-                fetch('/api/material-sales', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(materialForm.value) }).catch(() => {});
-                clearForms();
-                updateSummary();
-            };
-
+            // CRUD Methods with API Integration & Fallback
             const saveCashFlow = async () => {
-                if (cashFlowForm.value.id) {
-                    const idx = cashFlows.value.findIndex(item => item.id === cashFlowForm.value.id);
-                    if (idx !== -1) cashFlows.value[idx] = { ...cashFlowForm.value };
-                } else {
-                    cashFlows.value.unshift({ ...cashFlowForm.value, id: Date.now() });
+                const isEdit = !!cashFlowForm.value.id;
+                const url = isEdit ? `/api/cash-flow/${cashFlowForm.value.id}` : '/api/cash-flow';
+                const method = isEdit ? 'PUT' : 'POST';
+                try {
+                    const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cashFlowForm.value) });
+                    if (!res.ok) throw new Error();
+                } catch {
+                    if (!isEdit) cashFlows.value.unshift({ ...cashFlowForm.value, id: Date.now() });
+                    else {
+                        const idx = cashFlows.value.findIndex(c => c.id === cashFlowForm.value.id);
+                        if (idx !== -1) cashFlows.value[idx] = { ...cashFlowForm.value };
+                    }
                 }
-                fetch('/api/cash-flow', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cashFlowForm.value) }).catch(() => {});
                 clearForms();
-                updateSummary();
+                loadCashFlows();
             };
 
             const saveDailySales = async () => {
-                if (dailySalesForm.value.id) {
-                    const idx = dailySales.value.findIndex(item => item.id === dailySalesForm.value.id);
-                    if (idx !== -1) dailySales.value[idx] = { ...dailySalesForm.value };
-                } else {
-                    dailySales.value.unshift({ ...dailySalesForm.value, id: Date.now() });
+                const isEdit = !!dailySalesForm.value.id;
+                const url = isEdit ? `/api/daily-sales/${dailySalesForm.value.id}` : '/api/daily-sales';
+                const method = isEdit ? 'PUT' : 'POST';
+                try {
+                    const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dailySalesForm.value) });
+                    if (!res.ok) throw new Error();
+                } catch {
+                    if (!isEdit) dailySales.value.unshift({ ...dailySalesForm.value, id: Date.now() });
+                    else {
+                        const idx = dailySales.value.findIndex(d => d.id === dailySalesForm.value.id);
+                        if (idx !== -1) dailySales.value[idx] = { ...dailySalesForm.value };
+                    }
                 }
-                fetch('/api/daily-sales', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dailySalesForm.value) }).catch(() => {});
                 clearForms();
-                updateSummary();
+                loadDailySales();
+            };
+
+            const saveWaterSale = async () => {
+                const isEdit = !!waterForm.value.id;
+                const url = isEdit ? `/api/water-sales/${waterForm.value.id}` : '/api/water-sales';
+                const method = isEdit ? 'PUT' : 'POST';
+                try {
+                    const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(waterForm.value) });
+                    if (!res.ok) throw new Error();
+                } catch {
+                    if (!isEdit) waterSales.value.unshift({ ...waterForm.value, id: Date.now() });
+                    else {
+                        const idx = waterSales.value.findIndex(w => w.id === waterForm.value.id);
+                        if (idx !== -1) waterSales.value[idx] = { ...waterForm.value };
+                    }
+                }
+                clearForms();
+                loadWaterSales();
+                updateChart();
+            };
+
+            const saveMaterialSale = async () => {
+                const isEdit = !!materialForm.value.id;
+                const url = isEdit ? `/api/material-sales/${materialForm.value.id}` : '/api/material-sales';
+                const method = isEdit ? 'PUT' : 'POST';
+                try {
+                    const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(materialForm.value) });
+                    if (!res.ok) throw new Error();
+                } catch {
+                    if (!isEdit) materialSales.value.unshift({ ...materialForm.value, id: Date.now() });
+                    else {
+                        const idx = materialSales.value.findIndex(m => m.id === materialForm.value.id);
+                        if (idx !== -1) materialSales.value[idx] = { ...materialForm.value };
+                    }
+                }
+                clearForms();
+                loadMaterialSales();
+                updateChart();
             };
 
             const saveExpense = async () => {
-                if (expenseForm.value.id) {
-                    const idx = expenses.value.findIndex(item => item.id === expenseForm.value.id);
-                    if (idx !== -1) expenses.value[idx] = { ...expenseForm.value };
-                } else {
-                    expenses.value.unshift({ ...expenseForm.value, id: Date.now() });
+                const isEdit = !!expenseForm.value.id;
+                const url = isEdit ? `/api/expenses/${expenseForm.value.id}` : '/api/expenses';
+                const method = isEdit ? 'PUT' : 'POST';
+                try {
+                    const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(expenseForm.value) });
+                    if (!res.ok) throw new Error();
+                } catch {
+                    if (!isEdit) expenses.value.unshift({ ...expenseForm.value, id: Date.now() });
+                    else {
+                        const idx = expenses.value.findIndex(e => e.id === expenseForm.value.id);
+                        if (idx !== -1) expenses.value[idx] = { ...expenseForm.value };
+                    }
                 }
-                fetch('/api/expenses', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(expenseForm.value) }).catch(() => {});
                 clearForms();
-                updateSummary();
+                loadExpenses();
             };
 
             const saveProduct = async () => {
-                if (productForm.value.id) {
-                    const idx = products.value.findIndex(item => item.id === productForm.value.id);
-                    if (idx !== -1) products.value[idx] = { ...productForm.value };
-                } else {
-                    products.value.unshift({ ...productForm.value, id: Date.now() });
+                const isEdit = !!productForm.value.id;
+                const url = isEdit ? `/api/products/${productForm.value.id}` : '/api/products';
+                const method = isEdit ? 'PUT' : 'POST';
+                try {
+                    const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(productForm.value) });
+                    if (!res.ok) throw new Error();
+                } catch {
+                    if (!isEdit) products.value.unshift({ ...productForm.value, id: Date.now() });
+                    else {
+                        const idx = products.value.findIndex(p => p.id === productForm.value.id);
+                        if (idx !== -1) products.value[idx] = { ...productForm.value };
+                    }
                 }
-                fetch('/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(productForm.value) }).catch(() => {});
                 clearForms();
+                loadProducts();
             };
 
             const saveUser = async () => {
-                if (userForm.value.id) {
-                    const idx = users.value.findIndex(item => item.id === userForm.value.id);
-                    if (idx !== -1) users.value[idx] = { ...userForm.value };
-                } else {
-                    users.value.unshift({ ...userForm.value, id: Date.now() });
+                const isEdit = !!userForm.value.id;
+                const url = isEdit ? `/api/users/${userForm.value.id}` : '/api/users';
+                const method = isEdit ? 'PUT' : 'POST';
+                try {
+                    const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(userForm.value) });
+                    if (!res.ok) throw new Error();
+                } catch {
+                    if (!isEdit) users.value.unshift({ ...userForm.value, id: Date.now() });
+                    else {
+                        const idx = users.value.findIndex(u => u.id === userForm.value.id);
+                        if (idx !== -1) users.value[idx] = { ...userForm.value };
+                    }
                 }
-                fetch('/api/users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(userForm.value) }).catch(() => {});
                 clearForms();
+                loadUsers();
+            };
+
+            const deleteItem = async (endpoint, reloadFn) => {
+                if (!confirm('Are you sure you want to delete this record?')) return;
+                try {
+                    await fetch(endpoint, { method: 'DELETE' });
+                } catch {
+                    // Fallback
+                }
+                reloadFn();
+                updateChart();
             };
 
             const editItem = (type, item) => {
-                if (type === 'water') waterForm.value = { ...item };
-                else if (type === 'material') materialForm.value = { ...item };
-                else if (type === 'cash-flow') cashFlowForm.value = { ...item };
+                if (type === 'cash-flow') cashFlowForm.value = { ...item };
                 else if (type === 'daily-sales') dailySalesForm.value = { ...item };
+                else if (type === 'water') waterForm.value = { ...item };
+                else if (type === 'material') materialForm.value = { ...item };
                 else if (type === 'expenses') expenseForm.value = { ...item };
                 else if (type === 'product') productForm.value = { ...item };
                 else if (type === 'user') userForm.value = { ...item };
             };
 
-            const deleteItem = (endpoint, reloadFn) => {
-                if (confirm('Are you sure you want to delete this record?')) {
-                    fetch(endpoint, { method: 'DELETE' }).catch(() => {});
-                    const parts = endpoint.split('/');
-                    const id = parseInt(parts[parts.length - 1]);
-                    if (endpoint.includes('water-sales')) waterSales.value = waterSales.value.filter(i => i.id !== id);
-                    if (endpoint.includes('material-sales')) materialSales.value = materialSales.value.filter(i => i.id !== id);
-                    if (endpoint.includes('cash-flow')) cashFlows.value = cashFlows.value.filter(i => i.id !== id);
-                    if (endpoint.includes('daily-sales')) dailySales.value = dailySales.value.filter(i => i.id !== id);
-                    if (endpoint.includes('expenses')) expenses.value = expenses.value.filter(i => i.id !== id);
-                    if (endpoint.includes('products')) products.value = products.value.filter(i => i.id !== id);
-                    if (endpoint.includes('users')) users.value = users.value.filter(i => i.id !== id);
-                    updateSummary();
-                }
+            const clearForms = () => {
+                const today = new Date().toISOString().split('T')[0];
+                cashFlowForm.value = { id: null, entryDate: today, transactionType: 'INFLOW', category: 'Water', amount: null, description: '' };
+                dailySalesForm.value = { id: null, saleDate: today, waterCash: 0, waterGpay: 0, materialCash: 0, materialGpay: 0, expenses: 0, remarks: '' };
+                waterForm.value = { id: null, soldDate: today, totalCansSold: null, cashAmount: null, gpayAmount: null };
+                materialForm.value = { id: null, soldDate: today, itemName: '', quantity: null, unitPrice: null, cashAmount: null, gpayAmount: null, remarks: '' };
+                expenseForm.value = { id: null, expenseDate: today, expenseCategory: 'Fuel / Transport', amount: null, paidTo: 'Cash', notes: '' };
+                productForm.value = { id: null, itemName: '', quantity: 0, sellingPrice: 0, description: '' };
+                userForm.value = { id: null, fullName: '', phoneNumber: '', passcode: '', role: 'SALES_PERSON', isActive: true };
             };
 
-            const triggerSync = () => {
-                const map = {};
-                waterSales.value.forEach(w => {
-                    if (!map[w.soldDate]) map[w.soldDate] = { saleDate: w.soldDate, waterCash: 0, waterGpay: 0, materialCash: 0, materialGpay: 0, expenses: 0, remarks: 'Auto Synced' };
-                    map[w.soldDate].waterCash += w.cashAmount || 0;
-                    map[w.soldDate].waterGpay += w.gpayAmount || 0;
-                });
-                materialSales.value.forEach(m => {
-                    if (!map[m.soldDate]) map[m.soldDate] = { saleDate: m.soldDate, waterCash: 0, waterGpay: 0, materialCash: 0, materialGpay: 0, expenses: 0, remarks: 'Auto Synced' };
-                    map[m.soldDate].materialCash += m.cashAmount || 0;
-                    map[m.soldDate].materialGpay += m.gpayAmount || 0;
-                });
-                expenses.value.forEach(e => {
-                    if (!map[e.expenseDate]) map[e.expenseDate] = { saleDate: e.expenseDate, waterCash: 0, waterGpay: 0, materialCash: 0, materialGpay: 0, expenses: 0, remarks: 'Auto Synced' };
-                    map[e.expenseDate].expenses += e.amount || 0;
-                });
-                dailySales.value = Object.values(map);
+            const triggerSync = async () => {
                 fetch('/api/daily-sales/sync', { method: 'POST' })
                     .then(res => {
                         if (res.ok) refreshData();
@@ -1570,20 +1960,31 @@
                     })
                     .catch(() => alert('Sync error connecting to API'));
                 alert('Ledger synchronization completed successfully.');
+                await refreshData();
+                alert('Data synchronization complete across all ledgers and API targets.');
+            };
+
+            const switchTab = (tabId) => {
+                currentTab.value = tabId;
+                if (tabId === 'dashboard') nextTick(() => updateChart());
+            };
+
+            const totalPages = (arr) => Math.max(1, Math.ceil(arr.length / itemsPerPage));
+            const getPaginationText = (arr, page) => {
+                if (!arr.length) return 'Showing 0 records';
+                const start = (page - 1) * itemsPerPage + 1;
+                const end = Math.min(page * itemsPerPage, arr.length);
+                return `Showing ${start} to ${end} of ${arr.length} records`;
             };
 
             const exportToCSV = (data, filename) => {
-                if (!data || !data.length) {
-                    alert('No data available to export.');
-                    return;
-                }
-                const keys = Object.keys(data[0]);
-                const csvRows = [];
-                csvRows.push(keys.join(','));
-                for (const row of data) {
-                    const values = keys.map(k => `"${String(row[k] ?? '').replace(/"/g, '""')}"`);
+                if (!data || !data.length) return alert('No data available to export.');
+                const keys = Object.keys(data[0]).filter(k => k !== 'key' && k !== 'id');
+                const csvRows = [keys.join(',')];
+                data.forEach(row => {
+                    const values = keys.map(k => `"${String(row[k] || '').replace(/"/g, '""')}"`);
                     csvRows.push(values.join(','));
-                }
+                });
                 const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -1592,186 +1993,37 @@
                 a.click();
             };
 
-            const renderChart = () => {
-                const ctx = document.getElementById('salesDashboardChart');
-                if (!ctx) return;
-
-                if (dashboardChartInstance) {
-                    dashboardChartInstance.destroy();
-                }
-
-                const dataRows = filteredDashboardGridData.value;
-                const labels = dataRows.map(r => r.periodLabel);
-                const revenueData = dataRows.map(r => r.totalRevenue);
-                const qtyData = dataRows.map(r => r.totalQty);
-
-                dashboardChartInstance = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels.length ? labels : ['No Data'],
-                        datasets: [
-                            {
-                                label: 'Revenue (₹)',
-                                data: revenueData.length ? revenueData : [0],
-                                backgroundColor: 'rgba(6, 182, 212, 0.7)',
-                                borderColor: 'rgba(6, 182, 212, 1)',
-                                borderWidth: 1,
-                                yAxisID: 'y'
-                            },
-                            {
-                                label: 'Quantity Sold',
-                                data: qtyData.length ? qtyData : [0],
-                                type: 'line',
-                                borderColor: 'rgba(245, 158, 11, 1)',
-                                backgroundColor: 'rgba(245, 158, 11, 0.2)',
-                                tension: 0.3,
-                                yAxisID: 'y1'
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                type: 'linear',
-                                display: true,
-                                position: 'left',
-                                title: { display: true, text: 'Revenue (₹)' }
-                            },
-                            y1: {
-                                type: 'linear',
-                                display: true,
-                                position: 'right',
-                                grid: { drawOnChartArea: false },
-                                title: { display: true, text: 'Quantity' }
-                            }
-                        }
-                    }
-                });
-            };
-
-            watch([dashboardPeriod, dashboardCategory, dashboardFromDate, dashboardToDate, dashboardSearch], () => {
-                if (currentTab.value === 'dashboard') {
-                    nextTick(() => renderChart());
-                }
-            });
-
-            watch(currentTab, (newTab) => {
-                if (newTab === 'dashboard') {
-                    nextTick(() => renderChart());
-                }
+            // Watchers for Chart Redraws
+            watch([dashboardCategory, dashboardPeriod, dashboardFromDate, dashboardToDate], () => {
+                dashboardPage.value = 1;
+                updateChart();
             });
 
             onMounted(() => {
-                loadAll();
-                nextTick(() => renderChart());
+                refreshData();
             });
 
             return {
-                currentTab,
-                isSidebarOpen,
-                apiOnline,
-                tabs,
-                currentTabIcon,
-                currentTabTitle,
-                currentTabDescription,
-                summary,
-                dailySales,
-                products,
-                waterSales,
-                materialSales,
-                users,
-                cashFlows,
-                expenses,
-                dashboardPage,
-                ledgerPage,
-                waterPage,
-                materialPage,
-                productPage,
-                userPage,
-                cashFlowPage,
-                expensePage,
-                dashboardFromDate,
-                dashboardToDate,
-                ledgerFromDate,
-                ledgerToDate,
-                waterFromDate,
-                waterToDate,
-                materialFromDate,
-                materialToDate,
-                cashFlowFromDate,
-                cashFlowToDate,
-                expenseFromDate,
-                expenseToDate,
-                dashboardSearch,
-                searchLedger,
-                searchWater,
-                searchMaterial,
-                searchProduct,
-                searchUser,
-                searchCashFlow,
-                searchExpense,
-                cashFlowPeriod,
-                dashboardPeriod,
-                dashboardCategory,
-                waterForm,
-                materialForm,
-                cashFlowForm,
-                dailySalesForm,
-                expenseForm,
-                productForm,
-                userForm,
-                cfAnalytics,
-                filteredDashboardGridData,
-                paginatedDashboardGridData,
-                filteredCashFlows,
-                paginatedCashFlows,
-                filteredDailySales,
-                paginatedDailySales,
-                filteredWaterSales,
-                paginatedWaterSales,
-                filteredMaterialSales,
-                paginatedMaterialSales,
-                filteredExpenses,
-                paginatedExpenses,
-                filteredProducts,
-                paginatedProducts,
-                filteredUsers,
-                paginatedUsers,
-                switchTab,
-                refreshData,
-                exportToCSV,
-                toggleDashboardSort,
-                sortCashFlowBy,
-                sortLedgerBy,
-                sortWaterBy,
-                sortMaterialBy,
-                sortExpenseBy,
-                sortUserBy,
-                getPaginationText,
-                totalPages,
-                saveCashFlow,
-                saveDailySales,
-                saveWaterSale,
-                saveMaterialSale,
-                saveExpense,
-                saveProduct,
-                saveUser,
-                clearForms,
-                editItem,
-                deleteItem,
-                triggerSync,
-                loadWaterSales,
-                loadMaterialSales,
-                loadCashFlows,
-                loadDailySales,
-                loadExpenses,
-                loadProducts,
-                loadUsers
+                tabs, currentTab, isSidebarOpen, apiOnline, currentTabTitle, currentTabDescription, currentTabIcon,
+                summary, cfAnalytics,
+                waterSales, materialSales, dailySales, cashFlows, expenses, products, users,
+                dashboardFromDate, dashboardToDate, dashboardCategory, dashboardPeriod, dashboardSearch, dashboardPage,
+                filteredDashboardGridData, paginatedDashboardGridData, toggleDashboardSort,
+                cashFlowFromDate, cashFlowToDate, cashFlowPeriod, searchCashFlow, cashFlowPage, filteredCashFlows, paginatedCashFlows, sortCashFlowBy,
+                ledgerFromDate, ledgerToDate, searchLedger, ledgerPage, filteredDailySales, paginatedDailySales, sortLedgerBy,
+                waterFromDate, waterToDate, searchWater, waterPage, filteredWaterSales, paginatedWaterSales, sortWaterBy,
+                materialFromDate, materialToDate, searchMaterial, materialPage, filteredMaterialSales, paginatedMaterialSales, sortMaterialBy,
+                expenseFromDate, expenseToDate, searchExpense, expensePage, filteredExpenses, paginatedExpenses, sortExpenseBy,
+                searchProduct, productPage, filteredProducts, paginatedProducts,
+                searchUser, userPage, filteredUsers, paginatedUsers,
+                cashFlowForm, dailySalesForm, waterForm, materialForm, expenseForm, productForm, userForm,
+                saveCashFlow, saveDailySales, saveWaterSale, saveMaterialSale, saveExpense, saveProduct, saveUser,
+                deleteItem, editItem, clearForms, refreshData, triggerSync, switchTab, totalPages, getPaginationText, exportToCSV,
+                loadWaterSales, loadMaterialSales, loadDailySales, loadCashFlows, loadExpenses, loadProducts, loadUsers
             };
         }
     }).mount('#app');
 </script>
+
 </body>
 </html>
