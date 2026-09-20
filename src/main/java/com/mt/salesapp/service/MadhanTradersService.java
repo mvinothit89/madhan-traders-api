@@ -85,6 +85,7 @@ public class MadhanTradersService {
             }
             if(entry.getTotalAmount() != null && entry.getQuantity() != null)
                 entry.setUnitPrice(entry.getTotalAmount()/entry.getQuantity());
+            entry.setRemarks(entry.getRemarks());
             return materialSalesRepository.save(entry);
         }
         catch (Exception ex ){

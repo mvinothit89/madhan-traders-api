@@ -45,4 +45,10 @@ public class AppUser {
     public void setIsActive(Boolean isActive) { this.isActive = isActive; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    boolean isEnabled() {
+        // Adjust this to match your AppUser entity's actual method
+        return "TRUE".equalsIgnoreCase(getIsActive().toString());
+    }
+
 }

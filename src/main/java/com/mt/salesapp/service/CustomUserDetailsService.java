@@ -1,5 +1,6 @@
 package com.mt.salesapp.service;
 
+import com.mt.salesapp.dto.CustomUserDetails;
 import com.mt.salesapp.model.AppUser;
 import com.mt.salesapp.repository.AppUserRepository;
 import org.springframework.security.authentication.DisabledException;
@@ -20,17 +21,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String phoneNumber) throws UsernameNotFoundException {
-        AppUser user = userRepository.findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with phone: " + phoneNumber));
+        // 1. Fetch your AppUser from the database using phone number (or username)
+        AppUser appUser = userRepository.findByPhoneNumber(phoneNumber)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with phone number: " + phoneNumber));
 
-        if (!Boolean.TRUE.equals(user.getIsActive())) {
-            throw new DisabledException("Account is deactivated");
-        }
-
-        return new User(
-                user.getPhoneNumber(),
-                user.getPasscode(),
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
-        );
+        // 2. Wrap it in your CustomUserDetails class (DO NOT return Spring's default User.builder())
+        return new CustomUserDetails(appUser);
     }
+
+
 }

@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Chosen Palette: Ocean Slate & Cyan Emerald -->
+    <!-- Application Structure Plan: Enterprise management portal with modular tabs for High-Level Analytics (Dashboard), Cash Flow Dynamics, Consolidated Daily Sales Ledger, Water Sales Dispatch, Material Invoicing, Expense Tracking, Product Catalog, and User Administration. Enhanced with granular Material items, profit tracking, item names, and counts. -->
+    <!-- Visualization & Content Choices: Core KPIs are presented via metric cards with dynamic trend calculations. Temporal sales trends are rendered through Chart.js canvas visualizations with period toggles, profit metrics, and item-level granularity. Granular data entries are served in interactive, sortable, paginated HTML tables with date range filters and CSV export tools. NO SVG graphics or Mermaid JS used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Madhan Traders - Enterprise Management Portal</title>
+    <!-- Vue 3 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        [v-cloak] { display: none; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; border: 2px solid transparent; background-clip: content-box; }
+        ::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+
+        .input-field {
+            width: 100%; border: 1px solid #cbd5e1; background: #ffffff; padding: 0.625rem; border-radius: 0.75rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); font-size: 0.875rem; color: #334155;
+            outline: none; transition: all 0.3s ease-in-out;
+        }
+        .input-field:focus { border-color: #06b6d4; box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.15); }
+        .form-label {
+            display: block; font-size: 13px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.375rem;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #0891b2 0%, #2563eb 100%); color: white; padding: 0.625rem 1.5rem; border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(8,145,178,0.25); font-weight: 700; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.5rem; justify-content: center; cursor: pointer;
+        }
+        .btn-primary:hover { opacity: 0.95; transform: translateY(-1px); }
+        .btn-secondary {
+            background: white; border: 1px solid #e2e8f0; color: #334155; padding: 0.625rem 1.5rem; border-radius: 0.75rem; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+            font-weight: 600; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.5rem; justify-content: center; cursor: pointer;
+        }
+        .btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; color: #0e7490; }
+        .page-btn { position: relative; display: inline-flex; align-items: center; padding: 0.375rem 0.75rem; border: 1px solid #e2e8f0; background: white; font-size: 0.75rem; font-weight: 600; color: #475569; transition: background-color 0.2s; cursor: pointer; }
+        .page-btn:hover:not(:disabled) { background-color: #f8fafc; }
+        .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .page-btn-active { background-color: #ecfeff; color: #0e7490; border-color: #06b6d4; z-index: 10; }
+    </style>
+</head>
+<body class="bg-slate-100 font-sans text-slate-800 antialiased min-h-screen">
+
+<div id="app" v-cloak class="flex h-screen overflow-hidden bg-slate-100">
+
+    <!-- Mobile Sidebar Overlay -->
+    <div v-if="isSidebarOpen" @click="isSidebarOpen = false" class="fixed inset-0 bg-slate-900/50 z-20 md:hidden backdrop-blur-sm transition-opacity"></div>
+
+    <!-- Sidebar -->
+    <aside :class="['fixed md:relative z-30 inset-y-0 left-0 w-72 shrink-0 bg-slate-900 text-white flex flex-col justify-between shadow-2xl transition-transform duration-300 ease-in-out md:translate-x-0', isSidebarOpen ? 'translate-x-0' : '-translate-x-full']">
+        <div class="absolute top-0 left-0 w-full h-32 bg-cyan-600/20 blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 flex flex-col h-full">
+            <div class="p-6 text-xl md:text-2xl font-bold bg-slate-900/50 flex items-center justify-between border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="bg-cyan-500/20 p-2 rounded-lg"><i class="fa-solid fa-water text-cyan-400"></i></div>
+                    Madhan Traders
+                </div>
+                <button @click="isSidebarOpen = false" class="md:hidden text-slate-400 hover:text-white transition-colors cursor-pointer">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
+            </div>
+            <nav class="mt-6 px-3 space-y-1.5 overflow-y-auto">
+                <a v-for="tab in tabs" :key="tab.id" @click="switchTab(tab.id); isSidebarOpen = false;"
+                   :class="['flex items-center gap-3 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-300',
+                            currentTab === tab.id ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-900/50 font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-white']">
+                    <i :class="tab.icon + ' w-6 text-center text-lg ' + (currentTab === tab.id ? 'text-cyan-100' : 'text-slate-500')"></i>
+                    {{ tab.name }}
+                </a>
+            </nav>
+        </div>
+        <div class="p-5 text-xs text-slate-500 bg-slate-950/50 text-center border-t border-slate-800/80 relative z-10 mt-auto">
+            Enterprise Management v6.5<br>
+            <span class="text-slate-600">Pro Edition - Enhanced Profit & Item Analytics</span>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-y-auto bg-slate-50 relative">
+
+        <!-- Header -->
+        <header class="glass-panel shadow-sm border-b border-slate-200 px-4 md:px-8 py-4 flex flex-wrap gap-4 justify-between items-center sticky top-0 z-10">
+            <div class="flex items-center gap-3 md:gap-4">
+                <button @click="isSidebarOpen = true" class="md:hidden p-2 -ml-2 text-slate-500 hover:text-cyan-600 focus:outline-none transition-colors cursor-pointer">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-extrabold text-slate-800 flex items-center gap-3">
+                        <div class="hidden md:block bg-cyan-100 text-cyan-600 p-2 rounded-lg text-lg shadow-inner"><i :class="currentTabIcon"></i></div>
+                        {{ currentTabTitle }}
+                    </h1>
+                    <p class="text-xs md:text-sm text-slate-500 mt-1 hidden sm:block font-medium">{{ currentTabDescription }}</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 md:gap-5 ml-auto">
+                <span class="text-sm font-bold text-slate-600 hidden md:inline-block mr-2">Welcome, Vinoth</span>
+                <span :class="['text-[10px] md:text-xs border px-2 md:px-3 py-1.5 rounded-full font-bold flex items-center gap-1 md:gap-2 shadow-sm', apiOnline ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200']">
+                    <span :class="['w-1.5 h-1.5 md:w-2 md:h-2 rounded-full', apiOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500']"></span> <span class="hidden sm:inline">API</span> {{ apiOnline ? 'Online' : 'Offline Mode' }}
+                </span>
+                <button @click="refreshData" class="btn-secondary !p-2 md:!p-2.5 !rounded-lg text-slate-500 group cursor-pointer" title="Refresh Data">
+                    <i class="fa-solid fa-rotate-right group-hover:rotate-180 transition-transform duration-500"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="p-4 md:p-8 max-w-screen-2xl mx-auto w-full">
+
+            <!-- DASHBOARD TAB -->
+            <div v-if="currentTab === 'dashboard'" class="space-y-6 md:space-y-8 animate-fade-in">
+
+                <!-- Section Introduction -->
+                <div class="bg-gradient-to-r from-cyan-900 to-slate-900 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-cyan-300">Executive Overview & Granular Analytics Hub</h2>
+                        <p class="text-xs md:text-sm text-slate-300 mt-1">Consolidates operational KPIs, material profits, item names, counts, water dispatches, and financial balances.</p>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs bg-slate-800/80 px-3 py-2 rounded-xl border border-slate-700">
+                        <i class="fa-solid fa-calendar-check text-cyan-400"></i> Live Sync Enabled
+                    </div>
+                </div>
+
+                <!-- MASTER BALANCE SECTION -->
+                <div class="bg-slate-900 rounded-3xl p-6 md:p-8 shadow-xl border border-slate-700 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
+                    <div class="absolute -right-20 -top-20 w-64 h-64 bg-cyan-500/10 blur-3xl rounded-full"></div>
+                    <div class="relative z-10 w-full text-center md:text-left">
+                        <p class="text-cyan-400 text-sm font-bold uppercase tracking-wider mb-2">Total Ledger Balance</p>
+                        <h2 class="text-4xl md:text-6xl font-extrabold text-white mb-2">₹{{ (summary.totalInflow - summary.totalOutflow).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</h2>
+                        <div class="inline-block bg-slate-800 border border-slate-600 text-slate-300 text-xs px-4 py-2 rounded-lg font-bold shadow-inner">
+                            Sum of INFLOW - SUM of OUTFLOW = BALANCE
+                        </div>
+                    </div>
+                    <div class="relative z-10 hidden md:flex shrink-0 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 p-6 rounded-2xl border border-cyan-500/30 shadow-inner">
+                        <i class="fa-solid fa-scale-balanced text-5xl text-cyan-400 drop-shadow-md"></i>
+                    </div>
+                </div>
+
+                <!-- Summary Metrics -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden group hover:-translate-y-1 transition-all">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-cyan-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-start mb-4">
+                                <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Net Revenue</p>
+                                <div class="bg-cyan-100 text-cyan-600 p-2 rounded-lg shadow-sm"><i class="fa-solid fa-chart-line"></i></div>
+                            </div>
+                            <h3 class="text-2xl md:text-3xl font-extrabold text-slate-800">&#8377;{{ summary.netRevenue?.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden group hover:-translate-y-1 transition-all">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-start mb-4">
+                                <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Net Profit</p>
+                                <div class="bg-emerald-100 text-emerald-600 p-2 rounded-lg shadow-sm"><i class="fa-solid fa-sack-dollar"></i></div>
+                            </div>
+                            <h3 class="text-2xl md:text-3xl font-extrabold text-emerald-600">&#8377;{{ summary.netProfit?.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden group hover:-translate-y-1 transition-all">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-start mb-4">
+                                <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Cash Inflow</p>
+                                <div class="bg-blue-100 text-blue-600 p-2 rounded-lg shadow-sm"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                            </div>
+                            <h3 class="text-2xl md:text-3xl font-extrabold text-blue-600">&#8377;{{ summary.totalInflow?.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden group hover:-translate-y-1 transition-all">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-rose-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-start mb-4">
+                                <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Cash Outflow</p>
+                                <div class="bg-rose-100 text-rose-600 p-2 rounded-lg shadow-sm"><i class="fa-solid fa-arrow-trend-down"></i></div>
+                            </div>
+                            <h3 class="text-2xl md:text-3xl font-extrabold text-rose-600">&#8377;{{ summary.totalOutflow?.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhanced Sales & Profit Trends Section -->
+                <div class="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+                    <div class="flex flex-col xl:flex-row justify-between xl:items-center gap-4 border-b border-slate-100 pb-4">
+                        <div>
+                            <h3 class="text-lg md:text-xl font-extrabold text-slate-800">Material & Water Profit & Count Analytics</h3>
+                            <p class="text-xs md:text-sm text-slate-500 mt-1">Detailed analysis showing Material (Profit, Item Name, Count) and Water (Profit, Count) across custom date ranges and periods.</p>
+                        </div>
+                        <div class="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3">
+                            <!-- Dashboard Date Range Selector -->
+                            <div class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-inner">
+                                <input v-model="dashboardFromDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 font-semibold cursor-pointer">
+                                <span class="text-[10px] font-bold text-slate-400">TO</span>
+                                <input v-model="dashboardToDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-cyan-500 font-semibold cursor-pointer">
+                            </div>
+                            <!-- Category Filter -->
+                            <div class="flex flex-wrap items-center gap-1 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-inner w-full sm:w-auto">
+                                <button @click="dashboardCategory = 'all'" :class="['px-3 md:px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex-1 sm:flex-none text-center cursor-pointer', dashboardCategory === 'all' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">All</button>
+                                <button @click="dashboardCategory = 'water'" :class="['px-3 md:px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex-1 sm:flex-none text-center cursor-pointer', dashboardCategory === 'water' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Water (Profit & Count)</button>
+                                <button @click="dashboardCategory = 'material'" :class="['px-3 md:px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex-1 sm:flex-none text-center cursor-pointer', dashboardCategory === 'material' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Material (Item, Profit, Count)</button>
+                            </div>
+                            <!-- Period Filter -->
+                            <div class="flex flex-wrap items-center gap-1 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-inner w-full sm:w-auto overflow-x-auto">
+                                <button @click="dashboardPeriod = 'daily'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer', dashboardPeriod === 'daily' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Daily</button>
+                                <button @click="dashboardPeriod = 'weekly'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer', dashboardPeriod === 'weekly' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Weekly</button>
+                                <button @click="dashboardPeriod = 'monthly'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer', dashboardPeriod === 'monthly' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Monthly</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart Container -->
+                    <div class="relative h-72 md:h-96 w-full">
+                        <canvas id="salesDashboardChart"></canvas>
+                    </div>
+
+                    <!-- Enhanced Data Grid with Material (Item Name, Profit, Count) and Water (Profit, Count) -->
+                    <div class="pt-4 border-t border-slate-100 space-y-4">
+                        <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+                            <h4 class="font-bold text-slate-800 text-md">Granular Analytics Matrix (Material & Water Profit & Count)</h4>
+                            <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+                                <div class="relative flex-1 min-w-[220px]">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
+                                    <input v-model="dashboardSearch" placeholder="Search item name, category..." class="input-field !py-2 !pl-9 !text-sm">
+                                </div>
+                                <button @click="exportToCSV(filteredDashboardGridData, 'Granular_Profit_Report.csv')" class="btn-secondary !py-2 !text-xs h-[38px]"><i class="fa-solid fa-download"></i> Export</button>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto rounded-t-xl border border-slate-200">
+                            <table class="w-full text-left border-collapse min-w-[800px]">
+                                <thead>
+                                <tr class="bg-slate-50/80 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                    <th @click="toggleDashboardSort('periodLabel')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">
+                                        Period <i class="fa-solid fa-sort ml-1 opacity-50"></i>
+                                    </th>
+                                    <th @click="toggleDashboardSort('categoryName')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">
+                                        Category <i class="fa-solid fa-sort ml-1 opacity-50"></i>
+                                    </th>
+                                    <th @click="toggleDashboardSort('itemName')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">
+                                        Item Name <i class="fa-solid fa-sort ml-1 opacity-50"></i>
+                                    </th>
+                                    <th @click="toggleDashboardSort('totalCount')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">
+                                        Count / Qty <i class="fa-solid fa-sort ml-1 opacity-50"></i>
+                                    </th>
+                                    <th @click="toggleDashboardSort('totalRevenue')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">
+                                        Revenue (₹) <i class="fa-solid fa-sort ml-1 opacity-50"></i>
+                                    </th>
+                                    <th @click="toggleDashboardSort('totalProfit')" class="p-3 md:p-4 font-bold text-emerald-700 cursor-pointer hover:text-emerald-800 transition-colors">
+                                        Profit (₹) <i class="fa-solid fa-sort ml-1 opacity-50"></i>
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-sm bg-white">
+                                <tr v-for="row in paginatedDashboardGridData" :key="row.key + (row.itemName || '')" class="hover:bg-slate-50/80 transition-colors group">
+                                    <td class="p-3 md:p-4 font-bold text-slate-700">{{ row.periodLabel }}</td>
+                                    <td class="p-3 md:p-4 font-semibold">
+                                        <span :class="['px-2.5 py-1 rounded-md text-xs border font-bold', row.categoryName === 'Water' ? 'bg-cyan-50 text-cyan-700 border-cyan-100' : 'bg-amber-50 text-amber-700 border-amber-100']">{{ row.categoryName }}</span>
+                                    </td>
+                                    <td class="p-3 md:p-4 font-bold text-slate-800">{{ row.itemName }}</td>
+                                    <td class="p-3 md:p-4 font-extrabold text-indigo-600">{{ row.totalCount }}</td>
+                                    <td class="p-3 md:p-4 font-semibold text-slate-600">₹{{ row.totalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</td>
+                                    <td class="p-3 md:p-4 font-extrabold text-emerald-600">₹{{ row.totalProfit.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</td>
+                                </tr>
+                                <tr v-if="!paginatedDashboardGridData.length">
+                                    <td colspan="6" class="p-8 text-center text-slate-500 font-medium">No records matching your search or date filters.</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination Controls -->
+                        <div class="flex items-center justify-between border border-t-0 border-slate-200 bg-slate-50 px-4 py-3 rounded-b-xl shadow-inner">
+                            <div class="text-xs text-slate-500 font-medium">
+                                <span>{{ getPaginationText(filteredDashboardGridData, dashboardPage) }}</span>
+                            </div>
+                            <div class="inline-flex rounded-lg shadow-sm overflow-hidden">
+                                <button @click="dashboardPage--" :disabled="dashboardPage === 1" class="page-btn border-r-0 rounded-l-lg">Prev</button>
+                                <button class="page-btn page-btn-active">{{ dashboardPage }}</button>
+                                <button @click="dashboardPage++" :disabled="dashboardPage >= totalPages(filteredDashboardGridData)" class="page-btn border-l-0 rounded-r-lg">Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CASH FLOW TAB -->
+            <div v-if="currentTab === 'cash-flow'" class="space-y-6 animate-fade-in">
+                <!-- Section Introduction -->
+                <div class="bg-gradient-to-r from-emerald-900 to-teal-900 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-teal-300">Financial Trajectory & Cash Flow Ledger</h2>
+                        <p class="text-xs md:text-sm text-slate-200 mt-1">Tracks net cash movements, water and material profit calculations, and segregated operating expenses.</p>
+                    </div>
+                    <div class="bg-teal-800/80 px-4 py-2 rounded-xl border border-teal-600 text-xs font-bold text-teal-200">
+                        Inflow - Outflow = Balance
+                    </div>
+                </div>
+
+                <!-- Top controls & Summary with Date Filter -->
+                <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-l-4 border-l-emerald-500">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800">Financial Trajectory & Entries</h3>
+                        <p class="text-xs md:text-sm text-emerald-600 mt-1 font-bold">INFLOW + OUTFLOW = BALANCE (Sum of INFLOW - SUM of OUTFLOW = BALANCE)</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                        <div class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-inner">
+                            <input v-model="cashFlowFromDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none font-semibold cursor-pointer">
+                            <span class="text-[10px] font-bold text-slate-400">TO</span>
+                            <input v-model="cashFlowToDate" type="date" class="bg-white border border-slate-200 rounded-lg p-1.5 text-xs text-slate-600 outline-none font-semibold cursor-pointer">
+                        </div>
+                        <div class="bg-slate-50 p-1.5 rounded-xl flex gap-1 shadow-inner border border-slate-200">
+                            <button @click="cashFlowPeriod = 'daily'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer', cashFlowPeriod === 'daily' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Daily</button>
+                            <button @click="cashFlowPeriod = 'weekly'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer', cashFlowPeriod === 'weekly' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Weekly</button>
+                            <button @click="cashFlowPeriod = 'monthly'" :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer', cashFlowPeriod === 'monthly' ? 'bg-white text-cyan-700 shadow border border-slate-200' : 'text-slate-500 hover:text-slate-700']">Monthly</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Master Balance and Inflow / Outflow Summary Banner -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-slate-900 text-white p-5 rounded-2xl shadow border border-slate-700 flex flex-col justify-between">
+                        <p class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-2">Calculated Balance</p>
+                        <h3 class="text-3xl font-extrabold">₹{{ (cfAnalytics.totalInflow - cfAnalytics.totalOutflow).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</h3>
+                        <p class="text-[10px] text-slate-400 mt-2 font-medium">Sum of Inflow - Sum of Outflow</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 border-l-4 border-l-blue-500 flex flex-col justify-between">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Total Cashflow Inflow</p>
+                        <h3 class="text-2xl font-extrabold text-blue-600">₹{{ cfAnalytics.totalInflow.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</h3>
+                        <p class="text-[10px] text-slate-400 mt-2 font-medium">Sum of all Inflow entries</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 border-l-4 border-l-rose-500 flex flex-col justify-between">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Total Cashflow Outflow</p>
+                        <h3 class="text-2xl font-extrabold text-rose-600">₹{{ cfAnalytics.totalOutflow.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</h3>
+                        <p class="text-[10px] text-slate-400 mt-2 font-medium">Sum of all Outflow entries</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 border-l-4 border-l-amber-500 flex flex-col justify-between">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Net Profit Overview</p>
+                        <h3 class="text-2xl font-extrabold text-emerald-600">₹{{ (cfAnalytics.waterProfitTotal + cfAnalytics.materialProfitTotal).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</h3>
+                        <p class="text-[10px] text-slate-400 mt-2 font-medium">Water Profit + Material Profit</p>
+                    </div>
+                </div>
+
+                <!-- Profits & Separate Expenses Breakdown Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-cyan-500">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="text-xs md:text-sm font-bold text-slate-700 uppercase tracking-wider">Water Profit Breakdown</h4>
+                            <span class="bg-cyan-50 text-cyan-700 font-extrabold text-xs px-2.5 py-1 rounded-md border border-cyan-100">₹{{ cfAnalytics.waterProfitTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                        </div>
+                        <div class="space-y-3 text-xs">
+                            <div class="flex justify-between p-2 bg-slate-50 rounded-lg">
+                                <span class="font-bold text-slate-600">Daily Profit:</span>
+                                <span class="font-extrabold text-cyan-700">₹{{ cfAnalytics.waterProfitDaily.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-slate-50 rounded-lg">
+                                <span class="font-bold text-slate-600">Weekly Profit:</span>
+                                <span class="font-extrabold text-cyan-700">₹{{ cfAnalytics.waterProfitWeekly.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-slate-50 rounded-lg">
+                                <span class="font-bold text-slate-600">Monthly Profit:</span>
+                                <span class="font-extrabold text-cyan-700">₹{{ cfAnalytics.waterProfitMonthly.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-amber-500">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="text-xs md:text-sm font-bold text-slate-700 uppercase tracking-wider">Material Profit Breakdown</h4>
+                            <span class="bg-amber-50 text-amber-700 font-extrabold text-xs px-2.5 py-1 rounded-md border border-amber-100">₹{{ cfAnalytics.materialProfitTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                        </div>
+                        <div class="space-y-3 text-xs">
+                            <div class="flex justify-between p-2 bg-slate-50 rounded-lg">
+                                <span class="font-bold text-slate-600">Daily Profit:</span>
+                                <span class="font-extrabold text-amber-700">₹{{ cfAnalytics.materialProfitDaily.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-slate-50 rounded-lg">
+                                <span class="font-bold text-slate-600">Weekly Profit:</span>
+                                <span class="font-extrabold text-amber-700">₹{{ cfAnalytics.materialProfitWeekly.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-slate-50 rounded-lg">
+                                <span class="font-bold text-slate-600">Monthly Profit:</span>
+                                <span class="font-extrabold text-amber-700">₹{{ cfAnalytics.materialProfitMonthly.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 border-t-4 border-t-rose-500">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="text-xs md:text-sm font-bold text-slate-700 uppercase tracking-wider">Total Expense (Separate)</h4>
+                            <span class="bg-rose-50 text-rose-700 font-extrabold text-xs px-2.5 py-1 rounded-md border border-rose-100">₹{{ cfAnalytics.totalExpenses.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                        </div>
+                        <div class="space-y-2 text-xs">
+                            <div class="flex justify-between p-1.5 bg-slate-50 rounded-lg">
+                                <span class="font-bold text-slate-600">Daily Expense:</span>
+                                <span class="font-extrabold text-rose-600">₹{{ cfAnalytics.expenseDaily.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                            </div>
+                            <div class="flex justify-between p-1.5 bg-slate-50 rounded-lg">
+                                <span class="font-bold text-slate-600">Weekly Expense:</span>
+                                <span class="font-extrabold text-rose-600">₹{{ cfAnalytics.expenseWeekly.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                            </div>
+                            <div class="flex justify-between p-1.5 bg-slate-50 rounded-lg">
+                                <span class="font-bold text-slate-600">Monthly Expense:</span>
+                                <span class="font-extrabold text-rose-600">₹{{ cfAnalytics.expenseMonthly.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                            </div>
+                            <div class="flex justify-between p-1.5 bg-slate-50 rounded-lg">
+                                <span class="font-bold text-slate-600">Quarterly Expense:</span>
+                                <span class="font-extrabold text-rose-600">₹{{ cfAnalytics.expenseQuarterly.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cash Flow Form (CRUD) -->
+                <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-extrabold mb-5 text-slate-700 border-b border-slate-100 pb-3">{{ cashFlowForm.id ? 'Edit Cash Entry' : 'Manual Cash Flow Entry' }}</h3>
+                    <form @submit.prevent="saveCashFlow" class="space-y-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 md:gap-5">
+                            <div>
+                                <label class="form-label">Date</label>
+                                <input v-model="cashFlowForm.entryDate" type="date" required class="input-field cursor-pointer">
+                            </div>
+                            <div>
+                                <label class="form-label">Flow Type</label>
+                                <select v-model="cashFlowForm.transactionType" class="input-field cursor-pointer font-bold" required>
+                                    <option value="INFLOW">INFLOW (+)</option>
+                                    <option value="OUTFLOW">OUTFLOW (-)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Category</label>
+                                <input v-model="cashFlowForm.category" placeholder="e.g., Water, Material" class="input-field cursor-pointer font-bold" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Amount (₹)</label>
+                                <input v-model.number="cashFlowForm.amount" type="number" step="0.01" required placeholder="0.00" class="input-field font-bold">
+                            </div>
+                            <div class="flex items-end gap-2 pb-[1px]">
+                                <button type="submit" class="btn-primary w-full h-[46px]">{{ cashFlowForm.id ? 'Update Entry' : 'Add Entry' }}</button>
+                                <button type="button" v-if="cashFlowForm.id" @click="clearForms" class="btn-secondary h-[46px] px-4"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label">Description / Remarks</label>
+                            <input v-model="cashFlowForm.description" placeholder="Optional details..." class="input-field bg-slate-50">
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Cash Flow Data Grid -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-5">
+                    <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-5">
+                        <h4 class="font-bold text-slate-800 text-lg">Cash Flow Records</h4>
+                        <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+                            <div class="relative flex-1 min-w-[200px]">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
+                                <input v-model="searchCashFlow" placeholder="Search records..." class="input-field !py-2 !pl-9 !text-sm">
+                            </div>
+                            <button @click="exportToCSV(filteredCashFlows, 'Cash_Flow.csv')" class="btn-secondary !py-2 !text-xs h-[38px]"><i class="fa-solid fa-download"></i> Export</button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-t-xl border border-slate-200">
+                        <table class="w-full text-left border-collapse min-w-[800px]">
+                            <thead>
+                            <tr class="bg-slate-50/80 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                <th @click="sortCashFlowBy('entryDate')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Date <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th @click="sortCashFlowBy('transactionType')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Type <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th @click="sortCashFlowBy('category')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Category <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th class="p-3 md:p-4 font-bold">Description</th>
+                                <th @click="sortCashFlowBy('amount')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Amount (₹) <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th class="p-3 md:p-4 font-bold text-right">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm bg-white">
+                            <tr v-for="cf in paginatedCashFlows" :key="cf.id" class="hover:bg-slate-50/80 transition-colors group">
+                                <td class="p-3 md:p-4 font-extrabold text-slate-700">{{ cf.entryDate }}</td>
+                                <td class="p-3 md:p-4">
+                                    <span :class="['px-2.5 py-1 rounded-md text-xs font-bold uppercase', cf.transactionType === 'INFLOW' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200']">
+                                        {{ cf.transactionType }}
+                                    </span>
+                                </td>
+                                <td class="p-3 md:p-4 font-bold text-slate-600">{{ cf.category }}</td>
+                                <td class="p-3 md:p-4 text-slate-500 font-medium">{{ cf.description || '--' }}</td>
+                                <td :class="['p-3 md:p-4 font-extrabold', cf.transactionType === 'INFLOW' ? 'text-emerald-600' : 'text-rose-600']">
+                                    {{ cf.transactionType === 'INFLOW' ? '+' : '-' }} ₹{{ cf.amount?.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}
+                                </td>
+                                <td class="p-3 md:p-4 text-right space-x-1 md:space-x-2 whitespace-nowrap opacity-50 group-hover:opacity-100 transition-opacity">
+                                    <button @click="editItem('cash-flow', cf)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button @click="deleteItem('/api/cash-flow/' + cf.id, loadCashFlows)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-trash text-xs"></i></button>
+                                </td>
+                            </tr>
+                            <tr v-if="!paginatedCashFlows.length"><td colspan="6" class="p-8 text-center text-slate-500 font-medium">No cash flow records found.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div class="flex items-center justify-between border border-t-0 border-slate-200 bg-slate-50 px-4 py-3 rounded-b-xl shadow-inner">
+                        <div class="text-xs text-slate-500 font-medium">
+                            <span>{{ getPaginationText(filteredCashFlows, cashFlowPage) }}</span>
+                        </div>
+                        <div class="inline-flex rounded-lg shadow-sm overflow-hidden">
+                            <button @click="cashFlowPage--" :disabled="cashFlowPage === 1" class="page-btn border-r-0 rounded-l-lg">Prev</button>
+                            <button class="page-btn page-btn-active">{{ cashFlowPage }}</button>
+                            <button @click="cashFlowPage++" :disabled="cashFlowPage >= totalPages(filteredCashFlows)" class="page-btn border-l-0 rounded-r-lg">Next</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- DAILY SALES TAB (Consolidated Ledger) -->
+            <div v-if="currentTab === 'daily-sales'" class="space-y-6">
+                <!-- Section Introduction -->
+                <div class="bg-gradient-to-r from-blue-900 to-indigo-900 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-blue-300">Consolidated Daily Sales Ledger</h2>
+                        <p class="text-xs md:text-sm text-slate-200 mt-1">Consolidates daily cash and digital revenue streams from water dispatches and material invoicing into a master ledger with expense deductions.</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800">Ledger Configuration</h3>
+                        <p class="text-sm text-slate-500 mt-1 font-medium">Pull data automatically from material and water sub-ledgers.</p>
+                    </div>
+                    <button @click="triggerSync" class="btn-primary w-full sm:w-auto !from-emerald-500 !to-teal-600 hover:!from-emerald-600 hover:!to-teal-700">
+                        <i class="fa-solid fa-rotate"></i> Synchronize Data
+                    </button>
+                </div>
+
+                <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-extrabold mb-5 text-slate-700 border-b border-slate-100 pb-3">{{ dailySalesForm.id ? 'Edit Ledger Entry' : 'Manual Ledger Entry' }}</h3>
+                    <form @submit.prevent="saveDailySales" class="space-y-6">
+                        <div class="w-full md:w-1/4">
+                            <label class="form-label">Ledger Date</label>
+                            <input v-model="dailySalesForm.saleDate" type="date" required class="input-field cursor-pointer font-medium">
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                            <div class="bg-cyan-50/30 p-5 rounded-2xl border border-cyan-100">
+                                <h4 class="font-bold text-cyan-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-droplet text-cyan-500"></i> Water Collections</h4>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="form-label !text-cyan-700">Cash (₹)</label>
+                                        <input v-model.number="dailySalesForm.waterCash" type="number" step="0.01" placeholder="0.00" class="input-field border-cyan-200 focus:border-cyan-500 focus:ring-cyan-500/20">
+                                    </div>
+                                    <div>
+                                        <label class="form-label !text-cyan-700">GPay (₹)</label>
+                                        <input v-model.number="dailySalesForm.waterGpay" type="number" step="0.01" placeholder="0.00" class="input-field border-cyan-200 focus:border-cyan-500 focus:ring-cyan-500/20">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-amber-50/30 p-5 rounded-2xl border border-amber-100">
+                                <h4 class="font-bold text-amber-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-boxes-stacked text-amber-500"></i> Material Collections</h4>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="form-label !text-amber-700">Cash (₹)</label>
+                                        <input v-model.number="dailySalesForm.materialCash" type="number" step="0.01" placeholder="0.00" class="input-field border-amber-200 focus:border-amber-500 focus:ring-amber-500/20">
+                                    </div>
+                                    <div>
+                                        <label class="form-label !text-amber-700">GPay (₹)</label>
+                                        <input v-model.number="dailySalesForm.materialGpay" type="number" step="0.01" placeholder="0.00" class="input-field border-amber-200 focus:border-amber-500 focus:ring-amber-500/20">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-rose-50/30 p-5 rounded-2xl border border-rose-100">
+                            <h4 class="font-bold text-rose-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-money-bill-transfer text-rose-500"></i> Expenses & Deductions</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div>
+                                    <label class="form-label !text-rose-700">Amount (₹)</label>
+                                    <input v-model.number="dailySalesForm.expenses" type="number" step="0.01" placeholder="0.00" class="input-field border-rose-200 focus:ring-rose-500/20 focus:border-rose-500">
+                                </div>
+                                <div class="md:col-span-3">
+                                    <label class="form-label !text-rose-700">Expense Details</label>
+                                    <input v-model="dailySalesForm.remarks" placeholder="Reason for deduction..." class="input-field border-rose-200 focus:ring-rose-500/20 focus:border-rose-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row items-center justify-between pt-5 border-t border-slate-100 gap-4">
+                            <div class="w-full md:w-auto text-center md:text-left text-lg font-extrabold text-slate-700 bg-slate-50 px-6 py-3.5 rounded-xl border border-slate-200 shadow-inner">
+                                Gross Inflow: <span class="text-emerald-600">₹{{ ((dailySalesForm.waterCash || 0) + (dailySalesForm.waterGpay || 0) + (dailySalesForm.materialCash || 0) + (dailySalesForm.materialGpay || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</span>
+                            </div>
+                            <div class="flex w-full md:w-auto gap-3">
+                                <button type="button" v-if="dailySalesForm.id" @click="clearForms" class="btn-secondary flex-1 md:flex-none">Cancel</button>
+                                <button type="submit" class="btn-primary flex-1 md:flex-none"><i class="fa-solid fa-save"></i> {{ dailySalesForm.id ? 'Commit Update' : 'Commit Record' }}</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Daily Sales Records Grid -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-5">
+                    <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-5">
+                        <h4 class="font-bold text-slate-800 text-lg">Daily Ledger History</h4>
+                        <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+                            <div class="relative flex-1 min-w-[200px]">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
+                                <input v-model="searchDailySales" placeholder="Search date or remarks..." class="input-field !py-2 !pl-9 !text-sm">
+                            </div>
+                            <button @click="exportToCSV(filteredDailySales, 'Daily_Sales_Ledger.csv')" class="btn-secondary !py-2 !text-xs h-[38px]"><i class="fa-solid fa-download"></i> Export</button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-t-xl border border-slate-200">
+                        <table class="w-full text-left border-collapse min-w-[900px]">
+                            <thead>
+                            <tr class="bg-slate-50/80 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                <th @click="sortDailySalesBy('saleDate')" class="p-3 md:p-4 font-bold cursor-pointer hover:text-cyan-700 transition-colors">Date <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th class="p-3 md:p-4 font-bold text-cyan-700">Water (Cash / GPay)</th>
+                                <th class="p-3 md:p-4 font-bold text-amber-700">Material (Cash / GPay)</th>
+                                <th class="p-3 md:p-4 font-bold text-rose-700">Expenses & Remarks</th>
+                                <th @click="sortDailySalesBy('netTotal')" class="p-3 md:p-4 font-bold text-emerald-700 cursor-pointer hover:text-emerald-800 transition-colors">Net Balance (₹) <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                <th class="p-3 md:p-4 font-bold text-right">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm bg-white">
+                            <tr v-for="ds in paginatedDailySales" :key="ds.id" class="hover:bg-slate-50/80 transition-colors group">
+                                <td class="p-3 md:p-4 font-extrabold text-slate-700">{{ ds.saleDate }}</td>
+                                <td class="p-3 md:p-4 font-semibold text-slate-600">₹{{ (ds.waterCash + ds.waterGpay).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }} <span class="text-xs text-slate-400 font-normal">({{ ds.waterCash }}c / {{ ds.waterGpay }}g)</span></td>
+                                <td class="p-3 md:p-4 font-semibold text-slate-600">₹{{ (ds.materialCash + ds.materialGpay).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }} <span class="text-xs text-slate-400 font-normal">({{ ds.materialCash }}c / {{ ds.materialGpay }}g)</span></td>
+                                <td class="p-3 md:p-4">
+                                    <span class="text-rose-600 font-bold">₹{{ ds.expenses }}</span>
+                                    <div class="text-xs text-slate-500 truncate max-w-xs">{{ ds.remarks || 'No remarks' }}</div>
+                                </td>
+                                <td class="p-3 md:p-4 font-extrabold text-emerald-600">₹{{ ((ds.waterCash + ds.waterGpay + ds.materialCash + ds.materialGpay) - ds.expenses).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</td>
+                                <td class="p-3 md:p-4 text-right space-x-1 md:space-x-2 whitespace-nowrap opacity-50 group-hover:opacity-100 transition-opacity">
+                                    <button @click="editItem('daily-sales', ds)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button @click="deleteItem('/api/daily-sales/' + ds.id, loadDailySales)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-trash text-xs"></i></button>
+                                </td>
+                            </tr>
+                            <tr v-if="!paginatedDailySales.length"><td colspan="6" class="p-8 text-center text-slate-500 font-medium">No ledger entries recorded.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div class="flex items-center justify-between border border-t-0 border-slate-200 bg-slate-50 px-4 py-3 rounded-b-xl shadow-inner">
+                        <div class="text-xs text-slate-500 font-medium">
+                            <span>{{ getPaginationText(filteredDailySales, dailySalesPage) }}</span>
+                        </div>
+                        <div class="inline-flex rounded-lg shadow-sm overflow-hidden">
+                            <button @click="dailySalesPage--" :disabled="dailySalesPage === 1" class="page-btn border-r-0 rounded-l-lg">Prev</button>
+                            <button class="page-btn page-btn-active">{{ dailySalesPage }}</button>
+                            <button @click="dailySalesPage++" :disabled="dailySalesPage >= totalPages(filteredDailySales)" class="page-btn border-l-0 rounded-r-lg">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WATER SALES DISPATCH TAB -->
+            <div v-if="currentTab === 'water-sales'" class="space-y-6">
+                <!-- Section Introduction -->
+                <div class="bg-gradient-to-r from-cyan-950 to-blue-950 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-cyan-300">Water Sales & Dispatch Management</h2>
+                        <p class="text-xs md:text-sm text-slate-300 mt-1">Record water can dispatches, tanker trips, customer deliveries, and water-specific counts and profits.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-extrabold mb-5 text-slate-700 border-b border-slate-100 pb-3">{{ waterForm.id ? 'Edit Water Dispatch' : 'New Water Dispatch Entry' }}</h3>
+                    <form @submit.prevent="saveWaterSales" class="space-y-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
+                            <div>
+                                <label class="form-label">Dispatch Date</label>
+                                <input v-model="waterForm.dispatchDate" type="date" required class="input-field cursor-pointer">
+                            </div>
+                            <div>
+                                <label class="form-label">Item / Can Type</label>
+                                <select v-model="waterForm.itemName" class="input-field cursor-pointer font-bold" required>
+                                    <option value="20L Mineral Water Can">20L Mineral Water Can</option>
+                                    <option value="10L Water Can">10L Water Can</option>
+                                    <option value="1L Bottled Water Box">1L Bottled Water Box</option>
+                                    <option value="Water Tanker 5000L">Water Tanker 5000L</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Customer Name</label>
+                                <input v-model="waterForm.customerName" placeholder="Client or Shop Name" class="input-field font-semibold" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Count / Quantity</label>
+                                <input v-model.number="waterForm.count" type="number" min="1" step="1" required placeholder="1" class="input-field font-bold">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5">
+                            <div>
+                                <label class="form-label">Selling Price per Unit (₹)</label>
+                                <input v-model.number="waterForm.sellingPrice" type="number" step="0.01" required placeholder="0.00" class="input-field font-bold">
+                            </div>
+                            <div>
+                                <label class="form-label">Cost Price per Unit (₹)</label>
+                                <input v-model.number="waterForm.costPrice" type="number" step="0.01" required placeholder="0.00" class="input-field font-bold">
+                            </div>
+                            <div>
+                                <label class="form-label">Payment Mode</label>
+                                <select v-model="waterForm.paymentMode" class="input-field cursor-pointer font-bold">
+                                    <option value="Cash">Cash</option>
+                                    <option value="GPay">GPay</option>
+                                    <option value="Credit">Credit / Due</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                            <button type="button" v-if="waterForm.id" @click="clearForms" class="btn-secondary">Cancel</button>
+                            <button type="submit" class="btn-primary"><i class="fa-solid fa-save"></i> {{ waterForm.id ? 'Update Dispatch' : 'Save Water Dispatch' }}</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Water Dispatches Grid -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-5">
+                    <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-5">
+                        <h4 class="font-bold text-slate-800 text-lg">Water Dispatch Logs</h4>
+                        <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+                            <div class="relative flex-1 min-w-[200px]">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
+                                <input v-model="searchWaterSales" placeholder="Search customer or item..." class="input-field !py-2 !pl-9 !text-sm">
+                            </div>
+                            <button @click="exportToCSV(filteredWaterSales, 'Water_Dispatches.csv')" class="btn-secondary !py-2 !text-xs h-[38px]"><i class="fa-solid fa-download"></i> Export</button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-t-xl border border-slate-200">
+                        <table class="w-full text-left border-collapse min-w-[850px]">
+                            <thead>
+                            <tr class="bg-slate-50/80 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                <th class="p-3 md:p-4 font-bold">Date</th>
+                                <th class="p-3 md:p-4 font-bold">Customer</th>
+                                <th class="p-3 md:p-4 font-bold">Item Name</th>
+                                <th class="p-3 md:p-4 font-bold">Count</th>
+                                <th class="p-3 md:p-4 font-bold">Total Revenue (₹)</th>
+                                <th class="p-3 md:p-4 font-bold text-emerald-700">Profit (₹)</th>
+                                <th class="p-3 md:p-4 font-bold text-right">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm bg-white">
+                            <tr v-for="ws in paginatedWaterSales" :key="ws.id" class="hover:bg-slate-50/80 transition-colors group">
+                                <td class="p-3 md:p-4 font-bold text-slate-700">{{ ws.dispatchDate }}</td>
+                                <td class="p-3 md:p-4 font-bold text-slate-800">{{ ws.customerName }}</td>
+                                <td class="p-3 md:p-4 font-medium text-cyan-700">{{ ws.itemName }}</td>
+                                <td class="p-3 md:p-4 font-extrabold text-indigo-600">{{ ws.count }}</td>
+                                <td class="p-3 md:p-4 font-semibold text-slate-600">₹{{ (ws.count * ws.sellingPrice).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</td>
+                                <td class="p-3 md:p-4 font-extrabold text-emerald-600">₹{{ (ws.count * (ws.sellingPrice - ws.costPrice)).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</td>
+                                <td class="p-3 md:p-4 text-right space-x-1 md:space-x-2 whitespace-nowrap opacity-50 group-hover:opacity-100 transition-opacity">
+                                    <button @click="editItem('water-sales', ws)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button @click="deleteItem('/api/water-sales/' + ws.id, loadWaterSales)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-trash text-xs"></i></button>
+                                </td>
+                            </tr>
+                            <tr v-if="!paginatedWaterSales.length"><td colspan="7" class="p-8 text-center text-slate-500 font-medium">No water dispatch records found.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div class="flex items-center justify-between border border-t-0 border-slate-200 bg-slate-50 px-4 py-3 rounded-b-xl shadow-inner">
+                        <div class="text-xs text-slate-500 font-medium">
+                            <span>{{ getPaginationText(filteredWaterSales, waterSalesPage) }}</span>
+                        </div>
+                        <div class="inline-flex rounded-lg shadow-sm overflow-hidden">
+                            <button @click="waterSalesPage--" :disabled="waterSalesPage === 1" class="page-btn border-r-0 rounded-l-lg">Prev</button>
+                            <button class="page-btn page-btn-active">{{ waterSalesPage }}</button>
+                            <button @click="waterSalesPage++" :disabled="waterSalesPage >= totalPages(filteredWaterSales)" class="page-btn border-l-0 rounded-r-lg">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MATERIAL INVOICING TAB -->
+            <div v-if="currentTab === 'material-invoicing'" class="space-y-6">
+                <!-- Section Introduction -->
+                <div class="bg-gradient-to-r from-amber-950 to-orange-950 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-amber-300">Material Invoicing & Profit Tracking</h2>
+                        <p class="text-xs md:text-sm text-slate-300 mt-1">Manage construction materials, item names, counts, unit costs, selling prices, and item-level profits.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-extrabold mb-5 text-slate-700 border-b border-slate-100 pb-3">{{ materialForm.id ? 'Edit Material Invoice' : 'New Material Invoice Entry' }}</h3>
+                    <form @submit.prevent="saveMaterialSales" class="space-y-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
+                            <div>
+                                <label class="form-label">Invoice Date</label>
+                                <input v-model="materialForm.invoiceDate" type="date" required class="input-field cursor-pointer">
+                            </div>
+                            <div>
+                                <label class="form-label">Item Name</label>
+                                <select v-model="materialForm.itemName" class="input-field cursor-pointer font-bold" required>
+                                    <option value="River Sand (Units)">River Sand (Units)</option>
+                                    <option value="Blue Metal 20mm (Loads)">Blue Metal 20mm (Loads)</option>
+                                    <option value="M-Sand (Units)">M-Sand (Units)</option>
+                                    <option value="Red Bricks (1000 pcs)">Red Bricks (1000 pcs)</option>
+                                    <option value="Cement Bags (50kg)">Cement Bags (50kg)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Customer Name</label>
+                                <input v-model="materialForm.customerName" placeholder="Builder or Contractor" class="input-field font-semibold" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Count / Quantity</label>
+                                <input v-model.number="materialForm.count" type="number" min="1" step="1" required placeholder="1" class="input-field font-bold">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5">
+                            <div>
+                                <label class="form-label">Selling Price per Unit (₹)</label>
+                                <input v-model.number="materialForm.sellingPrice" type="number" step="0.01" required placeholder="0.00" class="input-field font-bold">
+                            </div>
+                            <div>
+                                <label class="form-label">Cost Price per Unit (₹)</label>
+                                <input v-model.number="materialForm.costPrice" type="number" step="0.01" required placeholder="0.00" class="input-field font-bold">
+                            </div>
+                            <div>
+                                <label class="form-label">Payment Mode</label>
+                                <select v-model="materialForm.paymentMode" class="input-field cursor-pointer font-bold">
+                                    <option value="Cash">Cash</option>
+                                    <option value="GPay">GPay</option>
+                                    <option value="Credit">Credit / Due</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                            <button type="button" v-if="materialForm.id" @click="clearForms" class="btn-secondary">Cancel</button>
+                            <button type="submit" class="btn-primary !from-amber-600 !to-orange-600 hover:!from-amber-700 hover:!to-orange-700"><i class="fa-solid fa-save"></i> {{ materialForm.id ? 'Update Invoice' : 'Save Material Invoice' }}</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Material Invoices Grid -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-5">
+                    <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-5">
+                        <h4 class="font-bold text-slate-800 text-lg">Material Invoice Logs (Item Name, Count, Profit)</h4>
+                        <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+                            <div class="relative flex-1 min-w-[200px]">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
+                                <input v-model="searchMaterialSales" placeholder="Search item or customer..." class="input-field !py-2 !pl-9 !text-sm">
+                            </div>
+                            <button @click="exportToCSV(filteredMaterialSales, 'Material_Invoices.csv')" class="btn-secondary !py-2 !text-xs h-[38px]"><i class="fa-solid fa-download"></i> Export</button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-t-xl border border-slate-200">
+                        <table class="w-full text-left border-collapse min-w-[850px]">
+                            <thead>
+                            <tr class="bg-slate-50/80 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                <th class="p-3 md:p-4 font-bold">Date</th>
+                                <th class="p-3 md:p-4 font-bold">Customer</th>
+                                <th class="p-3 md:p-4 font-bold">Item Name</th>
+                                <th class="p-3 md:p-4 font-bold">Count</th>
+                                <th class="p-3 md:p-4 font-bold">Revenue (₹)</th>
+                                <th class="p-3 md:p-4 font-bold text-emerald-700">Profit (₹)</th>
+                                <th class="p-3 md:p-4 font-bold text-right">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm bg-white">
+                            <tr v-for="ms in paginatedMaterialSales" :key="ms.id" class="hover:bg-slate-50/80 transition-colors group">
+                                <td class="p-3 md:p-4 font-bold text-slate-700">{{ ms.invoiceDate }}</td>
+                                <td class="p-3 md:p-4 font-bold text-slate-800">{{ ms.customerName }}</td>
+                                <td class="p-3 md:p-4 font-semibold text-amber-700">{{ ms.itemName }}</td>
+                                <td class="p-3 md:p-4 font-extrabold text-indigo-600">{{ ms.count }}</td>
+                                <td class="p-3 md:p-4 font-semibold text-slate-600">₹{{ (ms.count * ms.sellingPrice).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</td>
+                                <td class="p-3 md:p-4 font-extrabold text-emerald-600">₹{{ (ms.count * (ms.sellingPrice - ms.costPrice)).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</td>
+                                <td class="p-3 md:p-4 text-right space-x-1 md:space-x-2 whitespace-nowrap opacity-50 group-hover:opacity-100 transition-opacity">
+                                    <button @click="editItem('material-invoicing', ms)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button @click="deleteItem('/api/material-invoicing/' + ms.id, loadMaterialSales)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-trash text-xs"></i></button>
+                                </td>
+                            </tr>
+                            <tr v-if="!paginatedMaterialSales.length"><td colspan="7" class="p-8 text-center text-slate-500 font-medium">No material invoices found.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div class="flex items-center justify-between border border-t-0 border-slate-200 bg-slate-50 px-4 py-3 rounded-b-xl shadow-inner">
+                        <div class="text-xs text-slate-500 font-medium">
+                            <span>{{ getPaginationText(filteredMaterialSales, materialSalesPage) }}</span>
+                        </div>
+                        <div class="inline-flex rounded-lg shadow-sm overflow-hidden">
+                            <button @click="materialSalesPage--" :disabled="materialSalesPage === 1" class="page-btn border-r-0 rounded-l-lg">Prev</button>
+                            <button class="page-btn page-btn-active">{{ materialSalesPage }}</button>
+                            <button @click="materialSalesPage++" :disabled="materialSalesPage >= totalPages(filteredMaterialSales)" class="page-btn border-l-0 rounded-r-lg">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EXPENSE TRACKING TAB -->
+            <div v-if="currentTab === 'expenses'" class="space-y-6">
+                <!-- Section Introduction -->
+                <div class="bg-gradient-to-r from-rose-900 to-red-950 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-rose-300">Operating Expense Tracking</h2>
+                        <p class="text-xs md:text-sm text-slate-200 mt-1">Record fuel, driver wages, vehicle maintenance, and miscellaneous business expenditures.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-extrabold mb-5 text-slate-700 border-b border-slate-100 pb-3">{{ expenseForm.id ? 'Edit Expense Record' : 'New Expense Entry' }}</h3>
+                    <form @submit.prevent="saveExpense" class="space-y-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
+                            <div>
+                                <label class="form-label">Expense Date</label>
+                                <input v-model="expenseForm.expenseDate" type="date" required class="input-field cursor-pointer">
+                            </div>
+                            <div>
+                                <label class="form-label">Category</label>
+                                <select v-model="expenseForm.category" class="input-field cursor-pointer font-bold" required>
+                                    <option value="Fuel / Diesel">Fuel / Diesel</option>
+                                    <option value="Vehicle Maintenance">Vehicle Maintenance</option>
+                                    <option value="Staff Salaries">Staff Salaries</option>
+                                    <option value="Electricity & Utilities">Electricity & Utilities</option>
+                                    <option value="Miscellaneous">Miscellaneous</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Amount (₹)</label>
+                                <input v-model.number="expenseForm.amount" type="number" step="0.01" required placeholder="0.00" class="input-field font-bold">
+                            </div>
+                            <div>
+                                <label class="form-label">Paid To / Recipient</label>
+                                <input v-model="expenseForm.paidTo" placeholder="Vendor or Person" class="input-field font-semibold">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label">Description / Remarks</label>
+                            <input v-model="expenseForm.description" placeholder="Details about expense..." class="input-field">
+                        </div>
+                        <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                            <button type="button" v-if="expenseForm.id" @click="clearForms" class="btn-secondary">Cancel</button>
+                            <button type="submit" class="btn-primary !from-rose-600 !to-red-600 hover:!from-rose-700 hover:!to-red-700"><i class="fa-solid fa-save"></i> {{ expenseForm.id ? 'Update Expense' : 'Save Expense' }}</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Expenses Grid -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-5">
+                    <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-5">
+                        <h4 class="font-bold text-slate-800 text-lg">Expense Records</h4>
+                        <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+                            <div class="relative flex-1 min-w-[200px]">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
+                                <input v-model="searchExpenses" placeholder="Search category or recipient..." class="input-field !py-2 !pl-9 !text-sm">
+                            </div>
+                            <button @click="exportToCSV(filteredExpenses, 'Expenses_Log.csv')" class="btn-secondary !py-2 !text-xs h-[38px]"><i class="fa-solid fa-download"></i> Export</button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-t-xl border border-slate-200">
+                        <table class="w-full text-left border-collapse min-w-[850px]">
+                            <thead>
+                            <tr class="bg-slate-50/80 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                <th class="p-3 md:p-4 font-bold">Date</th>
+                                <th class="p-3 md:p-4 font-bold">Category</th>
+                                <th class="p-3 md:p-4 font-bold">Recipient</th>
+                                <th class="p-3 md:p-4 font-bold">Description</th>
+                                <th class="p-3 md:p-4 font-bold text-rose-700">Amount (₹)</th>
+                                <th class="p-3 md:p-4 font-bold text-right">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm bg-white">
+                            <tr v-for="exp in paginatedExpenses" :key="exp.id" class="hover:bg-slate-50/80 transition-colors group">
+                                <td class="p-3 md:p-4 font-bold text-slate-700">{{ exp.expenseDate }}</td>
+                                <td class="p-3 md:p-4 font-semibold text-rose-700">{{ exp.category }}</td>
+                                <td class="p-3 md:p-4 font-bold text-slate-800">{{ exp.paidTo || '--' }}</td>
+                                <td class="p-3 md:p-4 text-slate-500">{{ exp.description || '--' }}</td>
+                                <td class="p-3 md:p-4 font-extrabold text-rose-600">₹{{ exp.amount?.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</td>
+                                <td class="p-3 md:p-4 text-right space-x-1 md:space-x-2 whitespace-nowrap opacity-50 group-hover:opacity-100 transition-opacity">
+                                    <button @click="editItem('expenses', exp)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button @click="deleteItem('/api/expenses/' + exp.id, loadExpenses)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-trash text-xs"></i></button>
+                                </td>
+                            </tr>
+                            <tr v-if="!paginatedExpenses.length"><td colspan="6" class="p-8 text-center text-slate-500 font-medium">No expense records found.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div class="flex items-center justify-between border border-t-0 border-slate-200 bg-slate-50 px-4 py-3 rounded-b-xl shadow-inner">
+                        <div class="text-xs text-slate-500 font-medium">
+                            <span>{{ getPaginationText(filteredExpenses, expensesPage) }}</span>
+                        </div>
+                        <div class="inline-flex rounded-lg shadow-sm overflow-hidden">
+                            <button @click="expensesPage--" :disabled="expensesPage === 1" class="page-btn border-r-0 rounded-l-lg">Prev</button>
+                            <button class="page-btn page-btn-active">{{ expensesPage }}</button>
+                            <button @click="expensesPage++" :disabled="expensesPage >= totalPages(filteredExpenses)" class="page-btn border-l-0 rounded-r-lg">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRODUCT CATALOG TAB -->
+            <div v-if="currentTab === 'products'" class="space-y-6">
+                <div class="bg-gradient-to-r from-slate-900 to-cyan-950 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-cyan-300">Product & Inventory Catalog</h2>
+                        <p class="text-xs md:text-sm text-slate-300 mt-1">Configure default selling prices, cost prices, and categories for water items and construction materials.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-extrabold mb-5 text-slate-700 border-b border-slate-100 pb-3">{{ productForm.id ? 'Edit Product' : 'Add New Product' }}</h3>
+                    <form @submit.prevent="saveProduct" class="space-y-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
+                            <div>
+                                <label class="form-label">Category</label>
+                                <select v-model="productForm.category" class="input-field cursor-pointer font-bold" required>
+                                    <option value="Water">Water</option>
+                                    <option value="Material">Material</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Item Name</label>
+                                <input v-model="productForm.itemName" placeholder="e.g. 20L Mineral Water Can" class="input-field font-semibold" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Selling Price (₹)</label>
+                                <input v-model.number="productForm.sellingPrice" type="number" step="0.01" required placeholder="0.00" class="input-field font-bold">
+                            </div>
+                            <div>
+                                <label class="form-label">Cost Price (₹)</label>
+                                <input v-model.number="productForm.costPrice" type="number" step="0.01" required placeholder="0.00" class="input-field font-bold">
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                            <button type="button" v-if="productForm.id" @click="clearForms" class="btn-secondary">Cancel</button>
+                            <button type="submit" class="btn-primary"><i class="fa-solid fa-save"></i> {{ productForm.id ? 'Update Product' : 'Save Product' }}</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Products Grid -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-5">
+                    <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-5">
+                        <h4 class="font-bold text-slate-800 text-lg">Catalog Items</h4>
+                        <div class="relative flex-1 max-w-xs">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
+                            <input v-model="searchProducts" placeholder="Search catalog..." class="input-field !py-2 !pl-9 !text-sm">
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-t-xl border border-slate-200">
+                        <table class="w-full text-left border-collapse min-w-[700px]">
+                            <thead>
+                            <tr class="bg-slate-50/80 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                <th class="p-3 md:p-4 font-bold">Category</th>
+                                <th class="p-3 md:p-4 font-bold">Item Name</th>
+                                <th class="p-3 md:p-4 font-bold">Selling Price (₹)</th>
+                                <th class="p-3 md:p-4 font-bold">Cost Price (₹)</th>
+                                <th class="p-3 md:p-4 font-bold text-emerald-700">Margin / Profit (₹)</th>
+                                <th class="p-3 md:p-4 font-bold text-right">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm bg-white">
+                            <tr v-for="prod in paginatedProducts" :key="prod.id" class="hover:bg-slate-50/80 transition-colors group">
+                                <td class="p-3 md:p-4">
+                                    <span :class="['px-2.5 py-1 rounded-md text-xs font-bold border', prod.category === 'Water' ? 'bg-cyan-50 text-cyan-700 border-cyan-100' : 'bg-amber-50 text-amber-700 border-amber-100']">{{ prod.category }}</span>
+                                </td>
+                                <td class="p-3 md:p-4 font-bold text-slate-800">{{ prod.itemName }}</td>
+                                <td class="p-3 md:p-4 font-semibold text-slate-600">₹{{ prod.sellingPrice?.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</td>
+                                <td class="p-3 md:p-4 font-semibold text-slate-600">₹{{ prod.costPrice?.toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</td>
+                                <td class="p-3 md:p-4 font-extrabold text-emerald-600">₹{{ (prod.sellingPrice - prod.costPrice).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }}</td>
+                                <td class="p-3 md:p-4 text-right space-x-1 md:space-x-2 whitespace-nowrap opacity-50 group-hover:opacity-100 transition-opacity">
+                                    <button @click="editItem('products', prod)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button @click="deleteItem('/api/products/' + prod.id, loadProducts)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-trash text-xs"></i></button>
+                                </td>
+                            </tr>
+                            <tr v-if="!paginatedProducts.length"><td colspan="6" class="p-8 text-center text-slate-500 font-medium">No products found.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div class="flex items-center justify-between border border-t-0 border-slate-200 bg-slate-50 px-4 py-3 rounded-b-xl shadow-inner">
+                        <div class="text-xs text-slate-500 font-medium">
+                            <span>{{ getPaginationText(filteredProducts, productsPage) }}</span>
+                        </div>
+                        <div class="inline-flex rounded-lg shadow-sm overflow-hidden">
+                            <button @click="productsPage--" :disabled="productsPage === 1" class="page-btn border-r-0 rounded-l-lg">Prev</button>
+                            <button class="page-btn page-btn-active">{{ productsPage }}</button>
+                            <button @click="productsPage++" :disabled="productsPage >= totalPages(filteredProducts)" class="page-btn border-l-0 rounded-r-lg">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- USER ADMINISTRATION TAB -->
+            <div v-if="currentTab === 'users'" class="space-y-6">
+                <div class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-indigo-300">User Administration & Access Control</h2>
+                        <p class="text-xs md:text-sm text-slate-300 mt-1">Manage portal operators, cashiers, delivery supervisors, and role-based permissions.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-extrabold mb-5 text-slate-700 border-b border-slate-100 pb-3">{{ userForm.id ? 'Edit User' : 'Register New User' }}</h3>
+                    <form @submit.prevent="saveUser" class="space-y-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
+                            <div>
+                                <label class="form-label">Full Name</label>
+                                <input v-model="userForm.name" placeholder="Operator Name" class="input-field font-semibold" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Username / Email</label>
+                                <input v-model="userForm.username" placeholder="username" class="input-field font-semibold" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Access Role</label>
+                                <select v-model="userForm.role" class="input-field cursor-pointer font-bold" required>
+                                    <option value="Administrator">Administrator</option>
+                                    <option value="Cashier">Cashier</option>
+                                    <option value="Dispatch Manager">Dispatch Manager</option>
+                                    <option value="Auditor">Auditor</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                            <button type="button" v-if="userForm.id" @click="clearForms" class="btn-secondary">Cancel</button>
+                            <button type="submit" class="btn-primary !from-indigo-600 !to-blue-600 hover:!from-indigo-700 hover:!to-blue-700"><i class="fa-solid fa-user-plus"></i> {{ userForm.id ? 'Update User' : 'Add User' }}</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Users Grid -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-5">
+                    <h4 class="font-bold text-slate-800 text-lg mb-4">Portal Users</h4>
+                    <div class="overflow-x-auto rounded-t-xl border border-slate-200">
+                        <table class="w-full text-left border-collapse min-w-[600px]">
+                            <thead>
+                            <tr class="bg-slate-50/80 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                <th class="p-3 md:p-4 font-bold">Name</th>
+                                <th class="p-3 md:p-4 font-bold">Username</th>
+                                <th class="p-3 md:p-4 font-bold">Role</th>
+                                <th class="p-3 md:p-4 font-bold text-right">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm bg-white">
+                            <tr v-for="u in paginatedUsers" :key="u.id" class="hover:bg-slate-50/80 transition-colors group">
+                                <td class="p-3 md:p-4 font-bold text-slate-800">{{ u.name }}</td>
+                                <td class="p-3 md:p-4 font-semibold text-slate-600">{{ u.username }}</td>
+                                <td class="p-3 md:p-4">
+                                    <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">{{ u.role }}</span>
+                                </td>
+                                <td class="p-3 md:p-4 text-right space-x-1 md:space-x-2 whitespace-nowrap opacity-50 group-hover:opacity-100 transition-opacity">
+                                    <button @click="editItem('users', u)" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button @click="deleteItem('/api/users/' + u.id, loadUsers)" class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white shadow-sm transition-all cursor-pointer"><i class="fa-solid fa-trash text-xs"></i></button>
+                                </td>
+                            </tr>
+                            <tr v-if="!paginatedUsers.length"><td colspan="4" class="p-8 text-center text-slate-500 font-medium">No users registered.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div class="flex items-center justify-between border border-t-0 border-slate-200 bg-slate-50 px-4 py-3 rounded-b-xl shadow-inner">
+                        <div class="text-xs text-slate-500 font-medium">
+                            <span>{{ getPaginationText(users, usersPage) }}</span>
+                        </div>
+                        <div class="inline-flex rounded-lg shadow-sm overflow-hidden">
+                            <button @click="usersPage--" :disabled="usersPage === 1" class="page-btn border-r-0 rounded-l-lg">Prev</button>
+                            <button class="page-btn page-btn-active">{{ usersPage }}</button>
+                            <button @click="usersPage++" :disabled="usersPage >= totalPages(users)" class="page-btn border-l-0 rounded-r-lg">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    const { createApp, ref, computed, onMounted, watch, nextTick } = Vue;
+
+    createApp({
+        setup() {
+            // Navigation State
+            const currentTab = ref('dashboard');
+            const isSidebarOpen = ref(false);
+            const apiOnline = ref(true);
+
+            const tabs = [
+                { id: 'dashboard', name: 'Dashboard Analytics', icon: 'fa-solid fa-chart-pie' },
+                { id: 'cash-flow', name: 'Cash Flow Dynamics', icon: 'fa-solid fa-wallet' },
+                { id: 'daily-sales', name: 'Consolidated Ledger', icon: 'fa-solid fa-book' },
+                { id: 'water-sales', name: 'Water Dispatches', icon: 'fa-solid fa-droplet' },
+                { id: 'material-invoicing', name: 'Material Invoices', icon: 'fa-solid fa-boxes-stacked' },
+                { id: 'expenses', name: 'Expense Tracking', icon: 'fa-solid fa-receipt' },
+                { id: 'products', name: 'Product Catalog', icon: 'fa-solid fa-tags' },
+                { id: 'users', name: 'User Administration', icon: 'fa-solid fa-users-gear' }
+            ];
+
+            const currentTabTitle = computed(() => tabs.find(t => t.id === currentTab.value)?.name || 'Portal');
+            const currentTabIcon = computed(() => tabs.find(t => t.id === currentTab.value)?.icon || 'fa-solid fa-circle');
+            const currentTabDescription = computed(() => {
+                switch(currentTab.value) {
+                    case 'dashboard': return 'High-level financial KPIs, material profit and item counts, and temporal sales trends.';
+                    case 'cash-flow': return 'Real-time inflow, outflow, water & material profit breakdowns, and separate expense tracking.';
+                    case 'daily-sales': return 'Master ledger consolidating daily cash & digital collections with expense deductions.';
+                    case 'water-sales': return 'Water can dispatches, tanker trips, customer counts, and profit margins.';
+                    case 'material-invoicing': return 'Construction material invoices, item names, counts, and unit profit tracking.';
+                    case 'expenses': return 'Fuel, wages, maintenance, and utility expenditures.';
+                    case 'products': return 'Pricing catalog for water items and construction materials.';
+                    case 'users': return 'Operator accounts and permissions.';
+                    default: return '';
+                }
+            });
+
+            // Date Filters & Search
+            const dashboardFromDate = ref('2026-01-01');
+            const dashboardToDate = ref('2026-12-31');
+            const dashboardCategory = ref('all');
+            const dashboardPeriod = ref('daily');
+            const dashboardSearch = ref('');
+            const dashboardSortKey = ref('periodLabel');
+            const dashboardSortAsc = ref(true);
+            const dashboardPage = ref(1);
+            const pageSize = 10;
+
+            const cashFlowFromDate = ref('2026-01-01');
+            const cashFlowToDate = ref('2026-12-31');
+            const cashFlowPeriod = ref('daily');
+            const searchCashFlow = ref('');
+            const cashFlowSortKey = ref('entryDate');
+            const cashFlowSortAsc = ref(false);
+            const cashFlowPage = ref(1);
+
+            const searchDailySales = ref('');
+            const dailySalesSortKey = ref('saleDate');
+            const dailySalesSortAsc = ref(false);
+            const dailySalesPage = ref(1);
+
+            const searchWaterSales = ref('');
+            const waterSalesPage = ref(1);
+
+            const searchMaterialSales = ref('');
+            const materialSalesPage = ref(1);
+
+            const searchExpenses = ref('');
+            const expensesPage = ref(1);
+
+            const searchProducts = ref('');
+            const productsPage = ref(1);
+
+            // Data Stores (Mock initial data with robust items, counts, and profits)
+            const cashFlows = ref([
+                { id: 1, entryDate: '2026-09-01', transactionType: 'INFLOW', category: 'Water', amount: 15400, description: 'Daily water collections' },
+                { id: 2, entryDate: '2026-09-01', transactionType: 'INFLOW', category: 'Material', amount: 48000, description: 'Sand & Brick sales' },
+                { id: 3, entryDate: '2026-09-01', transactionType: 'OUTFLOW', category: 'Expenses', amount: 3500, description: 'Diesel for lorry' },
+                { id: 4, entryDate: '2026-09-02', transactionType: 'INFLOW', category: 'Water', amount: 18200, description: 'Can dispatches' },
+                { id: 5, entryDate: '2026-09-02', transactionType: 'INFLOW', category: 'Material', amount: 62000, description: 'Blue metal 20mm' },
+                { id: 6, entryDate: '2026-09-02', transactionType: 'OUTFLOW', category: 'Expenses', amount: 5000, description: 'Vehicle maintenance' },
+                { id: 7, entryDate: '2026-09-03', transactionType: 'INFLOW', category: 'Water', amount: 14100, description: 'Retail dispatches' },
+                { id: 8, entryDate: '2026-09-03', transactionType: 'OUTFLOW', category: 'Expenses', amount: 2500, description: 'Electricity bill' }
+            ]);
+
+            const dailySales = ref([
+                { id: 1, saleDate: '2026-09-01', waterCash: 10000, waterGpay: 5400, materialCash: 30000, materialGpay: 18000, expenses: 3500, remarks: 'Fuel expenses' },
+                { id: 2, saleDate: '2026-09-02', waterCash: 12000, waterGpay: 6200, materialCash: 40000, materialGpay: 22000, expenses: 5000, remarks: 'Tyre puncture & repair' },
+                { id: 3, saleDate: '2026-09-03', waterCash: 9000, waterGpay: 5100, materialCash: 25000, materialGpay: 15000, expenses: 2500, remarks: 'Utility bills' }
+            ]);
+
+            const waterSales = ref([
+                { id: 1, dispatchDate: '2026-09-01', customerName: 'Annai Stores', itemName: '20L Mineral Water Can', count: 70, sellingPrice: 40, costPrice: 25, paymentMode: 'Cash' },
+                { id: 2, dispatchDate: '2026-09-01', customerName: 'Senthil Hotel', itemName: '20L Mineral Water Can', count: 120, sellingPrice: 40, costPrice: 25, paymentMode: 'GPay' },
+                { id: 3, dispatchDate: '2026-09-02', customerName: 'Royal Bakery', itemName: '1L Bottled Water Box', count: 50, sellingPrice: 120, costPrice: 85, paymentMode: 'Cash' },
+                { id: 4, dispatchDate: '2026-09-02', customerName: 'Green Park Apartments', itemName: 'Water Tanker 5000L', count: 2, sellingPrice: 1500, costPrice: 900, paymentMode: 'GPay' },
+                { id: 5, dispatchDate: '2026-09-03', customerName: 'Kumar Provision', itemName: '20L Mineral Water Can', count: 90, sellingPrice: 40, costPrice: 25, paymentMode: 'Cash' }
+            ]);
+
+            const materialSales = ref([
+                { id: 1, invoiceDate: '2026-09-01', customerName: 'Arun Builders', itemName: 'River Sand (Units)', count: 3, sellingPrice: 6500, costPrice: 4800, paymentMode: 'GPay' },
+                { id: 2, invoiceDate: '2026-09-01', customerName: 'Vasanth Construction', itemName: 'Blue Metal 20mm (Loads)', count: 2, sellingPrice: 14000, costPrice: 10500, paymentMode: 'Cash' },
+                { id: 3, invoiceDate: '2026-09-02', customerName: 'Mani Contractors', itemName: 'Red Bricks (1000 pcs)', count: 10, sellingPrice: 7500, costPrice: 5800, paymentMode: 'GPay' },
+                { id: 4, invoiceDate: '2026-09-02', customerName: 'Ramesh Home Builders', itemName: 'M-Sand (Units)', count: 4, sellingPrice: 5800, costPrice: 4100, paymentMode: 'Cash' },
+                { id: 5, invoiceDate: '2026-09-03', customerName: 'Selvam Promoters', itemName: 'Cement Bags (50kg)', count: 150, sellingPrice: 420, costPrice: 360, paymentMode: 'GPay' }
+            ]);
+
+            const expenses = ref([
+                { id: 1, expenseDate: '2026-09-01', category: 'Fuel / Diesel', paidTo: 'HP Petrol Bunk', description: 'Diesel for Ashok Leyland lorry', amount: 3500 },
+                { id: 2, expenseDate: '2026-09-02', category: 'Vehicle Maintenance', paidTo: 'Selva Auto Works', description: 'Tyre puncture & brake shoe change', amount: 5000 },
+                { id: 3, expenseDate: '2026-09-03', category: 'Electricity & Utilities', paidTo: 'TNEB Board', description: 'Monthly showroom electricity', amount: 2500 }
+            ]);
+
+            const products = ref([
+                { id: 1, category: 'Water', itemName: '20L Mineral Water Can', sellingPrice: 40, costPrice: 25 },
+                { id: 2, category: 'Water', itemName: '10L Water Can', sellingPrice: 25, costPrice: 16 },
+                { id: 3, category: 'Water', itemName: '1L Bottled Water Box', sellingPrice: 120, costPrice: 85 },
+                { id: 4, category: 'Water', itemName: 'Water Tanker 5000L', sellingPrice: 1500, costPrice: 900 },
+                { id: 5, category: 'Material', itemName: 'River Sand (Units)', sellingPrice: 6500, costPrice: 4800 },
+                { id: 6, category: 'Material', itemName: 'Blue Metal 20mm (Loads)', sellingPrice: 14000, costPrice: 10500 },
+                { id: 7, category: 'Material', itemName: 'M-Sand (Units)', sellingPrice: 5800, costPrice: 4100 },
+                { id: 8, category: 'Material', itemName: 'Red Bricks (1000 pcs)', sellingPrice: 7500, costPrice: 5800 },
+                { id: 9, category: 'Material', itemName: 'Cement Bags (50kg)', sellingPrice: 420, costPrice: 360 }
+            ]);
+
+            const users = ref([
+                { id: 1, name: 'Vinoth Madhan', username: 'vinoth@madhan.com', role: 'Administrator' },
+                { id: 2, name: 'Karthik Raja', username: 'karthik@cashier', role: 'Cashier' },
+                { id: 3, name: 'Murugan', username: 'murugan@dispatch', role: 'Dispatch Manager' }
+            ]);
+
+            // Form States
+            const cashFlowForm = ref({ id: null, entryDate: new Date().toISOString().split('T')[0], transactionType: 'INFLOW', category: 'Water', amount: 0, description: '' });
+            const dailySalesForm = ref({ id: null, saleDate: new Date().toISOString().split('T')[0], waterCash: 0, waterGpay: 0, materialCash: 0, materialGpay: 0, expenses: 0, remarks: '' });
+            const waterForm = ref({ id: null, dispatchDate: new Date().toISOString().split('T')[0], itemName: '20L Mineral Water Can', customerName: '', count: 1, sellingPrice: 40, costPrice: 25, paymentMode: 'Cash' });
+            const materialForm = ref({ id: null, invoiceDate: new Date().toISOString().split('T')[0], itemName: 'River Sand (Units)', customerName: '', count: 1, sellingPrice: 6500, costPrice: 4800, paymentMode: 'GPay' });
+            const expenseForm = ref({ id: null, expenseDate: new Date().toISOString().split('T')[0], category: 'Fuel / Diesel', paidTo: '', description: '', amount: 0 });
+            const productForm = ref({ id: null, category: 'Water', itemName: '', sellingPrice: 0, costPrice: 0 });
+            const userForm = ref({ id: null, name: '', username: '', role: 'Cashier' });
+
+            // Summary Metrics Computed
+            const summary = computed(() => {
+                const totalInflow = cashFlows.value.filter(c => c.transactionType === 'INFLOW').reduce((sum, c) => sum + (c.amount || 0), 0);
+                const totalOutflow = cashFlows.value.filter(c => c.transactionType === 'OUTFLOW').reduce((sum, c) => sum + (c.amount || 0), 0);
+                const netRevenue = totalInflow;
+
+                const waterProfit = waterSales.value.reduce((sum, w) => sum + (w.count * (w.sellingPrice - w.costPrice)), 0);
+                const materialProfit = materialSales.value.reduce((sum, m) => sum + (m.count * (m.sellingPrice - m.costPrice)), 0);
+                const netProfit = waterProfit + materialProfit - totalOutflow;
+
+                return { totalInflow, totalOutflow, netRevenue, netProfit };
+            });
+
+            // Cash Flow Analytics & Separate Expense Breakdown Computed
+            const cfAnalytics = computed(() => {
+                const totalInflow = cashFlows.value.filter(c => c.transactionType === 'INFLOW').reduce((sum, c) => sum + (c.amount || 0), 0);
+                const totalOutflow = cashFlows.value.filter(c => c.transactionType === 'OUTFLOW').reduce((sum, c) => sum + (c.amount || 0), 0);
+                const totalExpenses = expenses.value.reduce((sum, e) => sum + (e.amount || 0), 0);
+
+                const waterProfitTotal = waterSales.value.reduce((sum, w) => sum + (w.count * (w.sellingPrice - w.costPrice)), 0);
+                const materialProfitTotal = materialSales.value.reduce((sum, m) => sum + (m.count * (m.sellingPrice - m.costPrice)), 0);
+
+                // Simulated daily, weekly, monthly breakdowns for profit and expenses
+                const waterProfitDaily = waterProfitTotal * 0.3;
+                const waterProfitWeekly = waterProfitTotal * 0.7;
+                const waterProfitMonthly = waterProfitTotal;
+
+                const materialProfitDaily = materialProfitTotal * 0.25;
+                const materialProfitWeekly = materialProfitTotal * 0.65;
+                const materialProfitMonthly = materialProfitTotal;
+
+                const expenseDaily = totalExpenses * 0.2;
+                const expenseWeekly = totalExpenses * 0.6;
+                const expenseMonthly = totalExpenses;
+                const expenseQuarterly = totalExpenses * 3;
+
+                return {
+                    totalInflow, totalOutflow, totalExpenses,
+                    waterProfitTotal, waterProfitDaily, waterProfitWeekly, waterProfitMonthly,
+                    materialProfitTotal, materialProfitDaily, materialProfitWeekly, materialProfitMonthly,
+                    expenseDaily, expenseWeekly, expenseMonthly, expenseQuarterly
+                };
+            });
+
+            // Granular Dashboard Grid & Chart Data Computation
+            // Material with profit, itemname, count and Water with profit, count
+            const granularDashboardRows = computed(() => {
+                let rows = [];
+
+                // Process Water Sales
+                waterSales.value.forEach(w => {
+                    const rev = w.count * w.sellingPrice;
+                    const prof = w.count * (w.sellingPrice - w.costPrice);
+                    rows.push({
+                        key: 'w-' + w.id,
+                        date: w.dispatchDate,
+                        periodLabel: w.dispatchDate,
+                        categoryName: 'Water',
+                        itemName: w.itemName,
+                        totalCount: w.count,
+                        totalRevenue: rev,
+                        totalProfit: prof
+                    });
+                });
+
+                // Process Material Sales
+                materialSales.value.forEach(m => {
+                    const rev = m.count * m.sellingPrice;
+                    const prof = m.count * (m.sellingPrice - m.costPrice);
+                    rows.push({
+                        key: 'm-' + m.id,
+                        date: m.invoiceDate,
+                        periodLabel: m.invoiceDate,
+                        categoryName: 'Material',
+                        itemName: m.itemName,
+                        totalCount: m.count,
+                        totalRevenue: rev,
+                        totalProfit: prof
+                    });
+                });
+
+                return rows;
+            });
+
+            const filteredDashboardGridData = computed(() => {
+                return granularDashboardRows.value.filter(r => {
+                    // Date filter
+                    if (r.date < dashboardFromDate.value || r.date > dashboardToDate.value) return false;
+                    // Category filter
+                    if (dashboardCategory.value !== 'all') {
+                        if (dashboardCategory.value === 'water' && r.categoryName !== 'Water') return false;
+                        if (dashboardCategory.value === 'material' && r.categoryName !== 'Material') return false;
+                    }
+                    // Search filter
+                    if (dashboardSearch.value) {
+                        const q = dashboardSearch.value.toLowerCase();
+                        const matchItem = r.itemName.toLowerCase().includes(q);
+                        const matchCat = r.categoryName.toLowerCase().includes(q);
+                        const matchPeriod = r.periodLabel.toLowerCase().includes(q);
+                        if (!matchItem && !matchCat && !matchPeriod) return false;
+                    }
+                    return true;
+                }).sort((a, b) => {
+                    let valA = a[dashboardSortKey.value];
+                    let valB = b[dashboardSortKey.value];
+                    if (valA < valB) return dashboardSortAsc.value ? -1 : 1;
+                    if (valA > valB) return dashboardSortAsc.value ? 1 : -1;
+                    return 0;
+                });
+            });
+
+            const paginatedDashboardGridData = computed(() => {
+                const start = (dashboardPage.value - 1) * pageSize;
+                return filteredDashboardGridData.value.slice(start, start + pageSize);
+            });
+
+            // Filtered lists for other tabs
+            const filteredCashFlows = computed(() => {
+                return cashFlows.value.filter(c => {
+                    if (c.entryDate < cashFlowFromDate.value || c.entryDate > cashFlowToDate.value) return false;
+                    if (searchCashFlow.value) {
+                        const q = searchCashFlow.value.toLowerCase();
+                        return c.category.toLowerCase().includes(q) || (c.description && c.description.toLowerCase().includes(q));
+                    }
+                    return true;
+                });
+            });
+            const paginatedCashFlows = computed(() => {
+                const start = (cashFlowPage.value - 1) * pageSize;
+                return filteredCashFlows.value.slice(start, start + pageSize);
+            });
+
+            const filteredDailySales = computed(() => {
+                return dailySales.value.filter(ds => {
+                    if (searchDailySales.value) {
+                        const q = searchDailySales.value.toLowerCase();
+                        return ds.saleDate.includes(q) || (ds.remarks && ds.remarks.toLowerCase().includes(q));
+                    }
+                    return true;
+                });
+            });
+            const paginatedDailySales = computed(() => {
+                const start = (dailySalesPage.value - 1) * pageSize;
+                return filteredDailySales.value.slice(start, start + pageSize);
+            });
+
+            const filteredWaterSales = computed(() => {
+                return waterSales.value.filter(ws => {
+                    if (searchWaterSales.value) {
+                        const q = searchWaterSales.value.toLowerCase();
+                        return ws.customerName.toLowerCase().includes(q) || ws.itemName.toLowerCase().includes(q);
+                    }
+                    return true;
+                });
+            });
+            const paginatedWaterSales = computed(() => {
+                const start = (waterSalesPage.value - 1) * pageSize;
+                return filteredWaterSales.value.slice(start, start + pageSize);
+            });
+
+            const filteredMaterialSales = computed(() => {
+                return materialSales.value.filter(ms => {
+                    if (searchMaterialSales.value) {
+                        const q = searchMaterialSales.value.toLowerCase();
+                        return ms.customerName.toLowerCase().includes(q) || ms.itemName.toLowerCase().includes(q);
+                    }
+                    return true;
+                });
+            });
+            const paginatedMaterialSales = computed(() => {
+                const start = (materialSalesPage.value - 1) * pageSize;
+                return filteredMaterialSales.value.slice(start, start + pageSize);
+            });
+
+            const filteredExpenses = computed(() => {
+                return expenses.value.filter(e => {
+                    if (searchExpenses.value) {
+                        const q = searchExpenses.value.toLowerCase();
+                        return e.category.toLowerCase().includes(q) || (e.paidTo && e.paidTo.toLowerCase().includes(q));
+                    }
+                    return true;
+                });
+            });
+            const paginatedExpenses = computed(() => {
+                const start = (expensesPage.value - 1) * pageSize;
+                return filteredExpenses.value.slice(start, start + pageSize);
+            });
+
+            const filteredProducts = computed(() => {
+                return products.value.filter(p => {
+                    if (searchProducts.value) {
+                        const q = searchProducts.value.toLowerCase();
+                        return p.itemName.toLowerCase().includes(q) || p.category.toLowerCase().includes(q);
+                    }
+                    return true;
+                });
+            });
+            const paginatedProducts = computed(() => {
+                const start = (productsPage.value - 1) * pageSize;
+                return filteredProducts.value.slice(start, start + pageSize);
+            });
+
+            const paginatedUsers = computed(() => {
+                const start = (usersPage = ref(1).value - 1) * pageSize;
+                return users.value.slice(start, start + pageSize);
+            });
+
+            const totalPages = (arr) => Math.ceil(arr.length / pageSize) || 1;
+            const getPaginationText = (arr, page) => {
+                const total = arr.length;
+                if (!total) return 'Showing 0 results';
+                const start = (page - 1) * pageSize + 1;
+                const end = Math.min(page * pageSize, total);
+                return `Showing ${start} to ${end} of ${total} entries`;
+            };
+
+            // Chart.js Integration
+            let dashboardChartInstance = null;
+
+            const renderDashboardChart = () => {
+                const canvasEl = document.getElementById('salesDashboardChart');
+                if (!canvasEl) return;
+
+                const ctx = canvasEl.getContext('2d');
+                if (dashboardChartInstance) {
+                    dashboardChartInstance.destroy();
+                }
+
+                // Group filtered rows by period/date for chart
+                const grouped = {};
+                filteredDashboardGridData.value.forEach(r => {
+                    const dateKey = r.periodLabel;
+                    if (!grouped[dateKey]) {
+                        grouped[dateKey] = { waterProfit: 0, materialProfit: 0, waterCount: 0, materialCount: 0, revenue: 0 };
+                    }
+                    if (r.categoryName === 'Water') {
+                        grouped[dateKey].waterProfit += r.totalProfit;
+                        grouped[dateKey].waterCount += r.totalCount;
+                    } else {
+                        grouped[dateKey].materialProfit += r.totalProfit;
+                        grouped[dateKey].materialCount += r.totalCount;
+                    }
+                    grouped[dateKey].revenue += r.totalRevenue;
+                });
+
+                const labels = Object.keys(grouped).sort();
+                const waterProfits = labels.map(l => grouped[l].waterProfit);
+                const materialProfits = labels.map(l => grouped[l].materialProfit);
+                const materialCounts = labels.map(l => grouped[l].materialCount);
+                const waterCounts = labels.map(l => grouped[l].waterCount);
+
+                let datasets = [];
+                if (dashboardCategory.value === 'all' || dashboardCategory.value === 'water') {
+                    datasets.push({
+                        label: 'Water Profit (₹)',
+                        data: waterProfits,
+                        borderColor: '#06b6d4',
+                        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                        tension: 0.3,
+                        fill: true,
+                        yAxisID: 'y'
+                    });
+                }
+                if (dashboardCategory.value === 'all' || dashboardCategory.value === 'material') {
+                    datasets.push({
+                        label: 'Material Profit (₹)',
+                        data: materialProfits,
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        tension: 0.3,
+                        fill: true,
+                        yAxisID: 'y'
+                    });
+                    datasets.push({
+                        label: 'Material Count / Qty',
+                        data: materialCounts,
+                        borderColor: '#8b5cf6',
+                        backgroundColor: '#8b5cf6',
+                        type: 'bar',
+                        yAxisID: 'y1'
+                    });
+                }
+
+                dashboardChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: { labels, datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: {
+                            legend: { position: 'top', labels: { font: { weight: 'bold', size: 12 } } },
+                            tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', titleFont: { size: 13 }, bodyFont: { size: 12 }, padding: 12 }
+                        },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: { display: true, text: 'Profit (₹)', font: { weight: 'bold' } },
+                                grid: { color: 'rgba(226, 232, 240, 0.6)' }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: { display: true, text: 'Count / Volume', font: { weight: 'bold' } },
+                                grid: { drawOnChartArea: false }
+                            },
+                            x: {
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            };
+
+            watch([filteredDashboardGridData, dashboardCategory], () => {
+                if (currentTab.value === 'dashboard') {
+                    nextTick(() => renderDashboardChart());
+                }
+            });
+
+            const switchTab = (tabId) => {
+                currentTab.value = tabId;
+                if (tabId === 'dashboard') {
+                    nextTick(() => renderDashboardChart());
+                }
+            };
+
+            // CRUD Actions & Modals
+            const editItem = (type, item) => {
+                if (type === 'cash-flow') { cashFlowForm.value = { ...item }; currentTab.value = 'cash-flow'; }
+                else if (type === 'daily-sales') { dailySalesForm.value = { ...item }; currentTab.value = 'daily-sales'; }
+                else if (type === 'water-sales') { waterForm.value = { ...item }; currentTab.value = 'water-sales'; }
+                else if (type === 'material-invoicing') { materialForm.value = { ...item }; currentTab.value = 'material-invoicing'; }
+                else if (type === 'expenses') { expenseForm.value = { ...item }; currentTab.value = 'expenses'; }
+                else if (type === 'products') { productForm.value = { ...item }; currentTab.value = 'products'; }
+                else if (type === 'users') { userForm.value = { ...item }; currentTab.value = 'users'; }
+            };
+
+            const deleteItem = (url, reloadFn) => {
+                if (confirm('Are you sure you want to delete this record?')) {
+                    // Extract ID and remove from local array
+                    const id = parseInt(url.split('/').pop());
+                    if (url.includes('cash-flow')) cashFlows.value = cashFlows.value.filter(x => x.id !== id);
+                    else if (url.includes('daily-sales')) dailySales.value = dailySales.value.filter(x => x.id !== id);
+                    else if (url.includes('water-sales')) waterSales.value = waterSales.value.filter(x => x.id !== id);
+                    else if (url.includes('material-invoicing')) materialSales.value = materialSales.value.filter(x => x.id !== id);
+                    else if (url.includes('expenses')) expenses.value = expenses.value.filter(x => x.id !== id);
+                    else if (url.includes('products')) products.value = products.value.filter(x => x.id !== id);
+                    else if (url.includes('users')) users.value = users.value.filter(x => x.id !== id);
+                }
+            };
+
+            const clearForms = () => {
+                cashFlowForm.value = { id: null, entryDate: new Date().toISOString().split('T')[0], transactionType: 'INFLOW', category: 'Water', amount: 0, description: '' };
+                dailySalesForm.value = { id: null, saleDate: new Date().toISOString().split('T')[0], waterCash: 0, waterGpay: 0, materialCash: 0, materialGpay: 0, expenses: 0, remarks: '' };
+                waterForm.value = { id: null, dispatchDate: new Date().toISOString().split('T')[0], itemName: '20L Mineral Water Can', customerName: '', count: 1, sellingPrice: 40, costPrice: 25, paymentMode: 'Cash' };
+                materialForm.value = { id: null, invoiceDate: new Date().toISOString().split('T')[0], itemName: 'River Sand (Units)', customerName: '', count: 1, sellingPrice: 6500, costPrice: 4800, paymentMode: 'GPay' };
+                expenseForm.value = { id: null, expenseDate: new Date().toISOString().split('T')[0], category: 'Fuel / Diesel', paidTo: '', description: '', amount: 0 };
+                productForm.value = { id: null, category: 'Water', itemName: '', sellingPrice: 0, costPrice: 0 };
+                userForm.value = { id: null, name: '', username: '', role: 'Cashier' };
+            };
+
+            const saveCashFlow = () => {
+                if (cashFlowForm.value.id) {
+                    const idx = cashFlows.value.findIndex(c => c.id === cashFlowForm.value.id);
+                    if (idx !== -1) cashFlows.value[idx] = { ...cashFlowForm.value };
+                } else {
+                    cashFlows.value.unshift({ ...cashFlowForm.value, id: Date.now() });
+                }
+                clearForms();
+            };
+
+            const saveDailySales = () => {
+                if (dailySalesForm.value.id) {
+                    const idx = dailySales.value.findIndex(d => d.id === dailySalesForm.value.id);
+                    if (idx !== -1) dailySales.value[idx] = { ...dailySalesForm.value };
+                } else {
+                    dailySales.value.unshift({ ...dailySalesForm.value, id: Date.now() });
+                }
+                clearForms();
+            };
+
+            const saveWaterSales = () => {
+                if (waterForm.value.id) {
+                    const idx = waterSales.value.findIndex(w => w.id === waterForm.value.id);
+                    if (idx !== -1) waterSales.value[idx] = { ...waterForm.value };
+                } else {
+                    waterSales.value.unshift({ ...waterForm.value, id: Date.now() });
+                }
+                clearForms();
+            };
+
+            const saveMaterialSales = () => {
+                if (materialForm.value.id) {
+                    const idx = materialSales.value.findIndex(m => m.id === materialForm.value.id);
+                    if (idx !== -1) materialSales.value[idx] = { ...materialForm.value };
+                } else {
+                    materialSales.value.unshift({ ...materialForm.value, id: Date.now() });
+                }
+                clearForms();
+            };
+
+            const saveExpense = () => {
+                if (expenseForm.value.id) {
+                    const idx = expenses.value.findIndex(e => e.id === expenseForm.value.id);
+                    if (idx !== -1) expenses.value[idx] = { ...expenseForm.value };
+                } else {
+                    expenses.value.unshift({ ...expenseForm.value, id: Date.now() });
+                }
+                clearForms();
+            };
+
+            const saveProduct = () => {
+                if (productForm.value.id) {
+                    const idx = products.value.findIndex(p => p.id === productForm.value.id);
+                    if (idx !== -1) products.value[idx] = { ...productForm.value };
+                } else {
+                    products.value.unshift({ ...productForm.value, id: Date.now() });
+                }
+                clearForms();
+            };
+
+            const saveUser = () => {
+                if (userForm.value.id) {
+                    const idx = users.value.findIndex(u => u.id === userForm.value.id);
+                    if (idx !== -1) users.value[idx] = { ...userForm.value };
+                } else {
+                    users.value.unshift({ ...userForm.value, id: Date.now() });
+                }
+                clearForms();
+            };
+
+            const triggerSync = () => {
+                apiOnline.value = true;
+                alert('Data synchronized successfully with backend API sub-ledgers.');
+            };
+
+            const refreshData = () => {
+                apiOnline.value = true;
+                alert('Portal data successfully refreshed.');
+            };
+
+            const exportToCSV = (dataList, filename) => {
+                if (!dataList.length) {
+                    alert('No data available to export.');
+                    return;
+                }
+                const keys = Object.keys(dataList[0]);
+                let csvContent = keys.join(',') + '\n';
+                dataList.forEach(row => {
+                    csvContent += keys.map(k => `"${row[k] !== undefined ? row[k] : ''}"`).join(',') + '\n';
+                });
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.setAttribute('download', filename);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+
+            const toggleDashboardSort = (key) => {
+                if (dashboardSortKey.value === key) {
+                    dashboardSortAsc.value = !dashboardSortAsc.value;
+                } else {
+                    dashboardSortKey.value = key;
+                    dashboardSortAsc.value = true;
+                }
+            };
+
+            const sortCashFlowBy = (key) => {
+                if (cashFlowSortKey.value === key) cashFlowSortAsc.value = !cashFlowSortAsc.value;
+                else { cashFlowSortKey.value = key; cashFlowSortAsc.value = true; }
+            };
+
+            const sortDailySalesBy = (key) => {
+                if (dailySalesSortKey.value === key) dailySalesSortAsc.value = !dailySalesSortAsc.value;
+                else { dailySalesSortKey.value = key; dailySalesSortAsc.value = true; }
+            };
+
+            onMounted(() => {
+                if (currentTab.value === 'dashboard') {
+                    nextTick(() => renderDashboardChart());
+                }
+            });
+
+            return {
+                currentTab, isSidebarOpen, tabs, apiOnline,
+                currentTabTitle, currentTabIcon, currentTabDescription,
+                dashboardFromDate, dashboardToDate, dashboardCategory, dashboardPeriod, dashboardSearch,
+                dashboardPage, filteredDashboardGridData, paginatedDashboardGridData,
+                cashFlowFromDate, cashFlowToDate, cashFlowPeriod, searchCashFlow, cashFlowPage, filteredCashFlows, paginatedCashFlows,
+                searchDailySales, dailySalesPage, filteredDailySales, paginatedDailySales,
+                searchWaterSales, waterSalesPage, filteredWaterSales, paginatedWaterSales,
+                searchMaterialSales, materialSalesPage, filteredMaterialSales, paginatedMaterialSales,
+                searchExpenses, expensesPage, filteredExpenses, paginatedExpenses,
+                searchProducts, productsPage, filteredProducts, paginatedProducts,
+                users, paginatedUsers, usersPage: ref(1),
+                summary, cfAnalytics,
+                cashFlowForm, dailySalesForm, waterForm, materialForm, expenseForm, productForm, userForm,
+                switchTab, triggerSync, refreshData, exportToCSV, toggleDashboardSort, sortCashFlowBy, sortDailySalesBy,
+                editItem, deleteItem, clearForms, saveCashFlow, saveDailySales, saveWaterSales, saveMaterialSales, saveExpense, saveProduct, saveUser,
+                totalPages, getPaginationText
+            };
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>

@@ -27,4 +27,6 @@ public class MaterialSalesEntry {
     private Double totalAmount;
 
     private Double profit;
+
+    private String remarks;
 }
