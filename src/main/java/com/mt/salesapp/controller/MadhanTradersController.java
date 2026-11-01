@@ -138,6 +138,16 @@ public class MadhanTradersController {
         return ResponseEntity.ok(service.saveMaterialSales(entry));
     }
 
+    @PutMapping("/products/{id}")
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) {
+        product.setId(id); // Ensure the entity uses the ID from the URL path
+        return ResponseEntity.ok(service.saveProduct(product));
+    }
+
+
+
+
+
     /*// --- CASH FLOW API (ENABLED & UPDATE) ---
     @GetMapping("/cash-flow")
     public ResponseEntity<List<CashFlowEntry>> getCashFlows() {
