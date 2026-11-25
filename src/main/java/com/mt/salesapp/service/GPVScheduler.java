@@ -69,6 +69,8 @@ public class GPVScheduler {
     private static final int MAX_RECENT_LOGS = 120;
     private static final PipelineStageTracker PIPELINE_TRACKER = new PipelineStageTracker();
     private static final List<OutputStream> SSE_SUBSCRIBERS = new CopyOnWriteArrayList<>();
+    private static final DateTimeFormatter ZONE_DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
     private static final Logger LOG = createLogger();
 
     private VideoPipelineScheduler activeScheduler;
@@ -148,6 +150,14 @@ public class GPVScheduler {
         if (blockMainThread) {
             Thread.currentThread().join();
         }
+    }
+
+    private static String formatInstantInZone(Instant instant, ZoneId zone) {
+        if (instant == null) {
+            return "none";
+        }
+        ZoneId effectiveZone = zone != null ? zone : ZoneId.of("Asia/Kolkata");
+        return ZonedDateTime.ofInstant(instant, effectiveZone).format(ZONE_DATE_TIME_FORMATTER);
     }
 
     private static Logger createLogger() {
@@ -389,9 +399,9 @@ public class GPVScheduler {
             int apiPort = Integer.parseInt(getSetting(props, "SCHEDULER_API_PORT", "8081"));
             int pollSec = Integer.parseInt(getSetting(props, "SCHEDULER_POLL_INTERVAL_SECONDS", "30"));
 
-            ZoneId zone = ZoneId.of(getSetting(props, "USER_TIMEZONE", ZoneId.systemDefault().getId()));
-            LocalTime start = LocalTime.parse(getSetting(props, "USER_ALLOWED_START_TIME", "08:00"));
-            LocalTime end = LocalTime.parse(getSetting(props, "USER_ALLOWED_END_TIME", "23:00"));
+            ZoneId zone = ZoneId.of(getSetting(props, "USER_TIMEZONE", "Asia/Kolkata"));
+            LocalTime start = LocalTime.parse(getSetting(props, "USER_ALLOWED_START_TIME", "00:00"));
+            LocalTime end = LocalTime.parse(getSetting(props, "USER_ALLOWED_END_TIME", "23:59"));
 
             String daysRaw = getSetting(props, "USER_ALLOWED_DAYS",
                     "MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY,SATURDAY,SUNDAY");
@@ -824,15 +834,25 @@ public class GPVScheduler {
             loadStateFromDisk();
         }
 
-        public synchronized void recordRateLimitBackoff(long retryAfterSeconds) {
+        public synchronized Instant recordRateLimitBackoff(long retryAfterSeconds) {
+            ZoneId zone = configRef.get().userTimeZone;
             long safeSeconds = Math.max(1L, retryAfterSeconds);
             this.rateLimitedUntil = Instant.now().plusSeconds(safeSeconds);
+            saveStateToDisk();
             LOG.warning("Gemini rate/quota limit hit (HTTP 429). Pausing automatic retries for "
-                    + safeSeconds + "s (until " + this.rateLimitedUntil + ").");
+                    + safeSeconds + "s until " + formatInstantInZone(this.rateLimitedUntil, zone)
+                    + " (" + this.rateLimitedUntil + ").");
+            return this.rateLimitedUntil;
         }
 
         public synchronized void clearRateLimitBackoff() {
             this.rateLimitedUntil = null;
+            saveStateToDisk();
+        }
+
+        public synchronized Instant getRateLimitedUntil() {
+            getRateLimitRemainingSeconds();
+            return rateLimitedUntil;
         }
 
         public synchronized long getRateLimitRemainingSeconds() {
@@ -842,6 +862,7 @@ public class GPVScheduler {
             long remaining = Duration.between(Instant.now(), rateLimitedUntil).getSeconds();
             if (remaining <= 0L) {
                 rateLimitedUntil = null;
+                saveStateToDisk();
                 return 0L;
             }
             return remaining;
@@ -856,8 +877,8 @@ public class GPVScheduler {
             long backoffRemaining = getRateLimitRemainingSeconds();
             if (backoffRemaining > 0L) {
                 return new EligibilityResult(false, String.format(
-                        "API rate/quota backoff active: %d second(s) remaining (until %s).",
-                        backoffRemaining, rateLimitedUntil
+                        "API rate/quota backoff active: %d second(s) remaining (resets at %s).",
+                        backoffRemaining, formatInstantInZone(rateLimitedUntil, config.userTimeZone)
                 ));
             }
 
@@ -964,9 +985,11 @@ public class GPVScheduler {
             rolloverIfNewUserDay(userNow.toLocalDate());
             pruneOldHourlyTimestamps(Instant.now());
             long backoffRemaining = getRateLimitRemainingSeconds();
+            boolean activeBackoff = backoffRemaining > 0L && rateLimitedUntil != null;
 
             Map<String, Object> snap = new LinkedHashMap<>();
             snap.put("activeUserDate", activeUserDate.toString());
+            snap.put("userTimeZone", config.userTimeZone.getId());
             snap.put("videosGeneratedToday", videosGeneratedToday);
             snap.put("maxVideosPerDay", config.maxVideosPerDay);
             snap.put("videosInLastHour", recentHourlyTimestamps.size());
@@ -976,7 +999,8 @@ public class GPVScheduler {
             snap.put("minCooldownMinutes", config.minCooldownMinutesBetweenVideos);
             snap.put("lastVideoGeneratedAt", lastVideoGeneratedAt != null ? lastVideoGeneratedAt.toString() : null);
             snap.put("rateLimitRemainingSeconds", backoffRemaining);
-            snap.put("rateLimitedUntil", (backoffRemaining > 0L && rateLimitedUntil != null) ? rateLimitedUntil.toString() : null);
+            snap.put("rateLimitedUntil", activeBackoff ? rateLimitedUntil.toString() : null);
+            snap.put("rateLimitedUntilUserZone", activeBackoff ? formatInstantInZone(rateLimitedUntil, config.userTimeZone) : null);
             return snap;
         }
 
@@ -1013,6 +1037,13 @@ public class GPVScheduler {
                 if (!lastTs.isEmpty()) {
                     this.lastVideoGeneratedAt = Instant.parse(lastTs);
                 }
+                String backoffTs = MiniJson.asString(map.get("rateLimitedUntil"), "");
+                if (!backoffTs.isEmpty()) {
+                    Instant parsedBackoff = Instant.parse(backoffTs);
+                    if (parsedBackoff.isAfter(Instant.now())) {
+                        this.rateLimitedUntil = parsedBackoff;
+                    }
+                }
                 for (String item : MiniJson.asStringList(map.get("completedPromptFileNames"))) {
                     completedPromptFileNames.add(item);
                 }
@@ -1029,6 +1060,7 @@ public class GPVScheduler {
                 state.put("videosGeneratedToday", videosGeneratedToday);
                 state.put("estimatedSpendTodayUsd", estimatedSpendTodayUsd);
                 state.put("lastVideoGeneratedAt", lastVideoGeneratedAt != null ? lastVideoGeneratedAt.toString() : "");
+                state.put("rateLimitedUntil", rateLimitedUntil != null ? rateLimitedUntil.toString() : "");
                 state.put("completedPromptFileNames", new ArrayList<>(completedPromptFileNames));
                 Files.writeString(statePath, MiniJson.stringify(state), StandardCharsets.UTF_8,
                         StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
@@ -1070,10 +1102,10 @@ public class GPVScheduler {
                         You are a global viral social media strategist for YouTube, Instagram Reels, X (Twitter), and Facebook.
                         Given this 4K AI video prompt, generate high-CTR worldwide trending metadata.
                         Return ONLY a JSON object with these exact keys:
-                        - "title": catchy viral title under 70 characters
-                        - "description": engaging 2-sentence global description
-                        - "tags": array of 15 high-volume worldwide searchable tags (no # prefix)
-                        - "hashtags": array of 10 global trending hashtags (each starting with #)
+- "title": catchy viral title under 70 characters
+- "description": engaging 2-sentence global description
+- "tags": array of 15 high-volume worldwide searchable tags (no # prefix)
+- "hashtags": array of 10 global trending hashtags (each starting with #)
 
                         Video Prompt:
                         """ + task.promptText();
@@ -1159,9 +1191,9 @@ public class GPVScheduler {
                             You are an Academy Award-winning cinematography director specializing in 4K AI video generation.
                             Expand the user's short idea into a rich, hyper-detailed 4K prompt (50-85 words) specifying camera movement, lens (e.g. 35mm anamorphic), volumetric lighting, atmosphere, and 60fps photorealism (no on-screen text).
                             Return ONLY a JSON object with keys:
-                            - "fileName": snake_case filename ending in .txt (e.g. "neon_cyber_harbor_4k.txt")
-                            - "enhancedPrompt": the 4K prompt
-                            - "predictedTrendingHashtags": array of 6 worldwide trending hashtags
+- "fileName": snake_case filename ending in .txt (e.g. "neon_cyber_harbor_4k.txt")
+- "enhancedPrompt": the 4K prompt
+- "predictedTrendingHashtags": array of 6 worldwide trending hashtags
 
                             User Idea:
                             """ + cleanIdea;
@@ -1902,9 +1934,11 @@ public class GPVScheduler {
                 LOG.info("------------------------------------------------------------------");
 
             } catch (GeminiVeo3Client.RateLimitException rle) {
-                quotaManager.recordRateLimitBackoff(rle.getRetryAfterSeconds());
+                Instant resetInstant = quotaManager.recordRateLimitBackoff(rle.getRetryAfterSeconds());
+                String resetInZone = formatInstantInZone(resetInstant, config.userTimeZone);
                 PIPELINE_TRACKER.update("STANDBY", 0, "",
-                        "Rate/quota limit (429): retrying in " + rle.getRetryAfterSeconds() + "s.");
+                        "Rate/quota limit (429): next eligible run at " + resetInZone
+                                + " (" + rle.getRetryAfterSeconds() + "s).");
             } catch (Exception e) {
                 LOG.log(Level.SEVERE, "Error during scheduled video pipeline execution", e);
                 PIPELINE_TRACKER.update("STANDBY", 0, "", "Pipeline error: " + e.getMessage());
@@ -2029,13 +2063,16 @@ public class GPVScheduler {
             SchedulerConfig cfg = configRef.get();
             EligibilityResult eligibility = quotaManager.evaluateEligibility();
             List prompts = promptRepository.listAllPrompts(quotaManager);
-            long queuedCount = prompts.stream()
-                    .filter(p -> p instanceof Map<?, ?> m && "QUEUED".equals(m.get("status")))
+            List<?> rawPrompts = promptRepository.listAllPrompts(quotaManager);
+            long queuedCount = rawPrompts.stream()
+                    .filter(item -> item instanceof Map<?, ?>)
+                    .map(item -> (Map<?, ?>) item)
+                    .filter(m -> "QUEUED".equals(m.get("status")))
                     .count();
 
             Map<String, Object> payload = new LinkedHashMap<>();
             payload.put("serverTime", Instant.now().toString());
-            payload.put("userLocalTime", ZonedDateTime.now(cfg.userTimeZone).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z")));
+            payload.put("userLocalTime", ZonedDateTime.now(cfg.userTimeZone).format(ZONE_DATE_TIME_FORMATTER));
             payload.put("userHour24", ZonedDateTime.now(cfg.userTimeZone).getHour());
             payload.put("userMinute", ZonedDateTime.now(cfg.userTimeZone).getMinute());
             payload.put("videoCreationEnabled", cfg.videoCreationEnabled);
