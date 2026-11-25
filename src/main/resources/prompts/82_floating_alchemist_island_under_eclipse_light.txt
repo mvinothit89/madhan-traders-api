@@ -1,0 +1,94 @@
+{
+  "type": "video_prompt",
+  "title": "Floating Alchemist Island under Eclipse Light Inside a Corked Apothecary Bottle",
+  "duration": "10 seconds",
+  "aspect_ratio": "16:9",
+  "resolution": "4K",
+  "style": "ultra-photorealistic cinematic miniature diorama",
+  "camera": {
+    "style": "macro tilt-shift photography",
+    "lens": "100mm macro tilt-shift lens at f/2.8",
+    "depth_of_field": "very shallow",
+    "focus": "precise miniature-scale focus with realistic bokeh",
+    "movement": "smooth cinematic camera motion"
+  },
+  "environment": {
+    "surface": "worn oak apothecary table with brass scales and dried herbs",
+    "world": "handcrafted physical floating fantasy island miniature",
+    "materials": "carved pumice stone, copper wire, miniature ivy, blown green glass",
+    "atmosphere": "drifting golden alchemy mist and glowing dust motes"
+  },
+  "main_subject": "a dormant miniature floating alchemist island (under eclipse light) awakened by a giant realistic human hand",
+  "timeline": [
+    {
+      "time": "0-2s",
+      "scene": "Macro close-up of a still, unlit miniature floating alchemist island scene set under eclipse light. Tiny details sit frozen in stillness. A giant realistic human hand enters holding a precision artisan tool for brass dropper releasing emerald elixir onto stone tower.",
+      "action": "The artisan action triggers a luminous pulse across the miniature scene, beginning brass dropper releasing emerald elixir onto stone tower.",
+      "micro_details": "Fine surface details react realistically as brass dropper releasing emerald elixir onto stone tower sends ripples through the surrounding diorama.",
+      "camera": "Extreme macro close-up with shallow depth of field."
+    },
+    {
+      "time": "2-4s",
+      "scene": "Living energy and rich color spread smoothly across the entire floating alchemist island miniature.",
+      "action": "Cascading cliff ivy, spinning windmills, and orbiting crystals come alive with realistic motion, warm highlights, and natural miniature physics.",
+      "micro_details": "Microscopic details glisten with authentic reflections and subtle motion as the world awakens.",
+      "camera": "Slow cinematic push-in following the spreading light and motion."
+    },
+    {
+      "time": "4-6s",
+      "scene": "A giant realistic hand interacts gently with the miniature structure to transform the scene under eclipse light.",
+      "action": "The landscape folds and shifts seamlessly into a sky-archipelago with rope bridges and hot-air balloons with crisp spatial transitions.",
+      "micro_details": "Secondary structures and tiny figures adapt naturally as the sky-archipelago with rope bridges and hot-air balloons locks into place.",
+      "camera": "Smooth tracking movement following the transformation."
+    },
+    {
+      "time": "6-8s",
+      "scene": "The transformed miniature world rests beneath a dramatic sky suited to under eclipse light.",
+      "action": "A giant fingertip performs a delicate gesture—wooden match flame melting storm clouds into sunset—enhancing the atmosphere and lighting.",
+      "micro_details": "Warm and cool light rays refract across every miniature surface, shadow, and texture.",
+      "camera": "Gentle cinematic upward movement enhancing the scene lighting."
+    },
+    {
+      "time": "8-10s",
+      "scene": "The camera rapidly pulls backward in one continuous fluid cinematic movement.",
+      "action": "The entire living miniature world is revealed to be contained inside a hand-blown antique green glass apothecary bottle with cork resting on the workbench.",
+      "micro_details": "Authentic outer casing textures, patina, and craftsmanship frame the glowing miniature world.",
+      "camera": "Fast but smooth pull-back ending on a locked-off hero shot."
+    }
+  ],
+  "lighting": {
+    "style": "cinematic volumetric lighting",
+    "effects": [
+      "cinematic volumetric lighting tailored to under eclipse light",
+      "warm and cool color contrast",
+      "realistic specular reflections",
+      "crisp miniature shadows",
+      "atmospheric haze"
+    ]
+  },
+  "hand_details": {
+    "appearance": "photorealistic human hand",
+    "skin": "visible pores, fine wrinkles, natural skin texture",
+    "interaction": "physically believable contact with the miniature environment",
+    "scale": "clearly gigantic compared to the miniature world"
+  },
+  "motion": {
+    "style": "smooth, satisfying, seamless transitions",
+    "physics": "realistic miniature-scale physics",
+    "feel": "ASMR-like satisfying motion"
+  },
+  "sound_design": {
+    "style": "hyper-detailed ASMR micro-foley",
+    "foley": [
+      "hyper-detailed ASMR micro-foley matching floating alchemist island",
+      "brass dropper releasing emerald elixir onto stone tower",
+      "and hand-blown antique green glass apothecary bottle with cork"
+    ]
+  },
+  "final_frame": {
+    "subject": "glowing floating alchemist island (under eclipse light) inside a hand-blown antique green glass apothecary bottle with cork",
+    "composition": "hero macro shot on the workspace surface",
+    "lighting_note": "balanced highlights and shadows framing the miniature world",
+    "hold": "brief cinematic hold"
+  }
+}

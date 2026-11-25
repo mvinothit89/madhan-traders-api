@@ -1,0 +1,95 @@
+{
+  "type": "video_prompt",
+  "title": "Clockwork Venice Inside a Vintage Brass Pocket Watch",
+  "duration": "10 seconds",
+  "aspect_ratio": "16:9",
+  "resolution": "4K",
+  "style": "ultra-photorealistic cinematic miniature diorama",
+  "camera": {
+    "style": "macro tilt-shift photography",
+    "lens": "100mm macro tilt-shift lens at f/2.8",
+    "depth_of_field": "very shallow",
+    "focus": "precise miniature-scale focus with realistic bokeh",
+    "movement": "smooth cinematic camera motion"
+  },
+  "environment": {
+    "surface": "aged mahogany watchmaker workbench with brass calipers",
+    "world": "handcrafted physical miniature clockwork city",
+    "materials": "tarnished silver, hand-painted porcelain, micro-gears, resin water",
+    "atmosphere": "fine golden dust motes drifting through a warm desk lamp beam"
+  },
+  "main_subject": "a tiny dormant Venetian canal city manipulated by a giant realistic human hand",
+  "timeline": [
+    {
+      "time": "0-2s",
+      "scene": "Macro close-up of a motionless, tarnished silver miniature Venice. Tiny gondolas sit frozen on dry pewter canals while miniature bridges remain dark. A giant realistic human hand enters from the left holding a brass watchmaker oiler tipped with glowing sapphire liquid.",
+      "action": "One luminous blue drop falls from the needle tip in slow motion and strikes the central canal, sending a shimmering turquoise ripple outward.",
+      "micro_details": "Tiny brass balance wheels beneath the stone bridges twitch and begin spinning in synchronized rhythm.",
+      "camera": "Extreme macro close-up with shallow depth of field."
+    },
+    {
+      "time": "2-4s",
+      "scene": "The sapphire liquid transforms into crystal-clear flowing canal water across the miniature city.",
+      "action": "Tarnished buildings bloom into warm terracotta, ochre, and cream facades. Tiny Murano glass streetlamps flicker on, gondolas glide smoothly down the waterways, and miniature townsfolk stroll across arched bridges.",
+      "micro_details": "Microscopic ripples lap against miniature wooden mooring poles with realistic water reflections.",
+      "camera": "Slow cinematic push-in following the spreading light and motion."
+    },
+    {
+      "time": "4-6s",
+      "scene": "The giant thumb and forefinger pinch and twist a tiny brass winding crown at the edge of the city.",
+      "action": "With audible mechanical clicks, the Venetian buildings fold inward like precision origami gears, seamlessly rising into terraced Tuscan hills covered in miniature cypress trees and sunlit vineyards.",
+      "micro_details": "Tiny rows of purple grape clusters pop onto miniature wooden trellises as the stone villas lock into place.",
+      "camera": "Smooth tracking movement following the transformation."
+    },
+    {
+      "time": "6-8s",
+      "scene": "The completed Tuscan hillside village rests beneath a hazy grey overcast sky.",
+      "action": "A giant fingertip gently wipes across the low-hanging mist like polishing glass, clearing away clouds to unleash a warm amber Mediterranean sunset. Tiny villa windows glow and miniature fireflies dance above the vines.",
+      "micro_details": "Warm golden light refracts across the miniature terracotta roof tiles and tiny stone courtyard fountains.",
+      "camera": "Gentle cinematic upward movement enhancing the scene lighting."
+    },
+    {
+      "time": "8-10s",
+      "scene": "The camera rapidly pulls backward in one continuous fluid cinematic motion.",
+      "action": "The entire living miniature Tuscan valley is revealed to be nestled inside an open antique brass pocket watch on the mahogany workbench. The giant realistic hand snaps the engraved gold cover shut with a resonant click while warm light peeks through the filigree.",
+      "micro_details": "Engraved Roman numerals and ticking escapement gears remain visible around the inner bezel.",
+      "camera": "Fast but smooth pull-back ending on a locked-off hero shot."
+    }
+  ],
+  "lighting": {
+    "style": "cinematic volumetric lighting",
+    "effects": [
+      "warm amber tungsten glow",
+      "soft volumetric sunbeams",
+      "metallic brass specular reflections",
+      "crisp miniature contact shadows",
+      "subtle warm atmospheric haze"
+    ]
+  },
+  "hand_details": {
+    "appearance": "photorealistic human hand",
+    "skin": "visible pores, fine wrinkles, natural skin texture",
+    "interaction": "physically believable contact with the miniature environment",
+    "scale": "clearly gigantic compared to the miniature world"
+  },
+  "motion": {
+    "style": "smooth, satisfying, seamless transitions",
+    "physics": "realistic miniature-scale physics",
+    "feel": "ASMR-like satisfying motion"
+  },
+  "sound_design": {
+    "style": "hyper-detailed ASMR micro-foley",
+    "foley": [
+      "delicate liquid droplet chime",
+      "tiny synchronized watch-gear ticking",
+      "soft satin brush across glass",
+      "crisp brass pocket-watch latch snap"
+    ]
+  },
+  "final_frame": {
+    "subject": "ornate brass pocket watch glowing softly from within",
+    "composition": "hero macro shot on the workspace surface",
+    "lighting_note": "balanced highlights and shadows framing the miniature world",
+    "hold": "brief cinematic hold"
+  }
+}

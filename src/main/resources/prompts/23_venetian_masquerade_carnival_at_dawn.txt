@@ -1,0 +1,94 @@
+{
+  "type": "video_prompt",
+  "title": "Venetian Masquerade Carnival at Dawn Inside a Antique Cameo Locket",
+  "duration": "10 seconds",
+  "aspect_ratio": "16:9",
+  "resolution": "4K",
+  "style": "ultra-photorealistic cinematic miniature diorama",
+  "camera": {
+    "style": "macro tilt-shift photography",
+    "lens": "100mm macro tilt-shift lens at f/2.8",
+    "depth_of_field": "very shallow",
+    "focus": "precise miniature-scale focus with realistic bokeh",
+    "movement": "smooth cinematic camera motion"
+  },
+  "environment": {
+    "surface": "burgundy velvet jeweler's display cushion with gold chains",
+    "world": "handcrafted physical 18th-century Venetian masquerade miniature",
+    "materials": "carved Istrian stone, gold leaf, hand-painted porcelain, blown Murano glass",
+    "atmosphere": "drifting golden confetti and warm candlelit evening mist"
+  },
+  "main_subject": "a dormant miniature venetian masquerade carnival (at dawn) awakened by a giant realistic human hand",
+  "timeline": [
+    {
+      "time": "0-2s",
+      "scene": "Macro close-up of a still, unlit miniature venetian masquerade carnival scene set at dawn. Tiny details sit frozen in stillness. A giant realistic human hand enters holding a precision artisan tool for gold jeweler's brush sweeping crimson-and-gold pigment.",
+      "action": "The artisan action triggers a luminous pulse across the miniature scene, beginning gold jeweler's brush sweeping crimson-and-gold pigment.",
+      "micro_details": "Fine surface details react realistically as gold jeweler's brush sweeping crimson-and-gold pigment sends ripples through the surrounding diorama.",
+      "camera": "Extreme macro close-up with shallow depth of field."
+    },
+    {
+      "time": "2-4s",
+      "scene": "Living energy and rich color spread smoothly across the entire venetian masquerade carnival miniature.",
+      "action": "Brocade gowns, waltzing nobles, gondolas, and fireworks come alive with realistic motion, warm highlights, and natural miniature physics.",
+      "micro_details": "Microscopic details glisten with authentic reflections and subtle motion as the world awakens.",
+      "camera": "Slow cinematic push-in following the spreading light and motion."
+    },
+    {
+      "time": "4-6s",
+      "scene": "A giant realistic hand interacts gently with the miniature structure to transform the scene at dawn.",
+      "action": "The landscape folds and shifts seamlessly into a glowing Murano glassblowing workshop with molten glass with crisp spatial transitions.",
+      "micro_details": "Secondary structures and tiny figures adapt naturally as the glowing Murano glassblowing workshop with molten glass locks into place.",
+      "camera": "Smooth tracking movement following the transformation."
+    },
+    {
+      "time": "6-8s",
+      "scene": "The transformed miniature world rests beneath a dramatic sky suited to at dawn.",
+      "action": "A giant fingertip performs a delicate gesture—fingertip touching pearl clasp to ignite palace candlelight—enhancing the atmosphere and lighting.",
+      "micro_details": "Warm and cool light rays refract across every miniature surface, shadow, and texture.",
+      "camera": "Gentle cinematic upward movement enhancing the scene lighting."
+    },
+    {
+      "time": "8-10s",
+      "scene": "The camera rapidly pulls backward in one continuous fluid cinematic movement.",
+      "action": "The entire living miniature world is revealed to be contained inside a open antique oval gold cameo locket on burgundy velvet resting on the workbench.",
+      "micro_details": "Authentic outer casing textures, patina, and craftsmanship frame the glowing miniature world.",
+      "camera": "Fast but smooth pull-back ending on a locked-off hero shot."
+    }
+  ],
+  "lighting": {
+    "style": "cinematic volumetric lighting",
+    "effects": [
+      "cinematic volumetric lighting tailored to at dawn",
+      "warm and cool color contrast",
+      "realistic specular reflections",
+      "crisp miniature shadows",
+      "atmospheric haze"
+    ]
+  },
+  "hand_details": {
+    "appearance": "photorealistic human hand",
+    "skin": "visible pores, fine wrinkles, natural skin texture",
+    "interaction": "physically believable contact with the miniature environment",
+    "scale": "clearly gigantic compared to the miniature world"
+  },
+  "motion": {
+    "style": "smooth, satisfying, seamless transitions",
+    "physics": "realistic miniature-scale physics",
+    "feel": "ASMR-like satisfying motion"
+  },
+  "sound_design": {
+    "style": "hyper-detailed ASMR micro-foley",
+    "foley": [
+      "hyper-detailed ASMR micro-foley matching venetian masquerade carnival",
+      "gold jeweler's brush sweeping crimson-and-gold pigment",
+      "and open antique oval gold cameo locket on burgundy velvet"
+    ]
+  },
+  "final_frame": {
+    "subject": "glowing venetian masquerade carnival (at dawn) inside a open antique oval gold cameo locket on burgundy velvet",
+    "composition": "hero macro shot on the workspace surface",
+    "lighting_note": "balanced highlights and shadows framing the miniature world",
+    "hold": "brief cinematic hold"
+  }
+}

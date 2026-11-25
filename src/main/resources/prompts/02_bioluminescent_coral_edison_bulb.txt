@@ -1,0 +1,95 @@
+{
+  "type": "video_prompt",
+  "title": "Bioluminescent Coral Reef Inside a Vintage Edison Lightbulb",
+  "duration": "10 seconds",
+  "aspect_ratio": "16:9",
+  "resolution": "4K",
+  "style": "ultra-photorealistic cinematic miniature diorama",
+  "camera": {
+    "style": "macro tilt-shift photography",
+    "lens": "100mm macro tilt-shift lens at f/2.8",
+    "depth_of_field": "very shallow",
+    "focus": "precise miniature-scale focus with realistic bokeh",
+    "movement": "smooth cinematic camera motion"
+  },
+  "environment": {
+    "surface": "weathered coastal driftwood desk scattered with brass tools",
+    "world": "handcrafted physical miniature marine ecosystem",
+    "materials": "sculpted porcelain coral, blown glass, iridescent resin, fine silica sand",
+    "atmosphere": "suspended micro-bubbles and soft aquatic caustics"
+  },
+  "main_subject": "a bleached miniature coral reef brought to life by a giant realistic human hand",
+  "timeline": [
+    {
+      "time": "0-2s",
+      "scene": "Macro close-up of a stark white, lifeless miniature coral reef resting on pale sand. Tiny porcelain fish hang motionless in stillness. A giant realistic human hand enters from above holding precision steel tweezers gripping a single glowing violet sea anemone.",
+      "action": "The giant tweezers gently plant the luminous anemone into the central coral ridge, releasing a pulse of electric-cyan bioluminescence.",
+      "micro_details": "Tiny grains of white silica sand scatter and settle softly around the newly planted anemone base.",
+      "camera": "Extreme macro close-up with shallow depth of field."
+    },
+    {
+      "time": "2-4s",
+      "scene": "Waves of vibrant color surge outward from the anemone across the entire reef.",
+      "action": "Bleached coral branches bloom into vivid magenta, tangerine, and emerald. Miniature clownfish dart through swaying tentacles, translucent jellyfish pulse upward, and streams of tiny silver bubbles rise through clear water.",
+      "micro_details": "Delicate caustic light patterns ripple across the sandy seabed and tiny clam shells.",
+      "camera": "Slow cinematic push-in following the spreading light and motion."
+    },
+    {
+      "time": "4-6s",
+      "scene": "The giant hand grips the base of the diorama and rotates it smoothly clockwise.",
+      "action": "As the terrain turns, the coral reef parts like living curtains to reveal a sunken miniature wooden galleon resting in a deep trench, its broken hull transforming into a glowing underwater library lined with tiny waterproofed books.",
+      "micro_details": "Miniature brass portholes swing open as tiny seahorses drift past kelp-wrapped bookshelves.",
+      "camera": "Smooth tracking movement following the transformation."
+    },
+    {
+      "time": "6-8s",
+      "scene": "The underwater galleon library sits dimly lit in deep abyssal blue shadow.",
+      "action": "A giant index fingertip taps gently against the upper boundary of the water, sending a shimmering shockwave downward that ignites thousands of glowing golden plankton and miniature brass desk lanterns inside the ship.",
+      "micro_details": "Tiny air bubbles cling to the miniature ship rigging and shimmer like pearls.",
+      "camera": "Gentle cinematic upward movement enhancing the scene lighting."
+    },
+    {
+      "time": "8-10s",
+      "scene": "The camera rapidly pulls backward in one seamless continuous sweep.",
+      "action": "The entire living ocean reef and sunken library are revealed to be sealed inside a vintage clear glass Edison lightbulb resting on a brass socket on the driftwood desk. The giant hand flips a miniature toggle switch, making the bulb glow warmly.",
+      "micro_details": "Curved glass reflections and faint water droplets bead along the outer bulb glass.",
+      "camera": "Fast but smooth pull-back ending on a locked-off hero shot."
+    }
+  ],
+  "lighting": {
+    "style": "cinematic volumetric lighting",
+    "effects": [
+      "electric cyan and magenta coral glow",
+      "shimmering underwater caustic rays",
+      "curved glass specular highlights",
+      "deep oceanic contrast shadows",
+      "soft warm filament rim light"
+    ]
+  },
+  "hand_details": {
+    "appearance": "photorealistic human hand",
+    "skin": "visible pores, fine wrinkles, natural skin texture",
+    "interaction": "physically believable contact with the miniature environment",
+    "scale": "clearly gigantic compared to the miniature world"
+  },
+  "motion": {
+    "style": "smooth, satisfying, seamless transitions",
+    "physics": "realistic miniature-scale physics",
+    "feel": "ASMR-like satisfying motion"
+  },
+  "sound_design": {
+    "style": "hyper-detailed ASMR micro-foley",
+    "foley": [
+      "soft metallic tweezer release",
+      "delicate rising underwater micro-bubbles",
+      "resonant glass fingertip tap",
+      "warm mechanical brass switch click"
+    ]
+  },
+  "final_frame": {
+    "subject": "glowing miniature coral ocean inside a vintage Edison lightbulb",
+    "composition": "hero macro shot on the workspace surface",
+    "lighting_note": "balanced highlights and shadows framing the miniature world",
+    "hold": "brief cinematic hold"
+  }
+}

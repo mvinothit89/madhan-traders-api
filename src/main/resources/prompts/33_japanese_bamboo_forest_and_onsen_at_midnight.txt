@@ -1,0 +1,94 @@
+{
+  "type": "video_prompt",
+  "title": "Japanese Bamboo Forest & Onsen at Midnight Inside a Kintsugi Matcha Bowl",
+  "duration": "10 seconds",
+  "aspect_ratio": "16:9",
+  "resolution": "4K",
+  "style": "ultra-photorealistic cinematic miniature diorama",
+  "camera": {
+    "style": "macro tilt-shift photography",
+    "lens": "100mm macro tilt-shift lens at f/2.8",
+    "depth_of_field": "very shallow",
+    "focus": "precise miniature-scale focus with realistic bokeh",
+    "movement": "smooth cinematic camera motion"
+  },
+  "environment": {
+    "surface": "dark charred cedar tea table with bamboo ladle and linen cloth",
+    "world": "handcrafted physical Japanese Zen garden miniature",
+    "materials": "cracked grey clay, live cushion moss, carved bamboo, steaming water",
+    "atmosphere": "delicate wisps of hot-spring steam in soft morning light"
+  },
+  "main_subject": "a dormant miniature japanese bamboo forest & onsen (at midnight) awakened by a giant realistic human hand",
+  "timeline": [
+    {
+      "time": "0-2s",
+      "scene": "Macro close-up of a still, unlit miniature japanese bamboo forest & onsen scene set at midnight. Tiny details sit frozen in stillness. A giant realistic human hand enters holding a precision artisan tool for bamboo matcha whisk dropping jade liquid on cracked clay.",
+      "action": "The artisan action triggers a luminous pulse across the miniature scene, beginning bamboo matcha whisk dropping jade liquid on cracked clay.",
+      "micro_details": "Fine surface details react realistically as bamboo matcha whisk dropping jade liquid on cracked clay sends ripples through the surrounding diorama.",
+      "camera": "Extreme macro close-up with shallow depth of field."
+    },
+    {
+      "time": "2-4s",
+      "scene": "Living energy and rich color spread smoothly across the entire japanese bamboo forest & onsen miniature.",
+      "action": "Towering emerald bamboo, steaming onsen, and snow monkeys come alive with realistic motion, warm highlights, and natural miniature physics.",
+      "micro_details": "Microscopic details glisten with authentic reflections and subtle motion as the world awakens.",
+      "camera": "Slow cinematic push-in following the spreading light and motion."
+    },
+    {
+      "time": "4-6s",
+      "scene": "A giant realistic hand interacts gently with the miniature structure to transform the scene at midnight.",
+      "action": "The landscape folds and shifts seamlessly into a vermilion Edo bridge spanning a tranquil koi pond with crisp spatial transitions.",
+      "micro_details": "Secondary structures and tiny figures adapt naturally as the vermilion Edo bridge spanning a tranquil koi pond locks into place.",
+      "camera": "Smooth tracking movement following the transformation."
+    },
+    {
+      "time": "6-8s",
+      "scene": "The transformed miniature world rests beneath a dramatic sky suited to at midnight.",
+      "action": "A giant fingertip performs a delicate gesture—fingertip lowering glowing paper lantern onto water—enhancing the atmosphere and lighting.",
+      "micro_details": "Warm and cool light rays refract across every miniature surface, shadow, and texture.",
+      "camera": "Gentle cinematic upward movement enhancing the scene lighting."
+    },
+    {
+      "time": "8-10s",
+      "scene": "The camera rapidly pulls backward in one continuous fluid cinematic movement.",
+      "action": "The entire living miniature world is revealed to be contained inside a handcrafted black ceramic matcha bowl with gold Kintsugi veins resting on the workbench.",
+      "micro_details": "Authentic outer casing textures, patina, and craftsmanship frame the glowing miniature world.",
+      "camera": "Fast but smooth pull-back ending on a locked-off hero shot."
+    }
+  ],
+  "lighting": {
+    "style": "cinematic volumetric lighting",
+    "effects": [
+      "cinematic volumetric lighting tailored to at midnight",
+      "warm and cool color contrast",
+      "realistic specular reflections",
+      "crisp miniature shadows",
+      "atmospheric haze"
+    ]
+  },
+  "hand_details": {
+    "appearance": "photorealistic human hand",
+    "skin": "visible pores, fine wrinkles, natural skin texture",
+    "interaction": "physically believable contact with the miniature environment",
+    "scale": "clearly gigantic compared to the miniature world"
+  },
+  "motion": {
+    "style": "smooth, satisfying, seamless transitions",
+    "physics": "realistic miniature-scale physics",
+    "feel": "ASMR-like satisfying motion"
+  },
+  "sound_design": {
+    "style": "hyper-detailed ASMR micro-foley",
+    "foley": [
+      "hyper-detailed ASMR micro-foley matching japanese bamboo forest & onsen",
+      "bamboo matcha whisk dropping jade liquid on cracked clay",
+      "and handcrafted black ceramic matcha bowl with gold Kintsugi veins"
+    ]
+  },
+  "final_frame": {
+    "subject": "glowing japanese bamboo forest & onsen (at midnight) inside a handcrafted black ceramic matcha bowl with gold Kintsugi veins",
+    "composition": "hero macro shot on the workspace surface",
+    "lighting_note": "balanced highlights and shadows framing the miniature world",
+    "hold": "brief cinematic hold"
+  }
+}

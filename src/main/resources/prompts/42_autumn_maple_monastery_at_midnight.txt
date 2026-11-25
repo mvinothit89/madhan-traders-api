@@ -1,0 +1,94 @@
+{
+  "type": "video_prompt",
+  "title": "Autumn Maple Monastery at Midnight Inside a Rosewood Abacus Frame",
+  "duration": "10 seconds",
+  "aspect_ratio": "16:9",
+  "resolution": "4K",
+  "style": "ultra-photorealistic cinematic miniature diorama",
+  "camera": {
+    "style": "macro tilt-shift photography",
+    "lens": "100mm macro tilt-shift lens at f/2.8",
+    "depth_of_field": "very shallow",
+    "focus": "precise miniature-scale focus with realistic bokeh",
+    "movement": "smooth cinematic camera motion"
+  },
+  "environment": {
+    "surface": "aged scholar's desk with inkstone and rice paper scrolls",
+    "world": "handcrafted physical mountain monastery miniature",
+    "materials": "polished rosewood, brass rods, preserved crimson maple moss, resin water",
+    "atmosphere": "crisp autumn mountain mist and drifting crimson leaves"
+  },
+  "main_subject": "a dormant miniature autumn maple monastery (at midnight) awakened by a giant realistic human hand",
+  "timeline": [
+    {
+      "time": "0-2s",
+      "scene": "Macro close-up of a still, unlit miniature autumn maple monastery scene set at midnight. Tiny details sit frozen in stillness. A giant realistic human hand enters holding a precision artisan tool for fingertip flicking wooden abacus beads across brass rod.",
+      "action": "The artisan action triggers a luminous pulse across the miniature scene, beginning fingertip flicking wooden abacus beads across brass rod.",
+      "micro_details": "Fine surface details react realistically as fingertip flicking wooden abacus beads across brass rod sends ripples through the surrounding diorama.",
+      "camera": "Extreme macro close-up with shallow depth of field."
+    },
+    {
+      "time": "2-4s",
+      "scene": "Living energy and rich color spread smoothly across the entire autumn maple monastery miniature.",
+      "action": "Crimson and orange maple leaves, waterfall, and pagodas come alive with realistic motion, warm highlights, and natural miniature physics.",
+      "micro_details": "Microscopic details glisten with authentic reflections and subtle motion as the world awakens.",
+      "camera": "Slow cinematic push-in following the spreading light and motion."
+    },
+    {
+      "time": "4-6s",
+      "scene": "A giant realistic hand interacts gently with the miniature structure to transform the scene at midnight.",
+      "action": "The landscape folds and shifts seamlessly into a tranquil winter hot-spring shrine with snowy bridge with crisp spatial transitions.",
+      "micro_details": "Secondary structures and tiny figures adapt naturally as the tranquil winter hot-spring shrine with snowy bridge locks into place.",
+      "camera": "Smooth tracking movement following the transformation."
+    },
+    {
+      "time": "6-8s",
+      "scene": "The transformed miniature world rests beneath a dramatic sky suited to at midnight.",
+      "action": "A giant fingertip performs a delicate gesture—fingertip touching divider bar to light snowy lanterns—enhancing the atmosphere and lighting.",
+      "micro_details": "Warm and cool light rays refract across every miniature surface, shadow, and texture.",
+      "camera": "Gentle cinematic upward movement enhancing the scene lighting."
+    },
+    {
+      "time": "8-10s",
+      "scene": "The camera rapidly pulls backward in one continuous fluid cinematic movement.",
+      "action": "The entire living miniature world is revealed to be contained inside a carved rosewood frame of an antique Chinese abacus resting on the workbench.",
+      "micro_details": "Authentic outer casing textures, patina, and craftsmanship frame the glowing miniature world.",
+      "camera": "Fast but smooth pull-back ending on a locked-off hero shot."
+    }
+  ],
+  "lighting": {
+    "style": "cinematic volumetric lighting",
+    "effects": [
+      "cinematic volumetric lighting tailored to at midnight",
+      "warm and cool color contrast",
+      "realistic specular reflections",
+      "crisp miniature shadows",
+      "atmospheric haze"
+    ]
+  },
+  "hand_details": {
+    "appearance": "photorealistic human hand",
+    "skin": "visible pores, fine wrinkles, natural skin texture",
+    "interaction": "physically believable contact with the miniature environment",
+    "scale": "clearly gigantic compared to the miniature world"
+  },
+  "motion": {
+    "style": "smooth, satisfying, seamless transitions",
+    "physics": "realistic miniature-scale physics",
+    "feel": "ASMR-like satisfying motion"
+  },
+  "sound_design": {
+    "style": "hyper-detailed ASMR micro-foley",
+    "foley": [
+      "hyper-detailed ASMR micro-foley matching autumn maple monastery",
+      "fingertip flicking wooden abacus beads across brass rod",
+      "and carved rosewood frame of an antique Chinese abacus"
+    ]
+  },
+  "final_frame": {
+    "subject": "glowing autumn maple monastery (at midnight) inside a carved rosewood frame of an antique Chinese abacus",
+    "composition": "hero macro shot on the workspace surface",
+    "lighting_note": "balanced highlights and shadows framing the miniature world",
+    "hold": "brief cinematic hold"
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "type": "video_prompt",
+  "title": "Highland Scottish Castle at Dawn Inside a Engraved Pewter Flask",
+  "duration": "10 seconds",
+  "aspect_ratio": "16:9",
+  "resolution": "4K",
+  "style": "ultra-photorealistic cinematic miniature diorama",
+  "camera": {
+    "style": "macro tilt-shift photography",
+    "lens": "100mm macro tilt-shift lens at f/2.8",
+    "depth_of_field": "very shallow",
+    "focus": "precise miniature-scale focus with realistic bokeh",
+    "movement": "smooth cinematic camera motion"
+  },
+  "environment": {
+    "surface": "weathered tartan wool and oak pub table with copper coins",
+    "world": "handcrafted physical Scottish Highland castle miniature",
+    "materials": "carved grey granite, preserved purple heather, resin loch water, brushed pewter",
+    "atmosphere": "swirling Highland mist and warm hearth smoke"
+  },
+  "main_subject": "a dormant miniature highland scottish castle (at dawn) awakened by a giant realistic human hand",
+  "timeline": [
+    {
+      "time": "0-2s",
+      "scene": "Macro close-up of a still, unlit miniature highland scottish castle scene set at dawn. Tiny details sit frozen in stillness. A giant realistic human hand enters holding a precision artisan tool for silver thimble pouring warm amber liquid onto courtyard.",
+      "action": "The artisan action triggers a luminous pulse across the miniature scene, beginning silver thimble pouring warm amber liquid onto courtyard.",
+      "micro_details": "Fine surface details react realistically as silver thimble pouring warm amber liquid onto courtyard sends ripples through the surrounding diorama.",
+      "camera": "Extreme macro close-up with shallow depth of field."
+    },
+    {
+      "time": "2-4s",
+      "scene": "Living energy and rich color spread smoothly across the entire highland scottish castle miniature.",
+      "action": "Emerald hills, purple heather, battlement torches, and loch boats come alive with realistic motion, warm highlights, and natural miniature physics.",
+      "micro_details": "Microscopic details glisten with authentic reflections and subtle motion as the world awakens.",
+      "camera": "Slow cinematic push-in following the spreading light and motion."
+    },
+    {
+      "time": "4-6s",
+      "scene": "A giant realistic hand interacts gently with the miniature structure to transform the scene at dawn.",
+      "action": "The landscape folds and shifts seamlessly into a subterranean cavern with glowing emerald dragon-crystals with crisp spatial transitions.",
+      "micro_details": "Secondary structures and tiny figures adapt naturally as the subterranean cavern with glowing emerald dragon-crystals locks into place.",
+      "camera": "Smooth tracking movement following the transformation."
+    },
+    {
+      "time": "6-8s",
+      "scene": "The transformed miniature world rests beneath a dramatic sky suited to at dawn.",
+      "action": "A giant fingertip performs a delicate gesture—fingertip striking flint spark to light golden beacon—enhancing the atmosphere and lighting.",
+      "micro_details": "Warm and cool light rays refract across every miniature surface, shadow, and texture.",
+      "camera": "Gentle cinematic upward movement enhancing the scene lighting."
+    },
+    {
+      "time": "8-10s",
+      "scene": "The camera rapidly pulls backward in one continuous fluid cinematic movement.",
+      "action": "The entire living miniature world is revealed to be contained inside a cutaway body of an engraved antique pewter hip flask resting on the workbench.",
+      "micro_details": "Authentic outer casing textures, patina, and craftsmanship frame the glowing miniature world.",
+      "camera": "Fast but smooth pull-back ending on a locked-off hero shot."
+    }
+  ],
+  "lighting": {
+    "style": "cinematic volumetric lighting",
+    "effects": [
+      "cinematic volumetric lighting tailored to at dawn",
+      "warm and cool color contrast",
+      "realistic specular reflections",
+      "crisp miniature shadows",
+      "atmospheric haze"
+    ]
+  },
+  "hand_details": {
+    "appearance": "photorealistic human hand",
+    "skin": "visible pores, fine wrinkles, natural skin texture",
+    "interaction": "physically believable contact with the miniature environment",
+    "scale": "clearly gigantic compared to the miniature world"
+  },
+  "motion": {
+    "style": "smooth, satisfying, seamless transitions",
+    "physics": "realistic miniature-scale physics",
+    "feel": "ASMR-like satisfying motion"
+  },
+  "sound_design": {
+    "style": "hyper-detailed ASMR micro-foley",
+    "foley": [
+      "hyper-detailed ASMR micro-foley matching highland scottish castle",
+      "silver thimble pouring warm amber liquid onto courtyard",
+      "and cutaway body of an engraved antique pewter hip flask"
+    ]
+  },
+  "final_frame": {
+    "subject": "glowing highland scottish castle (at dawn) inside a cutaway body of an engraved antique pewter hip flask",
+    "composition": "hero macro shot on the workspace surface",
+    "lighting_note": "balanced highlights and shadows framing the miniature world",
+    "hold": "brief cinematic hold"
+  }
+}

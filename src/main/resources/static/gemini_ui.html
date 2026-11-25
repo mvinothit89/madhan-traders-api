@@ -1,0 +1,1623 @@
+<!-- ... existing code ... -->
+  <title>VEO-3 // NEURAL 4K MISSION CONTROL</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Space Grotesk', 'Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            void: {
+              950: '#04060b',
+              900: '#090d16',
+              850: '#0e1422',
+              800: '#141d30',
+              700: '#1f2c47',
+            },
+            neon: {
+              cyan: '#22d3ee',
+              indigo: '#818cf8',
+              emerald: '#34d399',
+              violet: '#c084fc',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      background-color: #04060b;
+      background-image:
+        radial-gradient(circle at 15% 10%, rgba(99, 102, 241, 0.12), transparent 36%),
+        radial-gradient(circle at 85% 15%, rgba(34, 211, 238, 0.09), transparent 34%),
+        linear-gradient(rgba(148, 163, 184, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.035) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #090d16; }
+    ::-webkit-scrollbar-thumb { background: #1f2c47; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334873; }
+    .hud-card {
+      background: linear-gradient(165deg, rgba(14, 20, 34, 0.88), rgba(9, 13, 22, 0.94));
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(129, 140, 248, 0.16);
+      box-shadow: 0 18px 40px -15px rgba(0, 0, 0, 0.75), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+    }
+    .hud-card-glow {
+      box-shadow: 0 0 35px -8px rgba(34, 211, 238, 0.22), inset 0 1px 0 0 rgba(34, 211, 238, 0.18);
+      border-color: rgba(34, 211, 238, 0.35);
+    }
+    .drop-active {
+      border-color: #22d3ee !important;
+      background-color: rgba(34, 211, 238, 0.08) !important;
+      box-shadow: 0 0 25px rgba(34, 211, 238, 0.2);
+    }
+    @keyframes scanFlow {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+    .pipeline-active-bar {
+      background: linear-gradient(90deg, #6366f1, #22d3ee, #34d399, #6366f1);
+      background-size: 200% 100%;
+      animation: scanFlow 2.2s linear infinite;
+    }
+  </style>
+</head>
+<body class="text-slate-100 font-sans antialiased min-h-screen flex flex-col selection:bg-cyan-500/30 selection:text-cyan-200">
+
+  <!-- Toast Notification Container (Replaces alert/confirm) -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <!-- 4K Video Preview Modal -->
+  <div id="video-modal" class="hidden fixed inset-0 z-50 bg-void-950/90 backdrop-blur-lg flex items-center justify-center p-4">
+    <div class="hud-card hud-card-glow rounded-2xl max-w-4xl w-full overflow-hidden">
+      <div class="px-5 py-3.5 border-b border-slate-800/90 flex items-center justify-between">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-[10px] font-mono font-bold">4K ULTRA HD</span>
+          <h3 id="modal-video-title" class="text-sm font-mono font-bold text-white truncate">video.mp4</h3>
+        </div>
+        <button id="close-video-modal" type="button" class="px-3 py-1 rounded-lg bg-void-800 hover:bg-rose-500/20 text-xs font-mono text-slate-300 hover:text-rose-300 border border-slate-700 transition">
+          ESC / CLOSE
+        </button>
+      </div>
+      <div class="bg-black flex items-center justify-center">
+        <video id="modal-video-player" controls playsinline class="w-full max-h-[75vh]"></video>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Mission Control Header -->
+  <header class="sticky top-0 z-30 bg-void-900/90 backdrop-blur-xl border-b border-indigo-500/20">
+    <div class="max-w-[1580px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3.5">
+        <div class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 via-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/25">
+          <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-void-900 animate-ping"></span>
+          <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-void-900"></span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-display font-bold text-base sm:text-lg tracking-wide text-white">VEO-3 // NEURAL 4K MISSION CONTROL</h1>
+            <span class="hidden xl:inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono font-bold tracking-wider bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+              SSE REAL-TIME TELEMETRY
+            </span>
+          </div>
+          <p class="text-[11px] font-mono text-slate-400 hidden sm:block">Autonomous Time-Gated 4K Synthesis &amp; Worldwide Social Broadcast Core</p>
+        </div>
+      </div>
+
+      <!-- Java API & SSE Connection Bar -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div class="hidden lg:flex items-center bg-void-950/90 border border-slate-800 rounded-xl px-2.5 py-1 gap-2">
+          <span class="text-[10px] font-mono uppercase tracking-wider text-cyan-400">NODE:</span>
+          <input id="api-base-url" type="text" value="http://localhost:8080" class="bg-transparent text-xs font-mono text-slate-200 w-44 focus:outline-none" />
+          <button id="connect-api-btn" type="button" class="px-2.5 py-0.5 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-[11px] font-mono font-semibold text-indigo-200 transition">
+            LINK
+          </button>
+        </div>
+
+        <div id="connection-badge" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] font-mono font-semibold text-amber-300">
+          <span id="connection-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+          <span id="connection-label">SYNCING...</span>
+        </div>
+
+        <button id="trigger-now-btn" type="button" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-void-950 font-display font-bold text-xs sm:text-sm shadow-lg shadow-cyan-500/25 flex items-center gap-1.5 transition active:scale-[0.98]">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>EXECUTE NEXT</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="max-w-[1580px] mx-auto px-4 sm:px-6 flex items-center gap-1 overflow-x-auto border-t border-slate-800/70">
+      <button type="button" data-tab="overview" class="tab-btn px-4 py-3 text-xs sm:text-sm font-display font-semibold tracking-wide border-b-2 border-cyan-400 text-white whitespace-nowrap transition">
+        01 // NEURAL TELEMETRY &amp; BROADCASTS
+      </button>
+      <button type="button" data-tab="prompts" class="tab-btn px-4 py-3 text-xs sm:text-sm font-display font-semibold tracking-wide border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap transition">
+        02 // PROMPT ARCHITECT &amp; QUEUE (<span id="nav-prompt-count" class="font-mono text-cyan-300">0</span>)
+      </button>
+      <button type="button" data-tab="schedule" class="tab-btn px-4 py-3 text-xs sm:text-sm font-display font-semibold tracking-wide border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap transition">
+        03 // CHRONO WINDOW &amp; QUOTA SHIELD
+      </button>
+      <button type="button" data-tab="credentials" class="tab-btn px-4 py-3 text-xs sm:text-sm font-display font-semibold tracking-wide border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap transition">
+        04 // VEO-3 &amp; GLOBAL SOCIAL UPLINKS
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="flex-1 max-w-[1580px] w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+    <!-- ===================================================================== -->
+    <!-- TAB 1: NEURAL TELEMETRY, 4-NODE PIPELINE & BROADCASTS                 -->
+    <!-- ===================================================================== -->
+    <div id="tab-overview" class="tab-panel space-y-6">
+
+      <!-- Futuristic 4-Node Live Pipeline Telemetry Deck -->
+      <div id="eligibility-banner" class="hud-card rounded-2xl p-5 space-y-5">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
+          <div class="flex items-start gap-3.5">
+            <div class="w-11 h-11 rounded-xl bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 flex items-center justify-center shrink-0 mt-0.5">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+              </svg>
+            </div>
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <span id="eligibility-pill" class="px-2.5 py-0.5 rounded-md text-[11px] font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">INITIALIZING</span>
+                <span id="user-clock-display" class="text-xs font-mono text-cyan-300">CHRONO: --:--:--</span>
+              </div>
+              <h2 id="eligibility-reason" class="text-sm sm:text-base font-display font-bold text-white mt-1">Synchronizing with Gemini Veo 3 4K Scheduler Core...</h2>
+              <p id="pipeline-detail-text" class="text-xs font-mono text-slate-400 mt-0.5">Stage: STANDBY &bull; Sequential 1-by-1 prompt dispatcher armed.</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2.5 shrink-0">
+            <button id="refresh-status-btn" type="button" class="px-3.5 py-2 rounded-xl bg-void-800 hover:bg-void-700 border border-slate-700 text-xs font-mono font-semibold text-slate-200 transition">
+              SYNC NOW
+            </button>
+            <button id="export-props-btn" type="button" class="px-3.5 py-2 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/40 text-xs font-mono font-semibold text-indigo-300 transition">
+              EXPORT .PROPERTIES
+            </button>
+          </div>
+        </div>
+
+        <!-- 4-Stage Pipeline Progress Bar & Nodes -->
+        <div class="space-y-3">
+          <div class="w-full h-1.5 bg-void-950 rounded-full overflow-hidden border border-slate-800">
+            <div id="pipeline-master-bar" class="h-full pipeline-active-bar transition-all duration-500" style="width: 8%"></div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div id="node-WINDOW_CHECK" class="pipeline-node p-3 rounded-xl bg-void-950/90 border border-slate-800 flex items-center gap-3 transition">
+              <span class="w-7 h-7 rounded-lg bg-void-800 font-mono text-xs font-bold text-slate-300 flex items-center justify-center">01</span>
+              <div>
+                <p class="text-xs font-display font-bold text-white">CHRONO &amp; QUOTA GUARD</p>
+                <p class="text-[11px] font-mono text-slate-400">User Window &amp; Cap Verification</p>
+              </div>
+            </div>
+
+            <div id="node-TRENDING_AI" class="pipeline-node p-3 rounded-xl bg-void-950/90 border border-slate-800 flex items-center gap-3 transition">
+              <span class="w-7 h-7 rounded-lg bg-void-800 font-mono text-xs font-bold text-slate-300 flex items-center justify-center">02</span>
+              <div>
+                <p class="text-xs font-display font-bold text-white">TRENDING TAG MATRIX</p>
+                <p class="text-[11px] font-mono text-slate-400">Gemini Worldwide SEO Synthesis</p>
+              </div>
+            </div>
+
+            <div id="node-VEO3_4K_RENDER" class="pipeline-node p-3 rounded-xl bg-void-950/90 border border-slate-800 flex items-center gap-3 transition">
+              <span class="w-7 h-7 rounded-lg bg-void-800 font-mono text-xs font-bold text-slate-300 flex items-center justify-center">03</span>
+              <div>
+                <p class="text-xs font-display font-bold text-white">VEO-3 4K SYNTHESIS</p>
+                <p class="text-[11px] font-mono text-slate-400">3840x2160 Long-Running Render</p>
+              </div>
+            </div>
+
+            <div id="node-GLOBAL_PUBLISH" class="pipeline-node p-3 rounded-xl bg-void-950/90 border border-slate-800 flex items-center gap-3 transition">
+              <span class="w-7 h-7 rounded-lg bg-void-800 font-mono text-xs font-bold text-slate-300 flex items-center justify-center">04</span>
+              <div>
+                <p class="text-xs font-display font-bold text-white">GLOBAL SOCIAL UPLINK</p>
+                <p class="text-[11px] font-mono text-slate-400">YT &bull; IG Reels &bull; X &bull; FB</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Radial SVG Telemetry KPI Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Daily Quota Ring -->
+        <div class="hud-card rounded-2xl p-4 flex items-center gap-4">
+          <div class="relative w-16 h-16 shrink-0">
+            <svg class="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
+              <circle cx="32" cy="32" r="26" stroke="#141d30" stroke-width="6" fill="none" />
+              <circle id="ring-daily" cx="32" cy="32" r="26" stroke="#22d3ee" stroke-width="6" stroke-linecap="round" fill="none" stroke-dasharray="163.36" stroke-dashoffset="163.36" class="transition-all duration-700" />
+            </svg>
+            <span id="kpi-daily-pct" class="absolute inset-0 flex items-center justify-center text-xs font-mono font-bold text-cyan-300">0%</span>
+          </div>
+          <div>
+            <span class="text-[11px] font-mono uppercase tracking-wider text-slate-400">DAILY 4K QUOTA</span>
+            <div class="text-xl font-display font-bold text-white mt-0.5" id="kpi-daily-text">0 / 5</div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Resets at user midnight</p>
+          </div>
+        </div>
+
+        <!-- Hourly Rate Ring -->
+        <div class="hud-card rounded-2xl p-4 flex items-center gap-4">
+          <div class="relative w-16 h-16 shrink-0">
+            <svg class="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
+              <circle cx="32" cy="32" r="26" stroke="#141d30" stroke-width="6" fill="none" />
+              <circle id="ring-hourly" cx="32" cy="32" r="26" stroke="#c084fc" stroke-width="6" stroke-linecap="round" fill="none" stroke-dasharray="163.36" stroke-dashoffset="163.36" class="transition-all duration-700" />
+            </svg>
+            <span id="kpi-hourly-pct" class="absolute inset-0 flex items-center justify-center text-xs font-mono font-bold text-purple-300">0%</span>
+          </div>
+          <div>
+            <span class="text-[11px] font-mono uppercase tracking-wider text-slate-400">HOURLY VELOCITY</span>
+            <div class="text-xl font-display font-bold text-white mt-0.5" id="kpi-hourly-text">0 / 2</div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Rolling 60m + cooldown</p>
+          </div>
+        </div>
+
+        <!-- Budget Shield Ring -->
+        <div class="hud-card rounded-2xl p-4 flex items-center gap-4">
+          <div class="relative w-16 h-16 shrink-0">
+            <svg class="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
+              <circle cx="32" cy="32" r="26" stroke="#141d30" stroke-width="6" fill="none" />
+              <circle id="ring-budget" cx="32" cy="32" r="26" stroke="#34d399" stroke-width="6" stroke-linecap="round" fill="none" stroke-dasharray="163.36" stroke-dashoffset="163.36" class="transition-all duration-700" />
+            </svg>
+            <span id="kpi-budget-pct" class="absolute inset-0 flex items-center justify-center text-xs font-mono font-bold text-emerald-300">0%</span>
+          </div>
+          <div>
+            <span class="text-[11px] font-mono uppercase tracking-wider text-slate-400">BUDGET SHIELD</span>
+            <div class="text-xl font-display font-bold text-white mt-0.5" id="kpi-budget-text">$0.00 / $25</div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Hard daily spend ceiling</p>
+          </div>
+        </div>
+
+        <!-- Prompt Queue Ring -->
+        <div class="hud-card rounded-2xl p-4 flex items-center gap-4">
+          <div class="relative w-16 h-16 shrink-0">
+            <svg class="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
+              <circle cx="32" cy="32" r="26" stroke="#141d30" stroke-width="6" fill="none" />
+              <circle id="ring-queue" cx="32" cy="32" r="26" stroke="#818cf8" stroke-width="6" stroke-linecap="round" fill="none" stroke-dasharray="163.36" stroke-dashoffset="163.36" class="transition-all duration-700" />
+            </svg>
+            <span id="kpi-queue-pct" class="absolute inset-0 flex items-center justify-center text-xs font-mono font-bold text-indigo-300">0%</span>
+          </div>
+          <div>
+            <span class="text-[11px] font-mono uppercase tracking-wider text-slate-400">1-BY-1 PROMPT QUEUE</span>
+            <div class="text-xl font-display font-bold text-white mt-0.5" id="kpi-queue-text">3 Queued</div>
+            <p class="text-[11px] text-slate-400 mt-0.5" id="kpi-queue-sub">0 of 3 completed</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Logs, Generated 4K Vault & Global Social Broadcast Feed -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Backend Scheduler Logs (7 cols) -->
+        <div class="lg:col-span-7 hud-card rounded-2xl p-5 flex flex-col gap-3">
+          <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+            <div>
+              <h3 class="font-display font-bold text-sm sm:text-base text-white">LIVE NEURAL SCHEDULER STREAM</h3>
+              <p class="text-xs font-mono text-slate-400">Real-time SSE event stream from <code>GeminiVeoSocialScheduler</code></p>
+            </div>
+            <span id="stream-mode-pill" class="text-[10px] font-mono font-bold text-cyan-300 bg-cyan-500/10 px-2.5 py-1 rounded-lg border border-cyan-500/30">SSE PUSH</span>
+          </div>
+          <div id="server-logs-box" class="h-72 overflow-y-auto bg-void-950/95 border border-slate-800/90 rounded-xl p-3.5 font-mono text-xs text-slate-300 space-y-1.5">
+            <div class="text-slate-500">Establishing Server-Sent Events link to Java Scheduler Core...</div>
+          </div>
+        </div>
+
+        <!-- Generated 4K Videos Vault (5 cols) -->
+        <div class="lg:col-span-5 hud-card rounded-2xl p-5 flex flex-col gap-3">
+          <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+            <div>
+              <h3 class="font-display font-bold text-sm sm:text-base text-white">4K MP4 RENDER VAULT</h3>
+              <p class="text-xs font-mono text-slate-400">Click any 4K MP4 to stream inside HUD</p>
+            </div>
+            <span class="text-[10px] font-mono text-slate-400">generated_videos/</span>
+          </div>
+          <div id="generated-videos-list" class="h-72 overflow-y-auto space-y-2 pr-1">
+            <div class="text-xs font-mono text-slate-500 p-6 text-center border border-dashed border-slate-800 rounded-xl">
+              No 4K MP4 videos rendered yet. Trigger a run or wait for your active window.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Worldwide Multi-Platform Broadcasts Feed -->
+      <div class="hud-card rounded-2xl p-5 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+          <div>
+            <h3 class="font-display font-bold text-sm sm:text-base text-white">GLOBAL MULTI-PLATFORM BROADCAST TELEMETRY</h3>
+            <p class="text-xs text-slate-400">Recent 4K videos distributed with worldwide trending tags across YouTube, Instagram Reels, X &amp; Facebook</p>
+          </div>
+        </div>
+        <div id="broadcasts-feed" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="md:col-span-2 text-xs font-mono text-slate-500 p-4 text-center border border-dashed border-slate-800 rounded-xl">
+            Completed multi-platform social broadcasts and trending hashtag telemetry will appear here.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 2: AI PROMPT ARCHITECT & SEQUENTIAL QUEUE                         -->
+    <!-- ===================================================================== -->
+    <div id="tab-prompts" class="tab-panel hidden grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+      <!-- Left: AI Prompt Architect & Batch Uploader (5 cols) -->
+      <div class="lg:col-span-5 hud-card rounded-2xl p-5 space-y-5">
+        <div class="border-b border-slate-800/80 pb-3.5">
+          <h2 class="font-display font-bold text-base text-white">AI 4K PROMPT ARCHITECT &amp; UPLOADER</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Upload files to <code class="text-cyan-300">src/main/resources/prompts/</code> or synthesize a 4K Veo 3 prompt using Gemini AI.</p>
+        </div>
+
+        <!-- Drag & Drop File Upload Zone -->
+        <div id="drop-zone" class="border-2 border-dashed border-slate-700 hover:border-cyan-400 rounded-2xl p-5 text-center transition cursor-pointer bg-void-950/70">
+          <input id="prompt-file-input" type="file" accept=".txt,.prompt" multiple class="hidden" />
+          <div class="w-11 h-11 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 flex items-center justify-center mx-auto mb-2.5">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+          </div>
+          <p class="text-sm font-semibold text-slate-200">Drop <code>.txt</code> or <code>.prompt</code> files here</p>
+          <p class="text-xs text-slate-400 mt-1">or <span class="text-cyan-300 underline">browse files</span> to batch-ingest into the 1-by-1 queue</p>
+        </div>
+
+        <!-- AI Prompt Enhancer Box -->
+        <div class="p-3.5 rounded-xl bg-void-950/90 border border-indigo-500/30 space-y-2.5">
+          <label for="ai-idea-input" class="block text-[11px] font-mono font-bold uppercase tracking-wider text-indigo-300">Gemini 4K Cinematography Enhancer</label>
+          <div class="flex gap-2">
+            <input id="ai-idea-input" type="text" placeholder="Enter a short idea (e.g. cyber samurai in neon rain)..." class="flex-1 px-3 py-2 rounded-lg bg-void-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400" />
+            <button id="ai-enhance-btn" type="button" class="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-mono font-bold whitespace-nowrap transition">
+              AI ENHANCE
+            </button>
+          </div>
+        </div>
+
+        <!-- Direct Prompt Authoring Form -->
+        <div class="space-y-3.5">
+          <div>
+            <label for="new-prompt-filename" class="block text-xs font-mono font-semibold text-slate-300 mb-1">Prompt File Name (Sorted 1-by-1)</label>
+            <input id="new-prompt-filename" type="text" placeholder="e.g., 04_futuristic_mars_colony_4k.txt" class="w-full px-3.5 py-2 rounded-xl bg-void-950 border border-slate-700 text-xs sm:text-sm font-mono text-slate-200 focus:outline-none focus:border-cyan-400" />
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label for="new-prompt-text" class="text-xs font-mono font-semibold text-slate-300">Veo 3 4K Visual Prompt</label>
+              <button id="fill-sample-veo-prompt" type="button" class="text-[11px] font-mono text-cyan-300 hover:text-cyan-200">Insert 4K Template</button>
+            </div>
+            <textarea id="new-prompt-text" rows="5" placeholder="Describe camera movement, 4K resolution lighting, lens style, and subject..." class="w-full px-3.5 py-2.5 rounded-xl bg-void-950 border border-slate-700 text-xs sm:text-sm text-slate-200 leading-relaxed focus:outline-none focus:border-cyan-400 resize-y"></textarea>
+          </div>
+
+          <button id="upload-prompt-btn" type="button" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-void-950 font-display font-bold text-sm shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2 transition active:scale-[0.99]">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            <span>COMMIT PROMPT TO RESOURCES QUEUE</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Right: Sequential 1-by-1 Prompt Queue List with Reordering & Editing (7 cols) -->
+      <div class="lg:col-span-7 hud-card rounded-2xl p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-3.5">
+          <div>
+            <h2 class="font-display font-bold text-base text-white">SEQUENTIAL PROMPT PIPELINE (1-BY-1 ORDER)</h2>
+            <p class="text-xs font-mono text-slate-400">Path: <code id="prompts-dir-label" class="text-cyan-300">src/main/resources/prompts</code> &bull; Use arrows to reorder execution priority</p>
+          </div>
+          <button id="requeue-all-btn" type="button" class="px-3 py-1.5 rounded-xl bg-void-800 hover:bg-void-700 border border-amber-500/40 text-xs font-mono font-semibold text-amber-300 transition">
+            RE-QUEUE ALL
+          </button>
+        </div>
+
+        <div id="prompt-queue-list" class="space-y-3 max-h-[640px] overflow-y-auto pr-1">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 3: CHRONO WINDOW & QUOTA SHIELD                                   -->
+    <!-- ===================================================================== -->
+    <div id="tab-schedule" class="tab-panel hidden space-y-6">
+      <div class="hud-card rounded-2xl p-6 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
+          <div>
+            <h2 class="font-display font-bold text-base sm:text-lg text-white">USER CHRONO WINDOW &amp; USAGE LIMIT SHIELD</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Define exact active hours in your local timezone and enforce daily/hourly Veo 3 4K usage caps.</p>
+          </div>
+          <label class="inline-flex items-center gap-3 bg-void-950 px-4 py-2.5 rounded-xl border border-cyan-500/30 cursor-pointer">
+            <input id="cfg-enabled" type="checkbox" checked class="w-4 h-4 accent-cyan-400 rounded" />
+            <span class="text-xs sm:text-sm font-display font-bold text-white">GEMINI VIDEO CREATION ENABLED</span>
+          </label>
+        </div>
+
+        <!-- Interactive 24-Hour Chrono Window Visualizer -->
+        <div class="p-4 rounded-xl bg-void-950/90 border border-slate-800 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="text-xs font-mono font-bold text-cyan-300">24-HOUR ACTIVE EXECUTION WINDOW VISUALIZER</span>
+            <div class="flex flex-wrap gap-1.5">
+              <button type="button" data-window="00:00-23:59" class="window-preset px-2.5 py-1 rounded-lg bg-void-800 hover:bg-void-700 border border-slate-700 text-[11px] font-mono text-slate-300 transition">24/7 Always On</button>
+              <button type="button" data-window="08:00-22:00" class="window-preset px-2.5 py-1 rounded-lg bg-void-800 hover:bg-void-700 border border-slate-700 text-[11px] font-mono text-slate-300 transition">Prime Social (08:00–22:00)</button>
+              <button type="button" data-window="22:00-06:00" class="window-preset px-2.5 py-1 rounded-lg bg-void-800 hover:bg-void-700 border border-slate-700 text-[11px] font-mono text-slate-300 transition">Overnight Batch (22:00–06:00)</button>
+            </div>
+          </div>
+
+          <!-- 24-hour visual bar -->
+          <div class="relative h-8 rounded-lg bg-void-900 border border-slate-800 overflow-hidden" id="chrono-timeline-bar">
+            <div id="chrono-active-segment-1" class="absolute top-0 bottom-0 bg-gradient-to-r from-cyan-500/35 to-indigo-500/35 border-x border-cyan-400/60 transition-all duration-300"></div>
+            <div id="chrono-active-segment-2" class="hidden absolute top-0 bottom-0 bg-gradient-to-r from-cyan-500/35 to-indigo-500/35 border-x border-cyan-400/60 transition-all duration-300"></div>
+            <div id="chrono-now-needle" class="absolute top-0 bottom-0 w-0.5 bg-emerald-400 shadow-[0_0_10px_#34d399]" style="left: 50%">
+              <span class="absolute -top-0.5 -translate-x-1/2 px-1 rounded bg-emerald-400 text-void-950 text-[9px] font-mono font-bold">NOW</span>
+            </div>
+          </div>
+          <div class="flex justify-between text-[10px] font-mono text-slate-500 px-0.5">
+            <span>00:00</span><span>04:00</span><span>08:00</span><span>12:00</span><span>16:00</span><span>20:00</span><span>23:59</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <!-- User Timezone -->
+          <div class="bg-void-950 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div class="flex items-center justify-between">
+              <label for="cfg-timezone" class="text-xs font-mono font-semibold text-slate-300">User Timezone (IANA)</label>
+              <button id="detect-tz-btn" type="button" class="text-[11px] font-mono text-cyan-300 hover:text-cyan-200">Auto-Detect</button>
+            </div>
+            <input id="cfg-timezone" type="text" value="Asia/Kolkata" class="w-full px-3 py-2 rounded-lg bg-void-900 border border-slate-700 text-xs sm:text-sm font-mono text-white focus:outline-none focus:border-cyan-400" />
+            <p class="text-[11px] text-slate-400">Controls active hours &amp; midnight quota rollover.</p>
+          </div>
+
+          <!-- Allowed Start Time -->
+          <div class="bg-void-950 p-4 rounded-xl border border-slate-800 space-y-2">
+            <label for="cfg-start-time" class="block text-xs font-mono font-semibold text-slate-300">Window Start Time</label>
+            <input id="cfg-start-time" type="time" value="08:00" class="w-full px-3 py-2 rounded-lg bg-void-900 border border-slate-700 text-xs sm:text-sm font-mono text-white focus:outline-none focus:border-cyan-400" />
+            <p class="text-[11px] text-slate-400">Earliest local time to trigger 4K creation.</p>
+          </div>
+
+          <!-- Allowed End Time -->
+          <div class="bg-void-950 p-4 rounded-xl border border-slate-800 space-y-2">
+            <label for="cfg-end-time" class="block text-xs font-mono font-semibold text-slate-300">Window End Time</label>
+            <input id="cfg-end-time" type="time" value="23:00" class="w-full px-3 py-2 rounded-lg bg-void-900 border border-slate-700 text-xs sm:text-sm font-mono text-white focus:outline-none focus:border-cyan-400" />
+            <p class="text-[11px] text-slate-400">Supports overnight wrap-around ranges.</p>
+          </div>
+
+          <!-- Max Videos Per Day -->
+          <div class="bg-void-950 p-4 rounded-xl border border-slate-800 space-y-2">
+            <label for="cfg-max-day" class="block text-xs font-mono font-semibold text-slate-300">Max 4K Videos / Day</label>
+            <input id="cfg-max-day" type="number" min="1" max="100" value="5" class="w-full px-3 py-2 rounded-lg bg-void-900 border border-slate-700 text-xs sm:text-sm font-mono text-white focus:outline-none focus:border-cyan-400" />
+            <p class="text-[11px] text-slate-400">Hard daily video generation cap.</p>
+          </div>
+
+          <!-- Max Videos Per Hour -->
+          <div class="bg-void-950 p-4 rounded-xl border border-slate-800 space-y-2">
+            <label for="cfg-max-hour" class="block text-xs font-mono font-semibold text-slate-300">Max 4K Videos / Hour</label>
+            <input id="cfg-max-hour" type="number" min="1" max="30" value="2" class="w-full px-3 py-2 rounded-lg bg-void-900 border border-slate-700 text-xs sm:text-sm font-mono text-white focus:outline-none focus:border-cyan-400" />
+            <p class="text-[11px] text-slate-400">Rolling 60-minute velocity limit.</p>
+          </div>
+
+          <!-- Cooldown Minutes -->
+          <div class="bg-void-950 p-4 rounded-xl border border-slate-800 space-y-2">
+            <label for="cfg-cooldown" class="block text-xs font-mono font-semibold text-slate-300">Cooldown Interval (Min)</label>
+            <input id="cfg-cooldown" type="number" min="0" max="1440" value="15" class="w-full px-3 py-2 rounded-lg bg-void-900 border border-slate-700 text-xs sm:text-sm font-mono text-white focus:outline-none focus:border-cyan-400" />
+            <p class="text-[11px] text-slate-400">Minimum spacing between consecutive posts.</p>
+          </div>
+
+          <!-- Max Daily Budget USD -->
+          <div class="bg-void-950 p-4 rounded-xl border border-slate-800 space-y-2">
+            <label for="cfg-max-budget" class="block text-xs font-mono font-semibold text-slate-300">Daily Budget Cap (USD)</label>
+            <input id="cfg-max-budget" type="number" step="0.50" min="0" value="25.00" class="w-full px-3 py-2 rounded-lg bg-void-900 border border-slate-700 text-xs sm:text-sm font-mono text-white focus:outline-none focus:border-cyan-400" />
+            <p class="text-[11px] text-slate-400">Pauses Veo 3 calls if spend cap is reached.</p>
+          </div>
+
+          <!-- Estimated Cost Per 4K Video -->
+          <div class="bg-void-950 p-4 rounded-xl border border-slate-800 space-y-2">
+            <label for="cfg-cost-per-video" class="block text-xs font-mono font-semibold text-slate-300">Est. Cost / 4K Clip (USD)</label>
+            <input id="cfg-cost-per-video" type="number" step="0.10" min="0" value="3.20" class="w-full px-3 py-2 rounded-lg bg-void-900 border border-slate-700 text-xs sm:text-sm font-mono text-white focus:outline-none focus:border-cyan-400" />
+            <p class="text-[11px] text-slate-400">Tracks estimated daily API consumption.</p>
+          </div>
+
+          <!-- Poll Interval -->
+          <div class="bg-void-950 p-4 rounded-xl border border-slate-800 space-y-2">
+            <label for="cfg-poll-sec" class="block text-xs font-mono font-semibold text-slate-300">Scheduler Heartbeat (Sec)</label>
+            <input id="cfg-poll-sec" type="number" min="5" max="3600" value="30" class="w-full px-3 py-2 rounded-lg bg-void-900 border border-slate-700 text-xs sm:text-sm font-mono text-white focus:outline-none focus:border-cyan-400" />
+            <p class="text-[11px] text-slate-400">Evaluation cadence of the Java scheduler thread.</p>
+          </div>
+        </div>
+
+        <!-- Allowed Days of Week -->
+        <div class="bg-void-950 p-4 rounded-xl border border-slate-800 space-y-2.5">
+          <label class="block text-xs font-mono font-semibold text-slate-300">Active Days of Week</label>
+          <div id="days-selector" class="flex flex-wrap gap-2">
+            <button type="button" data-day="MONDAY" class="day-pill px-3.5 py-2 rounded-xl text-xs font-mono font-bold bg-cyan-500/20 text-cyan-200 border border-cyan-400/50 transition">MONDAY</button>
+            <button type="button" data-day="TUESDAY" class="day-pill px-3.5 py-2 rounded-xl text-xs font-mono font-bold bg-cyan-500/20 text-cyan-200 border border-cyan-400/50 transition">TUESDAY</button>
+            <button type="button" data-day="WEDNESDAY" class="day-pill px-3.5 py-2 rounded-xl text-xs font-mono font-bold bg-cyan-500/20 text-cyan-200 border border-cyan-400/50 transition">WEDNESDAY</button>
+            <button type="button" data-day="THURSDAY" class="day-pill px-3.5 py-2 rounded-xl text-xs font-mono font-bold bg-cyan-500/20 text-cyan-200 border border-cyan-400/50 transition">THURSDAY</button>
+            <button type="button" data-day="FRIDAY" class="day-pill px-3.5 py-2 rounded-xl text-xs font-mono font-bold bg-cyan-500/20 text-cyan-200 border border-cyan-400/50 transition">FRIDAY</button>
+            <button type="button" data-day="SATURDAY" class="day-pill px-3.5 py-2 rounded-xl text-xs font-mono font-bold bg-cyan-500/20 text-cyan-200 border border-cyan-400/50 transition">SATURDAY</button>
+            <button type="button" data-day="SUNDAY" class="day-pill px-3.5 py-2 rounded-xl text-xs font-mono font-bold bg-cyan-500/20 text-cyan-200 border border-cyan-400/50 transition">SUNDAY</button>
+          </div>
+        </div>
+
+        <div class="flex justify-end pt-2">
+          <button type="button" class="save-all-config-btn px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-void-950 font-display font-bold text-sm shadow-lg shadow-cyan-500/25 transition active:scale-[0.99]">
+            SAVE &amp; HOT-RELOAD CHRONO RULES
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 4: VEO 3 4K & SOCIAL PLATFORM API CREDENTIALS                     -->
+    <!-- ===================================================================== -->
+    <div id="tab-credentials" class="tab-panel hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Gemini Veo 3 4K Configuration -->
+        <div class="hud-card rounded-2xl p-5 space-y-4">
+          <div class="border-b border-slate-800/80 pb-3">
+            <h3 class="font-display font-bold text-base text-white">GEMINI VEO-3 4K ENGINE</h3>
+            <p class="text-xs text-slate-400">Model ID, 4K Ultra HD output resolution, aspect ratio &amp; API credentials.</p>
+          </div>
+
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs font-mono font-semibold text-slate-300 mb-1">Gemini API Key (<code>GEMINI_API_KEY</code>)</label>
+              <input id="cfg-gemini-key" type="password" placeholder="AIzaSy... (Leave blank to keep existing key)" class="w-full px-3 py-2 rounded-xl bg-void-950 border border-slate-700 text-xs font-mono text-white focus:outline-none focus:border-cyan-400" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-mono font-semibold text-slate-300 mb-1">Veo 3 Model</label>
+                <select id="cfg-veo-model" class="w-full px-3 py-2 rounded-xl bg-void-950 border border-slate-700 text-xs font-mono text-white focus:outline-none focus:border-cyan-400">
+                  <option value="veo-3.0-generate-001">veo-3.0-generate-001</option>
+                  <option value="veo-3.0-fast-generate-001">veo-3.0-fast-generate-001</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-mono font-semibold text-slate-300 mb-1">Resolution</label>
+                <select id="cfg-resolution" class="w-full px-3 py-2 rounded-xl bg-void-950 border border-slate-700 text-xs font-mono text-white focus:outline-none focus:border-cyan-400">
+                  <option value="4k">4k (3840x2160 Ultra HD)</option>
+                  <option value="1080p">1080p (Full HD)</option>
+                  <option value="720p">720p (HD)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-mono font-semibold text-slate-300 mb-1">Aspect Ratio</label>
+                <select id="cfg-aspect" class="w-full px-3 py-2 rounded-xl bg-void-950 border border-slate-700 text-xs font-mono text-white focus:outline-none focus:border-cyan-400">
+                  <option value="16:9">16:9 Widescreen</option>
+                  <option value="9:16">9:16 Vertical (Reels/Shorts)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-mono font-semibold text-slate-300 mb-1">Clip Duration</label>
+                <select id="cfg-duration" class="w-full px-3 py-2 rounded-xl bg-void-950 border border-slate-700 text-xs font-mono text-white focus:outline-none focus:border-cyan-400">
+                  <option value="8">8 seconds</option>
+                  <option value="6">6 seconds</option>
+                  <option value="4">4 seconds</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- YouTube Data API v3 -->
+        <div class="hud-card rounded-2xl p-5 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+            <div>
+              <h3 class="font-display font-bold text-base text-white">YOUTUBE DATA API V3 UPLINK</h3>
+              <p class="text-xs text-slate-400">Multipart 4K MP4 upload with worldwide trending SEO tags.</p>
+            </div>
+            <input id="cfg-yt-enabled" type="checkbox" checked class="w-4 h-4 accent-rose-500 rounded" />
+          </div>
+
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs font-mono font-semibold text-slate-300 mb-1">OAuth 2.0 Bearer Token (<code>youtube.upload</code>)</label>
+              <input id="cfg-yt-token" type="password" placeholder="ya29.a0... (Leave blank to keep existing)" class="w-full px-3 py-2 rounded-xl bg-void-950 border border-slate-700 text-xs font-mono text-white focus:outline-none focus:border-rose-500" />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-mono font-semibold text-slate-300 mb-1">Visibility</label>
+                <select id="cfg-yt-privacy" class="w-full px-3 py-2 rounded-xl bg-void-950 border border-slate-700 text-xs font-mono text-white">
+                  <option value="public">Public (Trend Worldwide)</option>
+                  <option value="unlisted">Unlisted</option>
+                  <option value="private">Private</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-mono font-semibold text-slate-300 mb-1">Category ID</label>
+                <input id="cfg-yt-cat" type="text" value="24" class="w-full px-3 py-2 rounded-xl bg-void-950 border border-slate-700 text-xs font-mono text-white" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Instagram Graph API -->
+        <div class="hud-card rounded-2xl p-5 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+            <div>
+              <h3 class="font-display font-bold text-base text-white">INSTAGRAM REELS GRAPH UPLINK</h3>
+              <p class="text-xs text-slate-400">Resumable binary MP4 upload + worldwide trending hashtags.</p>
+            </div>
+            <input id="cfg-ig-enabled" type="checkbox" checked class="w-4 h-4 accent-pink-500 rounded" />
+          </div>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs font-mono font-semibold text-slate-300 mb-1">Instagram Business Account ID</label>
+              <input id="cfg-ig-id" type="text" placeholder="17841400000000000" class="w-full px-3 py-2 rounded-xl bg-void-950 border border-slate-700 text-xs font-mono text-white" />
+            </div>
+            <div>
+              <label class="block text-xs font-mono font-semibold text-slate-300 mb-1">Instagram Graph Access Token</label>
+              <input id="cfg-ig-token" type="password" placeholder="EAABsbCS... (Leave blank to keep existing)" class="w-full px-3 py-2 rounded-xl bg-void-950 border border-slate-700 text-xs font-mono text-white" />
+            </div>
+          </div>
+        </div>
+
+        <!-- X (Twitter) & Facebook Graph Video API -->
+        <div class="hud-card rounded-2xl p-5 space-y-4">
+          <div class="border-b border-slate-800/80 pb-3">
+            <h3 class="font-display font-bold text-base text-white">X (TWITTER) &amp; FACEBOOK PAGE UPLINKS</h3>
+            <p class="text-xs text-slate-400">Concurrent global social distribution channels.</p>
+          </div>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-mono font-semibold text-slate-300">X / Twitter User OAuth 2.0 Token</label>
+              <input id="cfg-tw-enabled" type="checkbox" checked class="w-4 h-4 accent-sky-500 rounded" />
+            </div>
+            <input id="cfg-tw-token" type="password" placeholder="Bearer / OAuth2 User Token" class="w-full px-3 py-2 rounded-xl bg-void-950 border border-slate-700 text-xs font-mono text-white" />
+
+            <div class="flex items-center justify-between pt-2">
+              <label class="text-xs font-mono font-semibold text-slate-300">Facebook Page ID &amp; Access Token</label>
+              <input id="cfg-fb-enabled" type="checkbox" checked class="w-4 h-4 accent-blue-500 rounded" />
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <input id="cfg-fb-id" type="text" placeholder="Facebook Page ID" class="w-full px-3 py-2 rounded-xl bg-void-950 border border-slate-700 text-xs font-mono text-white" />
+              <input id="cfg-fb-token" type="password" placeholder="Page Access Token" class="w-full px-3 py-2 rounded-xl bg-void-950 border border-slate-700 text-xs font-mono text-white" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end">
+        <button type="button" class="save-all-config-btn px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-void-950 font-display font-bold text-sm shadow-lg shadow-cyan-500/25 transition active:scale-[0.99]">
+          SAVE &amp; HOT-RELOAD ALL UPLINK CREDENTIALS
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    /**
+     * VEO-3 // NEURAL 4K MISSION CONTROL
+     * Connects to the Java Scheduler REST API + Server-Sent Events (/api/events)
+     * with real-time pipeline node visualization, AI prompt enhancement, queue
+     * priority reordering, interactive 24h time window dial, and 4K video preview.
+     */
+    const state = {
+      apiBaseUrl: window.location.protocol.startsWith('http') && window.location.port === '8080'
+        ? window.location.origin
+        : 'http://localhost:8080',
+      connected: false,
+      sseSource: null,
+      confirmDeleteFile: null,
+      currentPrompts: [],
+      localPrompts: [
+        {
+          fileName: '01_cyberpunk_tokyo_rain.txt',
+          promptText: 'Ultra-detailed 4K cinematic drone shot gliding through futuristic Neo-Tokyo at night during a neon-lit rainstorm, reflections shimmering on wet asphalt, volumetric fog, anamorphic lens flare, hyper-realistic 60fps.',
+          status: 'QUEUED',
+          isNext: true,
+          sizeBytes: 238
+        },
+        {
+          fileName: '02_aurora_iceland_glacier.txt',
+          promptText: 'Breathtaking 4K aerial time-lapse of emerald and violet Aurora Borealis dancing over a crystal-clear glacial lagoon in Iceland, floating icebergs reflecting the glowing sky, crisp starfield, National Geographic cinematography.',
+          status: 'QUEUED',
+          isNext: false,
+          sizeBytes: 244
+        },
+        {
+          fileName: '03_macro_bioluminescent_ocean.txt',
+          promptText: 'Cinematic 4K underwater macro shot of bioluminescent jellyfish pulsing with electric blue and gold light in the deep midnight ocean, slow graceful motion, dramatic chiaroscuro lighting, photorealistic.',
+          status: 'QUEUED',
+          isNext: false,
+          sizeBytes: 215
+        }
+      ],
+      localLogs: [
+        '[HUD] Neural Mission Control initialized. Linking to Java Scheduler Core on http://localhost:8080...'
+      ]
+    };
+
+    const $ = id => document.getElementById(id);
+
+    // Non-blocking Toast Notification (never uses alert/confirm)
+    function showToast(message, type = 'info') {
+      const container = $('toast-container');
+      const toast = document.createElement('div');
+      const palette = {
+        info: 'bg-void-850 border-cyan-500/50 text-slate-100',
+        success: 'bg-void-850 border-emerald-500/60 text-emerald-200',
+        warning: 'bg-void-850 border-amber-500/60 text-amber-200',
+        error: 'bg-void-850 border-rose-500/60 text-rose-200',
+      };
+      toast.className = `pointer-events-auto px-4 py-3 rounded-xl border shadow-2xl text-xs font-mono font-medium transition-all duration-300 transform translate-y-2 opacity-0 ${palette[type] || palette.info}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      requestAnimationFrame(() => toast.classList.remove('translate-y-2', 'opacity-0'));
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3800);
+    }
+
+    function escapeHtml(str) {
+      const d = document.createElement('div');
+      d.textContent = str == null ? '' : String(str);
+      return d.innerHTML;
+    }
+
+    // Tab Navigation
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.getAttribute('data-tab');
+        document.querySelectorAll('.tab-btn').forEach(b => {
+          b.classList.remove('border-cyan-400', 'text-white');
+          b.classList.add('border-transparent', 'text-slate-400');
+        });
+        btn.classList.add('border-cyan-400', 'text-white');
+        btn.classList.remove('border-transparent', 'text-slate-400');
+
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+        $(`tab-${target}`).classList.remove('hidden');
+        if (target === 'schedule') updateChronoVisualizer();
+      });
+    });
+
+    // API Fetch Wrapper
+    async function apiRequest(path, options = {}) {
+      const url = state.apiBaseUrl.replace(/\/$/, '') + path;
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 5000);
+      try {
+        const res = await fetch(url, {
+          ...options,
+          headers: {
+            'Content-Type': 'application/json',
+            ...(options.headers || {})
+          },
+          signal: controller.signal
+        });
+        clearTimeout(timer);
+        const data = await res.json();
+        setConnectionState(true);
+        return { ok: res.ok, data };
+      } catch (err) {
+        clearTimeout(timer);
+        setConnectionState(false);
+        return { ok: false, offline: true, error: err.message };
+      }
+    }
+
+    function setConnectionState(isConnected) {
+      state.connected = isConnected;
+      const badge = $('connection-badge');
+      const dot = $('connection-dot');
+      const label = $('connection-label');
+      if (isConnected) {
+        badge.className = 'flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/35 text-[11px] font-mono font-bold text-emerald-300';
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+        label.textContent = 'NODE ONLINE';
+      } else {
+        badge.className = 'flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/35 text-[11px] font-mono font-bold text-amber-300';
+        dot.className = 'w-2 h-2 rounded-full bg-amber-400';
+        label.textContent = 'OFFLINE HUD';
+      }
+    }
+
+    // =========================================================================
+    // REAL-TIME SERVER-SENT EVENTS (SSE) STREAM
+    // =========================================================================
+    function connectSseStream() {
+      if (state.sseSource) {
+        state.sseSource.close();
+        state.sseSource = null;
+      }
+      try {
+        const sseUrl = state.apiBaseUrl.replace(/\/$/, '') + '/api/events';
+        const es = new EventSource(sseUrl);
+        state.sseSource = es;
+
+        es.addEventListener('connected', e => {
+          setConnectionState(true);
+          $('stream-mode-pill').textContent = 'SSE STREAM LIVE';
+          try {
+            updatePipelineHud(JSON.parse(e.data));
+          } catch (_) {}
+        });
+
+        es.addEventListener('log', e => {
+          try {
+            const payload = JSON.parse(e.data);
+            if (payload.line) appendSingleLogLine(payload.line);
+          } catch (_) {}
+        });
+
+        es.addEventListener('pipeline', e => {
+          try {
+            updatePipelineHud(JSON.parse(e.data));
+          } catch (_) {}
+        });
+
+        es.addEventListener('broadcast', () => {
+          refreshAllData();
+        });
+
+        es.onerror = () => {
+          $('stream-mode-pill').textContent = 'POLLING FALLBACK';
+        };
+      } catch (_) {}
+    }
+
+    function updatePipelineHud(stageObj) {
+      if (!stageObj) return;
+      const stage = stageObj.stage || 'STANDBY';
+      const pct = Number(stageObj.progressPercent || 0);
+      const detail = stageObj.activeDetail || '';
+      const file = stageObj.activePromptFile ? ` [${stageObj.activePromptFile}]` : '';
+
+      $('pipeline-detail-text').textContent = `STAGE: ${stage}${file} — ${detail}`;
+      $('pipeline-master-bar').style.width = `${stage === 'STANDBY' ? 8 : Math.max(12, pct)}%`;
+
+      document.querySelectorAll('.pipeline-node').forEach(node => {
+        node.classList.remove('hud-card-glow', 'bg-cyan-500/10');
+        node.classList.add('border-slate-800');
+      });
+
+      const activeNode = $(`node-${stage}`);
+      if (activeNode) {
+        activeNode.classList.remove('border-slate-800');
+        activeNode.classList.add('hud-card-glow', 'bg-cyan-500/10');
+      }
+    }
+
+    function appendSingleLogLine(line) {
+      const box = $('server-logs-box');
+      const div = document.createElement('div');
+      let color = 'text-slate-300';
+      if (line.includes('[SEVERE]') || line.includes('[FAILED]')) color = 'text-rose-400';
+      else if (line.includes('[WARNING]') || line.includes('Standby')) color = 'text-amber-300';
+      else if (line.includes('[SUCCESS]') || line.includes('TRIGGERED')) color = 'text-emerald-400';
+      div.className = `${color} leading-relaxed`;
+      div.textContent = line;
+      box.appendChild(div);
+      while (box.children.length > 120) {
+        box.removeChild(box.firstChild);
+      }
+      box.scrollTop = box.scrollHeight;
+    }
+
+    // =========================================================================
+    // LOAD STATUS, CONFIG & PROMPTS
+    // =========================================================================
+    async function refreshAllData() {
+      await Promise.all([loadStatus(), loadPrompts()]);
+    }
+
+    async function loadStatus() {
+      const res = await apiRequest('/api/status');
+      if (res.ok && res.data) {
+        const d = res.data;
+        $('user-clock-display').textContent = `CHRONO: ${d.userLocalTime}`;
+        const elig = d.eligibility || {};
+        $('eligibility-reason').textContent = elig.reason || '';
+        const pill = $('eligibility-pill');
+        if (elig.allowed) {
+          pill.textContent = d.jobInProgress ? 'VEO-3 4K ACTIVE' : 'WINDOW ARMED & ELIGIBLE';
+          pill.className = 'px-2.5 py-0.5 rounded-md text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+        } else {
+          pill.textContent = 'CHRONO STANDBY';
+          pill.className = 'px-2.5 py-0.5 rounded-md text-[11px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40';
+        }
+
+        if (d.pipelineStage) updatePipelineHud(d.pipelineStage);
+        updateKpiRings(d.quota || {}, d.promptsSummary || {});
+        renderLogs(d.recentLogs || []);
+        renderGeneratedVideos(d.generatedVideos || []);
+        renderBroadcastsFeed(d.recentBroadcasts || []);
+        updateChronoVisualizer(d.userHour24, d.userMinute);
+      } else {
+        const tz = $('cfg-timezone').value || Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const now = new Date();
+        $('user-clock-display').textContent = `LOCAL (${tz}): ${now.toLocaleTimeString()}`;
+        $('eligibility-pill').textContent = 'OFFLINE HUD MODE';
+        $('eligibility-pill').className = 'px-2.5 py-0.5 rounded-md text-[11px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40';
+        $('eligibility-reason').textContent = 'Start `java GeminiVeoSocialScheduler` on port 8080 for live 4K Veo 3 SSE streaming, or design & export config below.';
+
+        const queued = state.localPrompts.filter(p => p.status === 'QUEUED').length;
+        updateKpiRings({
+          videosGeneratedToday: 0,
+          maxVideosPerDay: Number($('cfg-max-day').value) || 5,
+          videosInLastHour: 0,
+          maxVideosPerHour: Number($('cfg-max-hour').value) || 2,
+          estimatedSpendTodayUsd: 0,
+          maxDailyBudgetUsd: Number($('cfg-max-budget').value) || 25
+        }, {
+          total: state.localPrompts.length,
+          queued,
+          completed: state.localPrompts.length - queued
+        });
+        renderLogs(state.localLogs);
+        updateChronoVisualizer(now.getHours(), now.getMinutes());
+      }
+    }
+
+    function setSvgRing(ringEl, pct) {
+      const circumference = 163.36;
+      const clamped = Math.max(0, Math.min(100, pct));
+      const offset = circumference - (clamped / 100) * circumference;
+      ringEl.style.strokeDashoffset = String(offset);
+    }
+
+    function updateKpiRings(q, pSum) {
+      const dailyPct = Math.min(100, Math.round(((q.videosGeneratedToday || 0) / Math.max(1, q.maxVideosPerDay || 1)) * 100));
+      $('kpi-daily-pct').textContent = `${dailyPct}%`;
+      $('kpi-daily-text').textContent = `${q.videosGeneratedToday || 0} / ${q.maxVideosPerDay || 5}`;
+      setSvgRing($('ring-daily'), dailyPct);
+
+      const hourlyPct = Math.min(100, Math.round(((q.videosInLastHour || 0) / Math.max(1, q.maxVideosPerHour || 1)) * 100));
+      $('kpi-hourly-pct').textContent = `${hourlyPct}%`;
+      $('kpi-hourly-text').textContent = `${q.videosInLastHour || 0} / ${q.maxVideosPerHour || 2}`;
+      setSvgRing($('ring-hourly'), hourlyPct);
+
+      const budgetPct = Math.min(100, Math.round(((q.estimatedSpendTodayUsd || 0) / Math.max(0.01, q.maxDailyBudgetUsd || 1)) * 100));
+      $('kpi-budget-pct').textContent = `${budgetPct}%`;
+      $('kpi-budget-text').textContent = `$${Number(q.estimatedSpendTodayUsd || 0).toFixed(2)} / $${Number(q.maxDailyBudgetUsd || 25).toFixed(0)}`;
+      setSvgRing($('ring-budget'), budgetPct);
+
+      const total = pSum.total || 0;
+      const completed = pSum.completed || 0;
+      const queued = pSum.queued || 0;
+      const qPct = total > 0 ? Math.round((completed / total) * 100) : 0;
+      $('kpi-queue-pct').textContent = `${qPct}%`;
+      $('kpi-queue-text').textContent = `${queued} Queued`;
+      setSvgRing($('ring-queue'), qPct);
+      $('kpi-queue-sub').textContent = `${completed} of ${total} completed`;
+      $('nav-prompt-count').textContent = queued;
+    }
+
+    function renderLogs(logs) {
+      const box = $('server-logs-box');
+      if (!logs || logs.length === 0) return;
+      box.innerHTML = logs.map(line => {
+        let color = 'text-slate-300';
+        if (line.includes('[SEVERE]') || line.includes('[FAILED]')) color = 'text-rose-400';
+        else if (line.includes('[WARNING]') || line.includes('Standby')) color = 'text-amber-300';
+        else if (line.includes('[SUCCESS]') || line.includes('TRIGGERED')) color = 'text-emerald-400';
+        return `<div class="${color} leading-relaxed">${escapeHtml(line)}</div>`;
+      }).join('');
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function renderGeneratedVideos(videos) {
+      const container = $('generated-videos-list');
+      if (!videos || videos.length === 0) {
+        container.innerHTML = `<div class="text-xs font-mono text-slate-500 p-6 text-center border border-dashed border-slate-800 rounded-xl">No 4K MP4 videos rendered yet.</div>`;
+        return;
+      }
+      container.innerHTML = videos.map(v => `
+        <button type="button" data-video-file="${escapeHtml(v.fileName)}" class="preview-video-btn w-full text-left p-3 rounded-xl bg-void-950/90 hover:bg-void-800/80 border border-slate-800 hover:border-cyan-400/50 flex items-center justify-between gap-2 transition group">
+          <div class="min-w-0">
+            <p class="text-xs font-mono font-bold text-cyan-300 group-hover:text-cyan-200 truncate">${escapeHtml(v.fileName)}</p>
+            <p class="text-[11px] font-mono text-slate-400 mt-0.5">${(Number(v.sizeBytes || 0) / (1024 * 1024)).toFixed(2)} MB &bull; 3840x2160 4K MP4</p>
+          </div>
+          <span class="px-2.5 py-1 rounded-lg bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 text-[10px] font-mono font-bold shrink-0">STREAM 4K</span>
+        </button>
+      `).join('');
+
+      container.querySelectorAll('.preview-video-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const fName = btn.getAttribute('data-video-file');
+          openVideoModal(fName);
+        });
+      });
+    }
+
+    function openVideoModal(fileName) {
+      const streamUrl = state.apiBaseUrl.replace(/\/$/, '') + '/api/videos/stream/' + encodeURIComponent(fileName);
+      $('modal-video-title').textContent = fileName;
+      $('modal-video-player').src = streamUrl;
+      $('video-modal').classList.remove('hidden');
+      $('modal-video-player').play().catch(() => {});
+    }
+
+    function renderBroadcastsFeed(broadcasts) {
+      const container = $('broadcasts-feed');
+      if (!broadcasts || broadcasts.length === 0) return;
+      container.innerHTML = broadcasts.map(b => {
+        const platforms = (b.platforms || []).map(p => `
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${p.success ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/15 text-rose-300 border border-rose-500/30'}">
+            ${escapeHtml(p.platform)}: ${p.success ? 'OK' : 'ERR'}
+          </span>
+        `).join('');
+        const hashtags = (b.hashtags || []).slice(0, 6).map(h => `<span class="text-[11px] font-mono text-cyan-300">${escapeHtml(h)}</span>`).join(' ');
+        return `
+          <div class="p-4 rounded-xl bg-void-950/90 border border-slate-800 space-y-2.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[11px] font-mono text-indigo-300">${escapeHtml(b.promptFile)}</span>
+              <span class="text-[10px] font-mono text-slate-500">${escapeHtml(b.timestamp)}</span>
+            </div>
+            <h4 class="text-sm font-display font-bold text-white">${escapeHtml(b.title)}</h4>
+            <div class="flex flex-wrap gap-1.5">${platforms}</div>
+            <div class="flex flex-wrap gap-2 pt-1 border-t border-slate-800/80">${hashtags}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // =========================================================================
+    // 24-HOUR CHRONO WINDOW VISUALIZER
+    // =========================================================================
+    function updateChronoVisualizer(hour24, minute) {
+      const startStr = $('cfg-start-time').value || '08:00';
+      const endStr = $('cfg-end-time').value || '23:00';
+      const [sh, sm] = startStr.split(':').map(Number);
+      const [eh, em] = endStr.split(':').map(Number);
+      const startPct = ((sh * 60 + (sm || 0)) / 1440) * 100;
+      const endPct = ((eh * 60 + (em || 0)) / 1440) * 100;
+
+      const seg1 = $('chrono-active-segment-1');
+      const seg2 = $('chrono-active-segment-2');
+
+      if (startPct <= endPct) {
+        seg1.style.left = `${startPct}%`;
+        seg1.style.width = `${Math.max(1, endPct - startPct)}%`;
+        seg2.classList.add('hidden');
+      } else {
+        // Overnight wrap-around (e.g. 22:00 to 06:00)
+        seg1.style.left = `${startPct}%`;
+        seg1.style.width = `${100 - startPct}%`;
+        seg2.classList.remove('hidden');
+        seg2.style.left = '0%';
+        seg2.style.width = `${endPct}%`;
+      }
+
+      if (typeof hour24 === 'number') {
+        const nowPct = ((hour24 * 60 + (minute || 0)) / 1440) * 100;
+        $('chrono-now-needle').style.left = `${nowPct}%`;
+      }
+    }
+
+    async function loadConfigFromServer() {
+      const res = await apiRequest('/api/config');
+      if (!res.ok || !res.data) return;
+      const c = res.data;
+
+      $('cfg-enabled').checked = Boolean(c.videoCreationEnabled);
+      if (c.userTimeZone) $('cfg-timezone').value = c.userTimeZone;
+      if (c.allowedStartTime) $('cfg-start-time').value = c.allowedStartTime;
+      if (c.allowedEndTime) $('cfg-end-time').value = c.allowedEndTime;
+      if (c.maxVideosPerDay != null) $('cfg-max-day').value = c.maxVideosPerDay;
+      if (c.maxVideosPerHour != null) $('cfg-max-hour').value = c.maxVideosPerHour;
+      if (c.minCooldownMinutesBetweenVideos != null) $('cfg-cooldown').value = c.minCooldownMinutesBetweenVideos;
+      if (c.maxDailyBudgetUsd != null) $('cfg-max-budget').value = c.maxDailyBudgetUsd;
+      if (c.estimatedCostPer4kVideoUsd != null) $('cfg-cost-per-video').value = c.estimatedCostPer4kVideoUsd;
+      if (c.schedulerPollIntervalSeconds != null) $('cfg-poll-sec').value = c.schedulerPollIntervalSeconds;
+
+      if (Array.isArray(c.allowedDaysOfWeek)) {
+        document.querySelectorAll('.day-pill').forEach(pill => {
+          const day = pill.getAttribute('data-day');
+          setDayPillActive(pill, c.allowedDaysOfWeek.includes(day));
+        });
+      }
+
+      if (c.veoModel) $('cfg-veo-model').value = c.veoModel;
+      if (c.videoResolution) $('cfg-resolution').value = c.videoResolution;
+      if (c.videoAspectRatio) $('cfg-aspect').value = c.videoAspectRatio;
+      if (c.videoDurationSeconds) $('cfg-duration').value = String(c.videoDurationSeconds);
+      if (c.geminiApiKeyMasked) $('cfg-gemini-key').placeholder = `Saved (${c.geminiApiKeyMasked}) — enter new to replace`;
+
+      $('cfg-yt-enabled').checked = Boolean(c.youtubeEnabled);
+      if (c.youtubePrivacyStatus) $('cfg-yt-privacy').value = c.youtubePrivacyStatus;
+      if (c.youtubeCategoryId) $('cfg-yt-cat').value = c.youtubeCategoryId;
+
+      $('cfg-ig-enabled').checked = Boolean(c.instagramEnabled);
+      if (c.instagramBusinessAccountId) $('cfg-ig-id').value = c.instagramBusinessAccountId;
+
+      $('cfg-tw-enabled').checked = Boolean(c.twitterEnabled);
+
+      $('cfg-fb-enabled').checked = Boolean(c.facebookEnabled);
+      if (c.facebookPageId) $('cfg-fb-id').value = c.facebookPageId;
+      updateChronoVisualizer();
+    }
+
+    // =========================================================================
+    // PROMPTS QUEUE MANAGEMENT, AI ENHANCEMENT, REORDERING & UPLOAD
+    // =========================================================================
+    async function loadPrompts() {
+      const res = await apiRequest('/api/prompts');
+      let prompts = state.localPrompts;
+      if (res.ok && res.data) {
+        prompts = res.data.prompts || [];
+        if (res.data.promptsDirectory) {
+          $('prompts-dir-label').textContent = res.data.promptsDirectory;
+        }
+      } else {
+        let foundNext = false;
+        prompts = state.localPrompts.map(p => {
+          const isNext = p.status === 'QUEUED' && !foundNext;
+          if (isNext) foundNext = true;
+          return { ...p, isNext };
+        });
+      }
+      state.currentPrompts = prompts;
+      renderPromptList(prompts);
+    }
+
+    function renderPromptList(prompts) {
+      const container = $('prompt-queue-list');
+      if (!prompts || prompts.length === 0) {
+        container.innerHTML = `<div class="text-xs font-mono text-slate-500 p-6 text-center border border-dashed border-slate-800 rounded-xl">No prompt files in resources/prompts yet. Upload or synthesize one on the left!</div>`;
+        return;
+      }
+
+      container.innerHTML = prompts.map((p, idx) => {
+        const isCompleted = p.status === 'COMPLETED';
+        const isConfirming = state.confirmDeleteFile === p.fileName;
+        return `
+          <div class="p-4 rounded-xl bg-void-950/90 border ${p.isNext ? 'hud-card-glow' : 'border-slate-800'} space-y-2.5 transition">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="w-6 h-6 rounded-lg bg-void-800 border border-slate-700 text-[11px] font-mono font-bold text-cyan-300 flex items-center justify-center shrink-0">${idx + 1}</span>
+                <span class="text-xs sm:text-sm font-mono font-bold text-white truncate">${escapeHtml(p.fileName)}</span>
+                ${p.isNext ? '<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/40">NEXT IN LINE</span>' : ''}
+                ${isCompleted
+                  ? '<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">COMPLETED</span>'
+                  : '<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-void-800 text-slate-300">QUEUED</span>'}
+              </div>
+
+              <div class="flex items-center gap-1">
+                <button type="button" data-move-idx="${idx}" data-dir="-1" ${idx === 0 ? 'disabled' : ''} title="Move Higher Priority" class="move-prompt-btn px-2 py-1 rounded-lg bg-void-800 hover:bg-void-700 disabled:opacity-30 border border-slate-700 text-[11px] font-mono text-slate-200 transition">&uarr;</button>
+                <button type="button" data-move-idx="${idx}" data-dir="1" ${idx === prompts.length - 1 ? 'disabled' : ''} title="Move Lower Priority" class="move-prompt-btn px-2 py-1 rounded-lg bg-void-800 hover:bg-void-700 disabled:opacity-30 border border-slate-700 text-[11px] font-mono text-slate-200 transition">&darr;</button>
+                <button type="button" data-edit-idx="${idx}" class="edit-prompt-btn px-2.5 py-1 rounded-lg bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/30 text-[11px] font-mono font-semibold text-indigo-300 transition">Edit</button>
+                ${isCompleted ? `
+                  <button type="button" data-requeue="${escapeHtml(p.fileName)}" class="requeue-btn px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-[11px] font-mono font-semibold text-amber-300 transition">
+                    Re-Queue
+                  </button>
+                ` : ''}
+                ${isConfirming ? `
+                  <button type="button" data-confirm-delete="${escapeHtml(p.fileName)}" class="confirm-del-btn px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-[11px] font-mono font-bold text-white transition">
+                    Confirm
+                  </button>
+                  <button type="button" class="cancel-del-btn px-2 py-1 rounded-lg bg-void-800 text-[11px] font-mono text-slate-300">
+                    Cancel
+                  </button>
+                ` : `
+                  <button type="button" data-ask-delete="${escapeHtml(p.fileName)}" class="ask-del-btn px-2.5 py-1 rounded-lg bg-void-850 hover:bg-rose-500/20 border border-slate-700 hover:border-rose-500/40 text-[11px] font-mono text-slate-300 hover:text-rose-300 transition">
+                    Del
+                  </button>
+                `}
+              </div>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed bg-void-900/90 p-2.5 rounded-lg border border-slate-800/80">${escapeHtml(p.promptText)}</p>
+          </div>
+        `;
+      }).join('');
+
+      container.querySelectorAll('.move-prompt-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.getAttribute('data-move-idx'));
+          const dir = Number(btn.getAttribute('data-dir'));
+          movePromptOrder(idx, idx + dir);
+        });
+      });
+      container.querySelectorAll('.edit-prompt-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const item = state.currentPrompts[Number(btn.getAttribute('data-edit-idx'))];
+          if (item) {
+            $('new-prompt-filename').value = item.fileName;
+            $('new-prompt-text').value = item.promptText;
+            $('new-prompt-text').focus();
+            showToast(`Loaded ${item.fileName} into Prompt Architect for editing.`, 'info');
+          }
+        });
+      });
+      container.querySelectorAll('.requeue-btn').forEach(btn => {
+        btn.addEventListener('click', () => requeuePrompt(btn.getAttribute('data-requeue')));
+      });
+      container.querySelectorAll('.ask-del-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.confirmDeleteFile = btn.getAttribute('data-ask-delete');
+          loadPrompts();
+        });
+      });
+      container.querySelectorAll('.cancel-del-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.confirmDeleteFile = null;
+          loadPrompts();
+        });
+      });
+      container.querySelectorAll('.confirm-del-btn').forEach(btn => {
+        btn.addEventListener('click', () => deletePrompt(btn.getAttribute('data-confirm-delete')));
+      });
+    }
+
+    async function movePromptOrder(fromIdx, toIdx) {
+      if (toIdx < 0 || toIdx >= state.currentPrompts.length) return;
+      const list = [...state.currentPrompts];
+      const [moved] = list.splice(fromIdx, 1);
+      list.splice(toIdx, 0, moved);
+      const orderedFiles = list.map(p => p.fileName);
+
+      const res = await apiRequest('/api/prompts/reorder', {
+        method: 'POST',
+        body: JSON.stringify({ orderedFiles })
+      });
+
+      if (res.ok) {
+        showToast('Updated 1-by-1 prompt execution priority!', 'success');
+      } else {
+        state.localPrompts = list.map((p, i) => ({
+          ...p,
+          fileName: `${String(i + 1).padStart(2, '0')}_${p.fileName.replace(/^\d+_/, '')}`
+        }));
+        showToast('Reordered local queue priority.', 'info');
+      }
+      await refreshAllData();
+    }
+
+    async function enhancePromptWithAi() {
+      const idea = $('ai-idea-input').value.trim();
+      if (!idea) {
+        showToast('Enter a brief visual concept first.', 'warning');
+        $('ai-idea-input').focus();
+        return;
+      }
+      const btn = $('ai-enhance-btn');
+      btn.disabled = true;
+      btn.textContent = 'SYNTHESIZING...';
+
+      const res = await apiRequest('/api/prompts/enhance', {
+        method: 'POST',
+        body: JSON.stringify({ idea })
+      });
+
+      const nextNum = String(state.currentPrompts.length + 1).padStart(2, '0');
+      if (res.ok && res.data) {
+        const baseName = (res.data.fileName || 'ai_scene_4k.txt').replace(/^\d+_/, '');
+        $('new-prompt-filename').value = `${nextNum}_${baseName}`;
+        $('new-prompt-text').value = res.data.enhancedPrompt || '';
+        showToast('Gemini AI synthesized a 4K Veo 3 cinematography prompt!', 'success');
+      } else {
+        const slug = idea.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 32) || 'cinematic_scene';
+        $('new-prompt-filename').value = `${nextNum}_${slug}_4k.txt`;
+        $('new-prompt-text').value = `Ultra-detailed 4K IMAX 70mm cinematic tracking shot of ${idea}, captured on a 35mm anamorphic lens with volumetric golden-hour god rays, atmospheric depth, intricate surface textures, smooth Steadicam motion, natural color grading, photorealistic 60fps.`;
+        showToast('Enhanced into 4K Veo 3 prompt template!', 'success');
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'AI ENHANCE';
+    }
+
+    async function uploadPromptsBatch(items) {
+      if (!items || items.length === 0) return;
+      const res = await apiRequest('/api/prompts/upload', {
+        method: 'POST',
+        body: JSON.stringify({ prompts: items })
+      });
+
+      if (res.ok) {
+        showToast(`Committed ${items.length} prompt file(s) to resources/prompts!`, 'success');
+      } else {
+        items.forEach(item => {
+          const cleanName = (item.fileName || `prompt_${Date.now()}.txt`).replace(/[^a-zA-Z0-9._-]/g, '_');
+          const finalName = cleanName.endsWith('.txt') || cleanName.endsWith('.prompt') ? cleanName : `${cleanName}.txt`;
+          const existingIdx = state.localPrompts.findIndex(p => p.fileName === finalName);
+          const entry = {
+            fileName: finalName,
+            promptText: item.promptText,
+            status: 'QUEUED',
+            sizeBytes: item.promptText.length
+          };
+          if (existingIdx >= 0) state.localPrompts[existingIdx] = entry;
+          else state.localPrompts.push(entry);
+          state.localPrompts.sort((a, b) => a.fileName.localeCompare(b.fileName));
+        });
+        state.localLogs.push(`[HUD Sandbox] Committed ${items.length} prompt file(s) to queue.`);
+        showToast(`Saved ${items.length} prompt(s) in local queue!`, 'success');
+      }
+      await refreshAllData();
+    }
+
+    async function requeuePrompt(fileName) {
+      const res = await apiRequest('/api/prompts/requeue', {
+        method: 'POST',
+        body: JSON.stringify({ fileName })
+      });
+      if (!res.ok) {
+        state.localPrompts.forEach(p => {
+          if (fileName === '*' || p.fileName === fileName) p.status = 'QUEUED';
+        });
+      }
+      showToast(`Re-queued ${fileName === '*' ? 'all prompts' : fileName}!`, 'info');
+      await refreshAllData();
+    }
+
+    async function deletePrompt(fileName) {
+      state.confirmDeleteFile = null;
+      const res = await apiRequest('/api/prompts/delete', {
+        method: 'POST',
+        body: JSON.stringify({ fileName })
+      });
+      if (!res.ok) {
+        state.localPrompts = state.localPrompts.filter(p => p.fileName !== fileName);
+      }
+      showToast(`Deleted ${fileName}.`, 'info');
+      await refreshAllData();
+    }
+
+    // =========================================================================
+    // SAVE & EXPORT CONFIGURATION
+    // =========================================================================
+    function collectConfigFormPayload() {
+      const allowedDays = [];
+      document.querySelectorAll('.day-pill').forEach(pill => {
+        if (pill.getAttribute('data-active') === 'true') {
+          allowedDays.push(pill.getAttribute('data-day'));
+        }
+      });
+
+      return {
+        videoCreationEnabled: $('cfg-enabled').checked,
+        userTimeZone: $('cfg-timezone').value.trim() || 'UTC',
+        allowedStartTime: $('cfg-start-time').value || '00:00',
+        allowedEndTime: $('cfg-end-time').value || '23:59',
+        allowedDaysOfWeek: allowedDays,
+        maxVideosPerDay: Number($('cfg-max-day').value) || 5,
+        maxVideosPerHour: Number($('cfg-max-hour').value) || 2,
+        minCooldownMinutesBetweenVideos: Number($('cfg-cooldown').value) || 15,
+        maxDailyBudgetUsd: Number($('cfg-max-budget').value) || 25.0,
+        estimatedCostPer4kVideoUsd: Number($('cfg-cost-per-video').value) || 3.20,
+        schedulerPollIntervalSeconds: Number($('cfg-poll-sec').value) || 30,
+        veoModel: $('cfg-veo-model').value,
+        videoResolution: $('cfg-resolution').value,
+        videoAspectRatio: $('cfg-aspect').value,
+        videoDurationSeconds: Number($('cfg-duration').value) || 8,
+        geminiApiKey: $('cfg-gemini-key').value.trim(),
+        youtubeEnabled: $('cfg-yt-enabled').checked,
+        youtubeAccessToken: $('cfg-yt-token').value.trim(),
+        youtubePrivacyStatus: $('cfg-yt-privacy').value,
+        youtubeCategoryId: $('cfg-yt-cat').value.trim() || '24',
+        instagramEnabled: $('cfg-ig-enabled').checked,
+        instagramBusinessAccountId: $('cfg-ig-id').value.trim(),
+        instagramAccessToken: $('cfg-ig-token').value.trim(),
+        twitterEnabled: $('cfg-tw-enabled').checked,
+        twitterBearerOrOAuth2UserToken: $('cfg-tw-token').value.trim(),
+        facebookEnabled: $('cfg-fb-enabled').checked,
+        facebookPageId: $('cfg-fb-id').value.trim(),
+        facebookPageAccessToken: $('cfg-fb-token').value.trim(),
+      };
+    }
+
+    async function saveAllConfiguration() {
+      const payload = collectConfigFormPayload();
+      const res = await apiRequest('/api/config', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        showToast('Saved & hot-reloaded into Java Scheduler Core!', 'success');
+        await loadConfigFromServer();
+      } else {
+        state.localLogs.push('[HUD Sandbox] Configuration updated locally. Export application.properties to apply to Java backend.');
+        showToast('Settings updated in HUD preview.', 'info');
+      }
+      await loadStatus();
+    }
+
+    function downloadApplicationProperties() {
+      const c = collectConfigFormPayload();
+      const lines = [
+        '# Generated by VEO-3 // NEURAL 4K MISSION CONTROL',
+        `GEMINI_VIDEO_ENABLED=${c.videoCreationEnabled}`,
+        `SCHEDULER_API_PORT=8080`,
+        `SCHEDULER_POLL_INTERVAL_SECONDS=${c.schedulerPollIntervalSeconds}`,
+        `USER_TIMEZONE=${c.userTimeZone}`,
+        `USER_ALLOWED_START_TIME=${c.allowedStartTime}`,
+        `USER_ALLOWED_END_TIME=${c.allowedEndTime}`,
+        `USER_ALLOWED_DAYS=${c.allowedDaysOfWeek.join(',')}`,
+        `USER_MAX_VIDEOS_PER_DAY=${c.maxVideosPerDay}`,
+        `USER_MAX_VIDEOS_PER_HOUR=${c.maxVideosPerHour}`,
+        `USER_COOLDOWN_MINUTES=${c.minCooldownMinutesBetweenVideos}`,
+        `USER_MAX_DAILY_BUDGET_USD=${c.maxDailyBudgetUsd}`,
+        `ESTIMATED_COST_PER_4K_VIDEO_USD=${c.estimatedCostPer4kVideoUsd}`,
+        `PROMPTS_DIR=src/main/resources/prompts`,
+        `OUTPUT_VIDEOS_DIR=generated_videos`,
+        `GEMINI_VEO_MODEL=${c.veoModel}`,
+        `VEO_RESOLUTION=${c.videoResolution}`,
+        `VEO_ASPECT_RATIO=${c.videoAspectRatio}`,
+        `VEO_DURATION_SECONDS=${c.videoDurationSeconds}`,
+        c.geminiApiKey ? `GEMINI_API_KEY=${c.geminiApiKey}` : '# GEMINI_API_KEY=your_gemini_api_key',
+        `YOUTUBE_UPLOAD_ENABLED=${c.youtubeEnabled}`,
+        `YOUTUBE_PRIVACY_STATUS=${c.youtubePrivacyStatus}`,
+        `YOUTUBE_CATEGORY_ID=${c.youtubeCategoryId}`,
+        c.youtubeAccessToken ? `YOUTUBE_ACCESS_TOKEN=${c.youtubeAccessToken}` : '# YOUTUBE_ACCESS_TOKEN=your_youtube_oauth_token',
+        `INSTAGRAM_UPLOAD_ENABLED=${c.instagramEnabled}`,
+        c.instagramBusinessAccountId ? `INSTAGRAM_BUSINESS_ACCOUNT_ID=${c.instagramBusinessAccountId}` : '# INSTAGRAM_BUSINESS_ACCOUNT_ID=',
+        c.instagramAccessToken ? `INSTAGRAM_ACCESS_TOKEN=${c.instagramAccessToken}` : '# INSTAGRAM_ACCESS_TOKEN=',
+        `TWITTER_UPLOAD_ENABLED=${c.twitterEnabled}`,
+        c.twitterBearerOrOAuth2UserToken ? `TWITTER_USER_ACCESS_TOKEN=${c.twitterBearerOrOAuth2UserToken}` : '# TWITTER_USER_ACCESS_TOKEN=',
+        `FACEBOOK_UPLOAD_ENABLED=${c.facebookEnabled}`,
+        c.facebookPageId ? `FACEBOOK_PAGE_ID=${c.facebookPageId}` : '# FACEBOOK_PAGE_ID=',
+        c.facebookPageAccessToken ? `FACEBOOK_PAGE_ACCESS_TOKEN=${c.facebookPageAccessToken}` : '# FACEBOOK_PAGE_ACCESS_TOKEN='
+      ].join('\n');
+
+      const blob = new Blob([lines], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'application.properties';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Exported application.properties!', 'success');
+    }
+
+    function setDayPillActive(pill, active) {
+      pill.setAttribute('data-active', active ? 'true' : 'false');
+      if (active) {
+        pill.className = 'day-pill px-3.5 py-2 rounded-xl text-xs font-mono font-bold bg-cyan-500/20 text-cyan-200 border border-cyan-400/50 transition';
+      } else {
+        pill.className = 'day-pill px-3.5 py-2 rounded-xl text-xs font-mono font-bold bg-void-900 text-slate-400 border border-slate-700 hover:text-slate-200 transition';
+      }
+    }
+
+    // =========================================================================
+    // EVENT LISTENERS
+    // =========================================================================
+    $('api-base-url').value = state.apiBaseUrl;
+    $('connect-api-btn').addEventListener('click', async () => {
+      state.apiBaseUrl = $('api-base-url').value.trim() || 'http://localhost:8080';
+      await loadConfigFromServer();
+      await refreshAllData();
+      connectSseStream();
+      showToast(state.connected ? 'Linked to Java Scheduler Node!' : 'Node unreachable — offline HUD active.', state.connected ? 'success' : 'warning');
+    });
+
+    $('trigger-now-btn').addEventListener('click', async () => {
+      const res = await apiRequest('/api/scheduler/trigger', { method: 'POST', body: '{}' });
+      if (res.ok) {
+        showToast('Dispatched immediate 4K Veo 3 execution cycle!', 'success');
+        setTimeout(refreshAllData, 800);
+      } else {
+        showToast('Start `java GeminiVeoSocialScheduler` to execute live Veo 3 runs.', 'warning');
+      }
+    });
+
+    $('refresh-status-btn').addEventListener('click', refreshAllData);
+    $('export-props-btn').addEventListener('click', downloadApplicationProperties);
+
+    $('close-video-modal').addEventListener('click', () => {
+      $('modal-video-player').pause();
+      $('video-modal').classList.add('hidden');
+    });
+
+    $('ai-enhance-btn').addEventListener('click', enhancePromptWithAi);
+
+    // Drag & Drop File Upload
+    const dropZone = $('drop-zone');
+    const fileInput = $('prompt-file-input');
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropZone.classList.add('drop-active');
+    });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drop-active'));
+    dropZone.addEventListener('drop', async e => {
+      e.preventDefault();
+      dropZone.classList.remove('drop-active');
+      await handleSelectedFiles(e.dataTransfer.files);
+    });
+    fileInput.addEventListener('change', async () => {
+      await handleSelectedFiles(fileInput.files);
+      fileInput.value = '';
+    });
+
+    async function handleSelectedFiles(fileList) {
+      if (!fileList || fileList.length === 0) return;
+      const items = [];
+      for (const file of fileList) {
+        const text = await file.text();
+        if (text.trim()) {
+          items.push({ fileName: file.name, promptText: text.trim() });
+        }
+      }
+      await uploadPromptsBatch(items);
+    }
+
+    $('fill-sample-veo-prompt').addEventListener('click', () => {
+      const nextNum = String(state.currentPrompts.length + 1).padStart(2, '0');
+      $('new-prompt-filename').value = `${nextNum}_golden_hour_alpine_lake_4k.txt`;
+      $('new-prompt-text').value = 'Ultra-realistic 4K aerial tracking shot skimming over a mirror-still alpine mountain lake at sunrise, golden sunbeams piercing morning mist over snow-capped peaks, IMAX 70mm cinematography.';
+    });
+
+    $('upload-prompt-btn').addEventListener('click', async () => {
+      const fileName = $('new-prompt-filename').value.trim() || `prompt_${Date.now()}.txt`;
+      const promptText = $('new-prompt-text').value.trim();
+      if (!promptText) {
+        showToast('Please enter a 4K Veo 3 prompt before committing.', 'warning');
+        $('new-prompt-text').focus();
+        return;
+      }
+      await uploadPromptsBatch([{ fileName, promptText }]);
+      $('new-prompt-filename').value = '';
+      $('new-prompt-text').value = '';
+    });
+
+    $('requeue-all-btn').addEventListener('click', () => requeuePrompt('*'));
+
+    $('detect-tz-btn').addEventListener('click', () => {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (tz) {
+        $('cfg-timezone').value = tz;
+        showToast(`Chrono timezone set to ${tz}`, 'info');
+      }
+    });
+
+    $('cfg-start-time').addEventListener('input', () => updateChronoVisualizer());
+    $('cfg-end-time').addEventListener('input', () => updateChronoVisualizer());
+
+    document.querySelectorAll('.window-preset').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const [start, end] = btn.getAttribute('data-window').split('-');
+        $('cfg-start-time').value = start;
+        $('cfg-end-time').value = end;
+        updateChronoVisualizer();
+      });
+    });
+
+    document.querySelectorAll('.day-pill').forEach(pill => {
+      pill.setAttribute('data-active', 'true');
+      pill.addEventListener('click', () => {
+        const active = pill.getAttribute('data-active') === 'true';
+        setDayPillActive(pill, !active);
+      });
+    });
+
+    document.querySelectorAll('.save-all-config-btn').forEach(btn => {
+      btn.addEventListener('click', saveAllConfiguration);
+    });
+
+    // Initial boot + SSE + periodic sync
+    (async function init() {
+      await loadConfigFromServer();
+      await refreshAllData();
+      connectSseStream();
+      setInterval(() => {
+        if (state.connected) loadStatus();
+      }, 6000);
+    })();
+  </script>
+</body>
+</html>
